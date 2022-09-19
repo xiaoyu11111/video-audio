@@ -1,6 +1,18 @@
 <template>
   <footer>
     <div class="menu">
+      <div class="videoContorl">
+        <div class="timeLong">
+          <em>时长：</em>
+          <span>{{ videoLongTime }}</span>
+        </div>
+        <i class="iconfont icon-kuaijin-1" @click="prevPage"></i>
+        <i class="iconfont icon-bofang" @click="play" v-if="bofangFlag"></i>
+        <i class="icon-bofang1 iconfont" @click="stop" v-else></i>
+        <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
+      </div>
+    </div>
+    <div class="menu">
       <div class="controlMenu">
         <div
           @click="onControl(1)"
@@ -42,16 +54,6 @@
           >
         </div> -->
       </div>
-      <div class="videoContorl">
-        <div class="timeLong">
-          <em>总时长：</em>
-          <span>{{ videoLongTime }}</span>
-        </div>
-        <i class="iconfont icon-kuaijin-1" @click="prevPage"></i>
-        <i class="iconfont icon-bofang" @click="play" v-if="bofangFlag"></i>
-        <i class="icon-bofang1 iconfont" @click="stop" v-else></i>
-        <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
-      </div>
       <div class="rule">
         <!-- <span
           class="iconfont icon-fanxuan"
@@ -63,7 +65,7 @@
           title="删除所有拆条"
           @click="clearAllVideo"
         ></span>
-        <div class="block">
+        <div class="block slider">
           <el-slider
             v-model="value2"
             :step="20"
@@ -2028,13 +2030,12 @@ footer {
 
   .menu {
     width: 100%;
-    height: 60px;
+    height: 40px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     background: #1d1e22;
     .controlMenu {
-      width: 670px;
-      padding: 5px 20px;
+      padding: 5px;
       display: flex;
       box-sizing: border-box;
       align-items: center;
@@ -2044,7 +2045,7 @@ footer {
         border-radius: 5px;
         margin-right: 20px;
         position: relative;
-        font-size: 50px;
+        font-size: 22px;
         color: #e9d9d9;
         cursor: pointer;
         white-space: nowrap;
@@ -2064,7 +2065,7 @@ footer {
           color: #fff;
         }
         span {
-          font-size: 24px;
+          font-size: 20px;
         }
       }
       .contorlBtn {
@@ -2147,16 +2148,16 @@ footer {
         display: flex;
         justify-content: space-between;
         height: 30px;
-        margin-right: 20px;
+        margin-right: 5px;
         em {
           font-style: normal;
-          font-size: 26px;
+          font-size: 20px;
           line-height: 30px;
           white-space: nowrap;
         }
         span {
           width: 100px;
-          font-size: 28px;
+          font-size: 20px;
           line-height: 30px;
           border: 1px solid #515257;
           border-radius: 10px;
@@ -2164,7 +2165,7 @@ footer {
         }
       }
       i {
-        font-size: 40px;
+        font-size: 20px;
         cursor: pointer;
         margin: 0 15px;
         &:hover {
@@ -2173,19 +2174,20 @@ footer {
       }
     }
     .rule {
-      width: 390px;
       padding: 0 20px;
       display: flex;
       box-sizing: border-box;
       align-items: center;
-      .el-slider {
-        width: 250px;
+      width: 60%;
+      max-width: 300px;
+      .slider {
+        width: 100%;
       }
       > span {
         height: 30px;
         margin-right: 20px;
         position: relative;
-        font-size: 42px;
+        font-size: 20px;
         color: #707070;
         cursor: pointer;
         white-space: nowrap;
@@ -2195,7 +2197,7 @@ footer {
           color: #fff;
         }
         span {
-          font-size: 44px;
+          font-size: 20px;
         }
       }
     }

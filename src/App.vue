@@ -25,4 +25,7 @@ export default {
 body {
   background-color: aliceblue;
 }
+.el-message-box {
+  width: 100%;
+}
 </style>

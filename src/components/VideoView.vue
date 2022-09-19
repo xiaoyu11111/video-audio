@@ -72,8 +72,9 @@ export default {
     height: 100%;
     width: auto;
   }
-  .myVideo {
-    height: 500px;
+  #myVideo {
+    width: 100%;
+    max-width: 640px;
   }
 }
 </style>
