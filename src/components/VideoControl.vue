@@ -12,7 +12,7 @@
         <!-- <div @click="onControl(2)" class="iconfont icon-biaoji" title="视音频分离">
           <span>视音频分离</span>
         </div> -->
-        <div
+        <!-- <div
           @click="onControl(3)"
           class="iconfont icon-kaishijianji"
           title="快速选段"
@@ -26,8 +26,8 @@
           title="自动选段"
         >
           <span>自动选段</span>
-        </div>
-        <div class="contorlBtn">
+        </div> -->
+        <!-- <div class="contorlBtn">
           <el-button
             class="el-icon-success"
             size="mini"
@@ -40,7 +40,7 @@
             @click="serveSubmit('01')"
             >合并提交</el-button
           >
-        </div>
+        </div> -->
       </div>
       <div class="videoContorl">
         <div class="timeLong">
@@ -53,11 +53,11 @@
         <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
       </div>
       <div class="rule">
-        <span
+        <!-- <span
           class="iconfont icon-fanxuan"
           title="反选"
           @click="turnReserve"
-        ></span>
+        ></span> -->
         <span
           class="iconfont icon-qingchu"
           title="删除所有拆条"
@@ -2028,22 +2028,24 @@ footer {
 
   .menu {
     width: 100%;
-    height: 40px;
+    height: 60px;
     display: flex;
     justify-content: space-between;
     background: #1d1e22;
     .controlMenu {
       width: 670px;
-      padding: 0 20px;
+      padding: 5px 20px;
       display: flex;
       box-sizing: border-box;
       align-items: center;
       > div {
-        height: 30px;
+        background-color: skyblue;
+        padding: 0px 10px;
+        border-radius: 5px;
         margin-right: 20px;
         position: relative;
-        font-size: 30px;
-        color: #707070;
+        font-size: 50px;
+        color: #e9d9d9;
         cursor: pointer;
         white-space: nowrap;
         display: flex;
@@ -2062,7 +2064,7 @@ footer {
           color: #fff;
         }
         span {
-          font-size: 14px;
+          font-size: 24px;
         }
       }
       .contorlBtn {
@@ -2148,13 +2150,13 @@ footer {
         margin-right: 20px;
         em {
           font-style: normal;
-          font-size: 16px;
+          font-size: 26px;
           line-height: 30px;
           white-space: nowrap;
         }
         span {
           width: 100px;
-          font-size: 18px;
+          font-size: 28px;
           line-height: 30px;
           border: 1px solid #515257;
           border-radius: 10px;
@@ -2162,7 +2164,7 @@ footer {
         }
       }
       i {
-        font-size: 25px;
+        font-size: 40px;
         cursor: pointer;
         margin: 0 15px;
         &:hover {
@@ -2177,13 +2179,13 @@ footer {
       box-sizing: border-box;
       align-items: center;
       .el-slider {
-        width: 150px;
+        width: 250px;
       }
       > span {
         height: 30px;
         margin-right: 20px;
         position: relative;
-        font-size: 22px;
+        font-size: 42px;
         color: #707070;
         cursor: pointer;
         white-space: nowrap;
@@ -2193,7 +2195,7 @@ footer {
           color: #fff;
         }
         span {
-          font-size: 14px;
+          font-size: 44px;
         }
       }
     }

@@ -11,15 +11,18 @@
 import videoView from "./components/VideoView";
 import videoControl from "./components/VideoControl";
 export default {
-  components:{
+  components: {
     videoView,
-    videoControl
-  }
-}
+    videoControl,
+  },
+};
 </script>
 <style lang="less">
-    *{
-      margin: 0;
-      padding: 0;
-    }
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background-color: aliceblue;
+}
 </style>
