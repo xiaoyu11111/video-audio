@@ -1,296 +1,553 @@
 <template>
-  <footer>
-    <div class="menu">
-      <div class="videoContorl">
-        <div class="timeLong">
-          <em>时长：</em>
-          <span>{{ videoLongTime }}</span>
-        </div>
-        <i class="iconfont icon-kuaijin-1" @click="prevPage"></i>
-        <i class="iconfont icon-bofang" @click="play" v-if="bofangFlag"></i>
-        <i class="icon-bofang1 iconfont" @click="stop" v-else></i>
-        <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
-      </div>
-    </div>
-    <div class="menu">
-      <div class="controlMenu">
-        <div
-          @click="onControl(1)"
-          class="iconfont icon-dadian"
-          :title="clickmsg"
-        >
-          <span>{{ clickmsg }}</span>
-        </div>
-        <!-- <div @click="onControl(2)" class="iconfont icon-biaoji" title="视音频分离">
-          <span>视音频分离</span>
-        </div> -->
-        <!-- <div
-          @click="onControl(3)"
-          class="iconfont icon-kaishijianji"
-          title="快速选段"
-          @keyup.83="onControl(3)"
-        >
-          <span>快速选段</span>
-        </div>
-        <div
-          @click="onControl(4)"
-          class="iconfont icon-zidong"
-          title="自动选段"
-        >
-          <span>自动选段</span>
-        </div> -->
-        <!-- <div class="contorlBtn">
-          <el-button
-            class="el-icon-success"
-            size="mini"
-            @click="serveSubmit('00')"
-            >分段提交</el-button
-          >
-          <el-button
-            class="iconfont icon-tuisong"
-            size="mini"
-            @click="serveSubmit('01')"
-            >合并提交</el-button
-          >
-        </div> -->
-      </div>
-      <div class="rule">
-        <!-- <span
-          class="iconfont icon-fanxuan"
-          title="反选"
-          @click="turnReserve"
-        ></span> -->
-        <span
-          class="iconfont icon-qingchu"
-          title="删除所有拆条"
-          @click="clearAllVideo"
-        ></span>
-        <div class="block slider">
-          <el-slider
-            v-model="value2"
-            :step="20"
-            show-stops
-            @change="stepChange"
-          ></el-slider>
+  <div>
+    <footer v-if="!isMobile">
+      <div class="menu">
+        <div class="videoContorl">
+          <div class="timeLong">
+            <em>时长：</em>
+            <span>{{ videoLongTime }}</span>
+          </div>
+          <i class="iconfont icon-kuaijin-1" @click="prevPage"></i>
+          <i class="iconfont icon-bofang" @click="play" v-if="bofangFlag"></i>
+          <i class="icon-bofang1 iconfont" @click="stop" v-else></i>
+          <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
         </div>
       </div>
-    </div>
-    <div class="controlLine">
-      <div class="signshowImg" v-if="signFlag" :style="`left:${signLeft}`">
-        <span
-          class="signDetail icon-qingchu iconfont"
-          @click="signDelete"
-        ></span>
-        <span
-          class="signClose icon-chuyidong iconfont"
-          @click="signFlag = false"
-        ></span>
-
-        <div class="icon-xiugai iconfont text" @click="changeSignText">
-          {{ signText }}
-        </div>
-      </div>
-      <div class="dyc" id="pickeddeng">
-        <div class="canFa" @mouseup="blueBgUp">
-          <canvas
-            id="canvas"
-            :width="canvasWidth"
-            height="80"
-            @mousemove="showMoveImg"
-          ></canvas>
+      <div class="menu">
+        <div class="controlMenu">
           <div
-            class="signcircle"
-            v-for="(item, index) in makeSignList"
-            :key="index"
-            :style="`left:${item.left}`"
-            @click="signClick(item, index)"
-          ></div>
-          <div
-            class="blueBg"
-            id="blueBg"
-            ref="timeMove"
-            @mousedown="blueBgDown"
-            @mousemove="blueBgMove"
-            @mouseup="blueBgUp"
+            @click="onControl(1)"
+            class="iconfont icon-dadian"
+            :title="clickmsg"
           >
-            {{ timeCurrentLeft }}
-            <span class="turnDowm"></span>
+            <span>{{ clickmsg }}</span>
+          </div>
+          <!-- <div @click="onControl(2)" class="iconfont icon-biaoji" title="视音频分离">
+            <span>视音频分离</span>
+          </div> -->
+          <!-- <div
+            @click="onControl(3)"
+            class="iconfont icon-kaishijianji"
+            title="快速选段"
+            @keyup.83="onControl(3)"
+          >
+            <span>快速选段</span>
+          </div>
+          <div
+            @click="onControl(4)"
+            class="iconfont icon-zidong"
+            title="自动选段"
+          >
+            <span>自动选段</span>
+          </div> -->
+          <!-- <div class="contorlBtn">
+            <el-button
+              class="el-icon-success"
+              size="mini"
+              @click="serveSubmit('00')"
+              >分段提交</el-button
+            >
+            <el-button
+              class="iconfont icon-tuisong"
+              size="mini"
+              @click="serveSubmit('01')"
+              >合并提交</el-button
+            >
+          </div> -->
+        </div>
+        <div class="rule">
+          <!-- <span
+            class="iconfont icon-fanxuan"
+            title="反选"
+            @click="turnReserve"
+          ></span> -->
+          <span
+            class="iconfont icon-qingchu"
+            title="删除所有拆条"
+            @click="clearAllVideo"
+          ></span>
+          <div class="block slider">
+            <el-slider
+              v-model="value2"
+              :step="20"
+              show-stops
+              @change="stepChange"
+            ></el-slider>
           </div>
         </div>
-        <div
-          class="imgbackground"
-          id="imgbackground"
-          :style="`width:${imgWidth};`"
-          @mousemove="faPKMove"
-          @mouseup="faPKup"
-        >
-          <div
-            class="coverlist"
-            v-for="(item, index) in cutCoverList"
-            :key="index"
-            :style="`width:${item.width};left:${item.left}`"
-            @mouseup="pkLup"
-          >
-            <el-button class="weitiaoL">
-              <span
-                class="icon-zuo iconfont"
-                @click="weitiao(index, 1, 1)"
-              ></span
-              >微调<span
-                class="icon-you iconfont"
-                @click="weitiao(index, 1, 2)"
-              ></span
-            ></el-button>
-            <span
-              class="dragLeft icon-zuo iconfont"
-              @mousedown="pkLdown(index, $event)"
-            ></span>
+      </div>
+      <div class="controlLine">
+        <div class="signshowImg" v-if="signFlag" :style="`left:${signLeft}`">
+          <span
+            class="signDetail icon-qingchu iconfont"
+            @click="signDelete"
+          ></span>
+          <span
+            class="signClose icon-chuyidong iconfont"
+            @click="signFlag = false"
+          ></span>
 
-            <div>
-              <span
-                class="icon-bofang iconfont"
-                @click="subSection(item)"
-              ></span>
-              <span
-                class="icon-qingchu iconfont"
-                @click="clearCoverBox(index)"
-              ></span>
-              <div>{{ item.timeLong }}</div>
-              <div class="icon-xiugai iconfont" @click="changeText(index)">
-                {{ item.text }}
-              </div>
+          <div class="icon-xiugai iconfont text" @click="changeSignText">
+            {{ signText }}
+          </div>
+        </div>
+        <div class="dyc" id="pickeddeng">
+          <div class="canFa" @mouseup="blueBgUp">
+            <canvas
+              id="canvas"
+              :width="canvasWidth"
+              height="80"
+              @mousemove="showMoveImg"
+            ></canvas>
+            <div
+              class="signcircle"
+              v-for="(item, index) in makeSignList"
+              :key="index"
+              :style="`left:${item.left}`"
+              @click="signClick(item, index)"
+            ></div>
+            <div
+              class="blueBg"
+              id="blueBg"
+              ref="timeMove"
+              @mousedown="blueBgDown"
+              @mousemove="blueBgMove"
+              @mouseup="blueBgUp"
+            >
+              {{ timeCurrentLeft }}
+              <span class="turnDowm"></span>
             </div>
-            <span
-              class="dragRight icon-you iconfont"
-              @mousedown="pkRdown(index, $event)"
-              @mouseup="pkRup"
-            ></span>
-            <el-button class="weitiaoR">
+          </div>
+          <div
+            class="imgbackground"
+            id="imgbackground"
+            :style="`width:${imgWidth};`"
+            @mousemove="faPKMove"
+            @mouseup="faPKup"
+          >
+            <div
+              class="coverlist"
+              v-for="(item, index) in cutCoverList"
+              :key="index"
+              :style="`width:${item.width};left:${item.left}`"
+              @mouseup="pkLup"
+            >
+              <el-button class="weitiaoL">
+                <span
+                  class="icon-zuo iconfont"
+                  @click="weitiao(index, 1, 1)"
+                ></span
+                >微调<span
+                  class="icon-you iconfont"
+                  @click="weitiao(index, 1, 2)"
+                ></span
+              ></el-button>
               <span
-                class="icon-zuo iconfont"
-                @click="weitiao(index, 2, 1)"
-              ></span
-              >微调<span
-                class="icon-you iconfont"
-                @click="weitiao(index, 2, 2)"
-              ></span
-            ></el-button>
+                class="dragLeft icon-zuo iconfont"
+                @mousedown="pkLdown(index, $event)"
+              ></span>
+
+              <div>
+                <span
+                  class="icon-bofang iconfont"
+                  @click="subSection(item)"
+                ></span>
+                <span
+                  class="icon-qingchu iconfont"
+                  @click="clearCoverBox(index)"
+                ></span>
+                <div>{{ item.timeLong }}</div>
+                <div class="icon-xiugai iconfont" @click="changeText(index)">
+                  {{ item.text }}
+                </div>
+              </div>
+              <span
+                class="dragRight icon-you iconfont"
+                @mousedown="pkRdown(index, $event)"
+                @mouseup="pkRup"
+              ></span>
+              <el-button class="weitiaoR">
+                <span
+                  class="icon-zuo iconfont"
+                  @click="weitiao(index, 2, 1)"
+                ></span
+                >微调<span
+                  class="icon-you iconfont"
+                  @click="weitiao(index, 2, 2)"
+                ></span
+              ></el-button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <el-dialog
-      title="拆条设置"
-      :visible.sync="dialogVisibleAuto"
-      width="600"
-      append-to-body
-      class="autuSplice"
-    >
-      <el-radio-group v-model="radio">
-        <el-radio :label="1">自定义拆条</el-radio>
-        <el-radio :label="2">平均拆条</el-radio>
-      </el-radio-group>
-      <el-table :data="tableData" style="width: 100%" v-if="radio == 1">
-        <el-table-column
-          type="index"
-          label="拆条列表"
-          width="200"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          prop="timeLong"
-          label="时长"
-          align="center"
-        ></el-table-column>
-        <el-table-column fixed="right" label="操作" align="center">
-          <template slot-scope="scope">
-            <el-button
-              @click.native.prevent="deleteRow(scope.$index, tableData)"
-              type="text"
-              size="small"
-              >移除</el-button
-            >
-            <el-button
-              @click.native.prevent="addRow(scope.$index, tableData)"
-              type="text"
-              size="small"
-              >添加</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-      <div class="round" v-else>
-        <span>每段时长</span>
-        <el-input-number
-          v-model="autoNum"
-          :min="1"
-          :max="60"
-          label="设置平均拆条时间"
-          controls-position="right"
-        ></el-input-number>
+      <el-dialog
+        title="拆条设置"
+        :visible.sync="dialogVisibleAuto"
+        width="600"
+        append-to-body
+        class="autuSplice"
+      >
+        <el-radio-group v-model="radio">
+          <el-radio :label="1">自定义拆条</el-radio>
+          <el-radio :label="2">平均拆条</el-radio>
+        </el-radio-group>
+        <el-table :data="tableData" style="width: 100%" v-if="radio == 1">
+          <el-table-column
+            type="index"
+            label="拆条列表"
+            width="200"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="timeLong"
+            label="时长"
+            align="center"
+          ></el-table-column>
+          <el-table-column fixed="right" label="操作" align="center">
+            <template slot-scope="scope">
+              <el-button
+                @click.native.prevent="deleteRow(scope.$index, tableData)"
+                type="text"
+                size="small"
+                >移除</el-button
+              >
+              <el-button
+                @click.native.prevent="addRow(scope.$index, tableData)"
+                type="text"
+                size="small"
+                >添加</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="round" v-else>
+          <span>每段时长</span>
+          <el-input-number
+            v-model="autoNum"
+            :min="1"
+            :max="60"
+            label="设置平均拆条时间"
+            controls-position="right"
+          ></el-input-number>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisibleAuto = false">取 消</el-button>
+          <el-button type="primary" @click="autuEnsure">确 定</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog
+        :title="spliceMsg"
+        :visible.sync="dialogVisible"
+        width="600"
+        append-to-body
+      >
+        <span>选择存放文件夹</span>
+        <div class="wenjianBox" style="height: 160px; overflow: auto">
+          <el-tree
+            :data="wenjianList"
+            accordion
+            @node-click="handleNodeClick"
+          ></el-tree>
+        </div>
+        <el-table :data="cutCoverList" style="width: 100%">
+          <el-table-column
+            label="名称"
+            align="center"
+            show-overflow-tooltip
+            prop="text"
+          ></el-table-column>
+          <el-table-column
+            label="开始时间"
+            align="center"
+            show-overflow-tooltip
+            prop="startTime"
+          ></el-table-column>
+          <el-table-column
+            label="结束时间"
+            align="center"
+            show-overflow-tooltip
+            prop="endTime"
+          ></el-table-column>
+          <el-table-column
+            label="分段时长"
+            align="center"
+            show-overflow-tooltip
+            prop="timeLong"
+          ></el-table-column>
+          <el-table-column label="修改" align="center">
+            <template slot-scope="scope">
+              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+                >编辑</el-button
+              >
+              <el-button size="mini" @click="handleDelt(scope.$index, scope.row)"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="entureChaitiao">确 定</el-button>
+        </span>
+      </el-dialog>
+    </footer>
+    <footer v-if="isMobile">
+      <div class="menu">
+        <div class="videoContorl">
+          <div class="timeLong">
+            <em>时长：</em>
+            <span>{{ videoLongTime }}</span>
+          </div>
+          <i class="iconfont icon-kuaijin-1" @click="prevPage"></i>
+          <i class="iconfont icon-bofang" @click="play" v-if="bofangFlag"></i>
+          <i class="icon-bofang1 iconfont" @click="stop" v-else></i>
+          <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
+        </div>
       </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisibleAuto = false">取 消</el-button>
-        <el-button type="primary" @click="autuEnsure">确 定</el-button>
-      </span>
-    </el-dialog>
-    <el-dialog
-      :title="spliceMsg"
-      :visible.sync="dialogVisible"
-      width="600"
-      append-to-body
-    >
-      <span>选择存放文件夹</span>
-      <div class="wenjianBox" style="height: 160px; overflow: auto">
-        <el-tree
-          :data="wenjianList"
-          accordion
-          @node-click="handleNodeClick"
-        ></el-tree>
+      <div class="menu">
+        <div class="controlMenu">
+          <div
+            @click="onControl(1)"
+            class="iconfont icon-dadian"
+            :title="clickmsg"
+          >
+            <span>{{ clickmsg }}</span>
+          </div>
+        </div>
+        <div class="rule">
+          <span
+            class="iconfont icon-qingchu"
+            title="删除所有拆条"
+            @click="clearAllVideo"
+          ></span>
+          <div class="block slider">
+            <el-slider
+              v-model="value2"
+              :step="20"
+              show-stops
+              @change="stepChange"
+            ></el-slider>
+          </div>
+        </div>
       </div>
-      <el-table :data="cutCoverList" style="width: 100%">
-        <el-table-column
-          label="名称"
-          align="center"
-          show-overflow-tooltip
-          prop="text"
-        ></el-table-column>
-        <el-table-column
-          label="开始时间"
-          align="center"
-          show-overflow-tooltip
-          prop="startTime"
-        ></el-table-column>
-        <el-table-column
-          label="结束时间"
-          align="center"
-          show-overflow-tooltip
-          prop="endTime"
-        ></el-table-column>
-        <el-table-column
-          label="分段时长"
-          align="center"
-          show-overflow-tooltip
-          prop="timeLong"
-        ></el-table-column>
-        <el-table-column label="修改" align="center">
-          <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
-              >编辑</el-button
+      <div class="controlLine">
+        <div class="signshowImg" v-if="signFlag" :style="`left:${signLeft}`">
+          <span
+            class="signDetail icon-qingchu iconfont"
+            @click="signDelete"
+          ></span>
+          <span
+            class="signClose icon-chuyidong iconfont"
+            @click="signFlag = false"
+          ></span>
+
+          <div class="icon-xiugai iconfont text" @click="changeSignText">
+            {{ signText }}
+          </div>
+        </div>
+        <div class="dyc" id="pickeddeng">
+          <div class="canFa" @mouseup="blueBgUp">
+            <canvas
+              id="canvas"
+              :width="canvasWidth"
+              height="80"
+              @mousemove="showMoveImg"
+            ></canvas>
+            <div
+              class="signcircle"
+              v-for="(item, index) in makeSignList"
+              :key="index"
+              :style="`left:${item.left}`"
+              @click="signClick(item, index)"
+            ></div>
+            <div
+              class="blueBg"
+              id="blueBg"
+              ref="timeMove"
+              @touchstart="blueBgDown"
+              @touchmove.prevent="blueBgMove"
+              @touchend="blueBgUp"
             >
-            <el-button size="mini" @click="handleDelt(scope.$index, scope.row)"
-              >删除</el-button
+              {{ timeCurrentLeft }}
+              <span class="turnDowm"></span>
+            </div>
+          </div>
+          <div
+            class="imgbackground"
+            id="imgbackground"
+            :style="`width:${imgWidth};`"
+            @mousemove="faPKMove"
+            @mouseup="faPKup"
+          >
+            <div
+              class="coverlist"
+              v-for="(item, index) in cutCoverList"
+              :key="index"
+              :style="`width:${item.width};left:${item.left}`"
+              @mouseup="pkLup"
             >
-          </template>
-        </el-table-column>
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="entureChaitiao">确 定</el-button>
-      </span>
-    </el-dialog>
-  </footer>
+              <el-button class="weitiaoL">
+                <span
+                  class="icon-zuo iconfont"
+                  @click="weitiao(index, 1, 1)"
+                ></span
+                >微调<span
+                  class="icon-you iconfont"
+                  @click="weitiao(index, 1, 2)"
+                ></span
+              ></el-button>
+              <span
+                class="dragLeft icon-zuo iconfont"
+                @mousedown="pkLdown(index, $event)"
+              ></span>
+
+              <div>
+                <span
+                  class="icon-bofang iconfont"
+                  @click="subSection(item)"
+                ></span>
+                <span
+                  class="icon-qingchu iconfont"
+                  @click="clearCoverBox(index)"
+                ></span>
+                <div>{{ item.timeLong }}</div>
+                <div class="icon-xiugai iconfont" @click="changeText(index)">
+                  {{ item.text }}
+                </div>
+              </div>
+              <span
+                class="dragRight icon-you iconfont"
+                @mousedown="pkRdown(index, $event)"
+                @mouseup="pkRup"
+              ></span>
+              <el-button class="weitiaoR">
+                <span
+                  class="icon-zuo iconfont"
+                  @click="weitiao(index, 2, 1)"
+                ></span
+                >微调<span
+                  class="icon-you iconfont"
+                  @click="weitiao(index, 2, 2)"
+                ></span
+              ></el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <el-dialog
+        title="拆条设置"
+        :visible.sync="dialogVisibleAuto"
+        width="600"
+        append-to-body
+        class="autuSplice"
+      >
+        <el-radio-group v-model="radio">
+          <el-radio :label="1">自定义拆条</el-radio>
+          <el-radio :label="2">平均拆条</el-radio>
+        </el-radio-group>
+        <el-table :data="tableData" style="width: 100%" v-if="radio == 1">
+          <el-table-column
+            type="index"
+            label="拆条列表"
+            width="200"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="timeLong"
+            label="时长"
+            align="center"
+          ></el-table-column>
+          <el-table-column fixed="right" label="操作" align="center">
+            <template slot-scope="scope">
+              <el-button
+                @click.native.prevent="deleteRow(scope.$index, tableData)"
+                type="text"
+                size="small"
+                >移除</el-button
+              >
+              <el-button
+                @click.native.prevent="addRow(scope.$index, tableData)"
+                type="text"
+                size="small"
+                >添加</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="round" v-else>
+          <span>每段时长</span>
+          <el-input-number
+            v-model="autoNum"
+            :min="1"
+            :max="60"
+            label="设置平均拆条时间"
+            controls-position="right"
+          ></el-input-number>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisibleAuto = false">取 消</el-button>
+          <el-button type="primary" @click="autuEnsure">确 定</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog
+        :title="spliceMsg"
+        :visible.sync="dialogVisible"
+        width="600"
+        append-to-body
+      >
+        <span>选择存放文件夹</span>
+        <div class="wenjianBox" style="height: 160px; overflow: auto">
+          <el-tree
+            :data="wenjianList"
+            accordion
+            @node-click="handleNodeClick"
+          ></el-tree>
+        </div>
+        <el-table :data="cutCoverList" style="width: 100%">
+          <el-table-column
+            label="名称"
+            align="center"
+            show-overflow-tooltip
+            prop="text"
+          ></el-table-column>
+          <el-table-column
+            label="开始时间"
+            align="center"
+            show-overflow-tooltip
+            prop="startTime"
+          ></el-table-column>
+          <el-table-column
+            label="结束时间"
+            align="center"
+            show-overflow-tooltip
+            prop="endTime"
+          ></el-table-column>
+          <el-table-column
+            label="分段时长"
+            align="center"
+            show-overflow-tooltip
+            prop="timeLong"
+          ></el-table-column>
+          <el-table-column label="修改" align="center">
+            <template slot-scope="scope">
+              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+                >编辑</el-button
+              >
+              <el-button size="mini" @click="handleDelt(scope.$index, scope.row)"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="entureChaitiao">确 定</el-button>
+        </span>
+      </el-dialog>
+    </footer>
+  </div>
 </template>
 <script>
 export default {
@@ -371,6 +628,7 @@ export default {
       firstCutVideo: {}, //页面拆分相关数据
       blueBgFlag: false,
       timeMoveNumber: 0, // 控制滚动数字
+      isMobile: false
     };
   },
   created() {
@@ -384,6 +642,9 @@ export default {
       this.target = parseFloat(this.imgWidth) - 40;
     });
     this.setKeydown();
+    this.isMobile = navigator.userAgent.match(
+      /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+     ) !== null
   },
   mounted() {
     // 获取时间
@@ -532,11 +793,10 @@ export default {
         return;
       }
       var pickeddeng = document.getElementById("pickeddeng");
-      var finleft = pickeddeng.scrollLeft + e.pageX - 40;
-      // console.log(finleft)
+      var finleft = pickeddeng.scrollLeft + this.isMobile ? e.touches[0].pageX : e.pageX - 40;
       if (finleft > parseFloat(this.imgWidth) - 40 || finleft < -40) {
         this.stop();
-        this.$message.error("超过限制区域");
+        //this.$message.error("超过限制区域");
         return;
       }
       document.getElementById("blueBg").style.left = finleft + "px";

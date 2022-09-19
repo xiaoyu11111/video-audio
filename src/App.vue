@@ -26,6 +26,6 @@ body {
   background-color: aliceblue;
 }
 .el-message-box {
-  width: 100%;
+  width: 100% !important;
 }
 </style>
