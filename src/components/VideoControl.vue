@@ -355,8 +355,8 @@
           </div>
         </div>
         <div class="dyc" id="pickeddeng">
-          <div class="canFa" @touchend="blueBgUp">
-            <canvas id="canvas" :width="canvasWidth" height="80"></canvas>
+          <div class="canFa" >
+            <canvas id="canvas" :width="canvasWidth" height="80" @touchstart="sliderBlueButton"></canvas>
             <div
               class="signcircle"
               v-for="(item, index) in makeSignList"
@@ -805,11 +805,17 @@ export default {
       if (!this.blueBgFlag) {
         return;
       }
+      this.sliderBlueButton(e)
+    },
+    blueBgUp() {
+      this.blueBgFlag = false;
+    },
+    sliderBlueButton(e) {
       var pickeddeng = document.getElementById("pickeddeng");
       var finleft =
-        pickeddeng.scrollLeft + this.isMobile
-          ? e.touches[0].pageX
-          : e.pageX - 40;
+        pickeddeng.scrollLeft + (this.isMobile
+          ? e.changedTouches[0].pageX
+          : e.pageX) - 60;
       if (finleft > parseFloat(this.imgWidth) - 40 || finleft < -40) {
         this.stop();
         //this.$message.error("超过限制区域");
@@ -824,9 +830,6 @@ export default {
         ).toFixed(2)
       );
       this.Event.$emit("currentTime", this.timeCurrentLeft);
-    },
-    blueBgUp() {
-      this.blueBgFlag = false;
     },
     handleNodeClick(data) {
       this.$store.commit("setparentId", data.id);
@@ -2641,7 +2644,7 @@ footer {
       box-sizing: content-box;
       text-align: center;
       line-height: 30px;
-      width: 104.53px;
+      width: 104px;
       padding: 0px 10px;
       border-radius: 5px;
       top: 0;
