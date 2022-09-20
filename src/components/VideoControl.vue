@@ -277,10 +277,14 @@
           ></el-table-column>
           <el-table-column label="修改" align="center">
             <template slot-scope="scope">
-              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+              <el-button
+                size="mini"
+                @click="handleEdit(scope.$index, scope.row)"
                 >编辑</el-button
               >
-              <el-button size="mini" @click="handleDelt(scope.$index, scope.row)"
+              <el-button
+                size="mini"
+                @click="handleDelt(scope.$index, scope.row)"
                 >删除</el-button
               >
             </template>
@@ -299,16 +303,20 @@
             <em>时长：</em>
             <span>{{ videoLongTime }}</span>
           </div>
-          <i class="iconfont icon-kuaijin-1" @click="prevPage"></i>
-          <i class="iconfont icon-bofang" @click="play" v-if="bofangFlag"></i>
-          <i class="icon-bofang1 iconfont" @click="stop" v-else></i>
-          <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
+          <i class="iconfont icon-kuaijin-1" @touchstart="prevPage"></i>
+          <i
+            class="iconfont icon-bofang"
+            @touchstart="play"
+            v-if="bofangFlag"
+          ></i>
+          <i class="icon-bofang1 iconfont" @touchstart="stop" v-else></i>
+          <i class="iconfont icon-kuaijin-" @touchstart="nextpage"></i>
         </div>
       </div>
       <div class="menu">
         <div class="controlMenu">
           <div
-            @click="onControl(1)"
+            @touchstart="onControl(1)"
             class="iconfont icon-dadian"
             :title="clickmsg"
           >
@@ -319,7 +327,7 @@
           <span
             class="iconfont icon-qingchu"
             title="删除所有拆条"
-            @click="clearAllVideo"
+            @touchstart="clearAllVideo"
           ></span>
           <div class="block slider">
             <el-slider
@@ -335,31 +343,26 @@
         <div class="signshowImg" v-if="signFlag" :style="`left:${signLeft}`">
           <span
             class="signDetail icon-qingchu iconfont"
-            @click="signDelete"
+            @touchstart="signDelete"
           ></span>
           <span
             class="signClose icon-chuyidong iconfont"
-            @click="signFlag = false"
+            @touchstart="signFlag = false"
           ></span>
 
-          <div class="icon-xiugai iconfont text" @click="changeSignText">
+          <div class="icon-xiugai iconfont text" @touchstart="changeSignText">
             {{ signText }}
           </div>
         </div>
         <div class="dyc" id="pickeddeng">
-          <div class="canFa" @mouseup="blueBgUp">
-            <canvas
-              id="canvas"
-              :width="canvasWidth"
-              height="80"
-              @mousemove="showMoveImg"
-            ></canvas>
+          <div class="canFa" @touchend="blueBgUp">
+            <canvas id="canvas" :width="canvasWidth" height="80"></canvas>
             <div
               class="signcircle"
               v-for="(item, index) in makeSignList"
               :key="index"
               :style="`left:${item.left}`"
-              @click="signClick(item, index)"
+              @touchstart="signClick(item, index)"
             ></div>
             <div
               class="blueBg"
@@ -377,58 +380,61 @@
             class="imgbackground"
             id="imgbackground"
             :style="`width:${imgWidth};`"
-            @mousemove="faPKMove"
-            @mouseup="faPKup"
+            @touchmove="faPKMove"
+            @touchend="faPKup"
           >
             <div
               class="coverlist"
               v-for="(item, index) in cutCoverList"
               :key="index"
               :style="`width:${item.width};left:${item.left}`"
-              @mouseup="pkLup"
+              @touchend="pkLup"
             >
               <el-button class="weitiaoL">
                 <span
                   class="icon-zuo iconfont"
-                  @click="weitiao(index, 1, 1)"
+                  @touchstart="weitiao(index, 1, 1)"
                 ></span
                 >微调<span
                   class="icon-you iconfont"
-                  @click="weitiao(index, 1, 2)"
+                  @touchstart="weitiao(index, 1, 2)"
                 ></span
               ></el-button>
               <span
                 class="dragLeft icon-zuo iconfont"
-                @mousedown="pkLdown(index, $event)"
+                @touchstart="pkLdown(index, $event)"
               ></span>
 
               <div>
                 <span
                   class="icon-bofang iconfont"
-                  @click="subSection(item)"
+                  @touchstart="subSection(item)"
                 ></span>
                 <span
                   class="icon-qingchu iconfont"
-                  @click="clearCoverBox(index)"
+                  @touchstart="clearCoverBox(index)"
                 ></span>
                 <div>{{ item.timeLong }}</div>
-                <div class="icon-xiugai iconfont" @click="changeText(index)">
+                <div
+                  class="icon-xiugai iconfont"
+                  @touchstart="changeText(index)"
+                >
                   {{ item.text }}
                 </div>
               </div>
               <span
                 class="dragRight icon-you iconfont"
-                @mousedown="pkRdown(index, $event)"
-                @mouseup="pkRup"
+                @touchstart="pkRdown(index, $event)"
+                @touchend="pkRup"
               ></span>
               <el-button class="weitiaoR">
                 <span
                   class="icon-zuo iconfont"
-                  @click="weitiao(index, 2, 1)"
+                  @touchstart="weitiao(index, 2, 1)"
                 ></span
                 >微调<span
                   class="icon-you iconfont"
-                  @click="weitiao(index, 2, 2)"
+                  @touchstart="weitiao(index, 2, 2)"
                 ></span
               ></el-button>
             </div>
@@ -462,13 +468,13 @@
           <el-table-column fixed="right" label="操作" align="center">
             <template slot-scope="scope">
               <el-button
-                @click.native.prevent="deleteRow(scope.$index, tableData)"
+                @touch.prevent="deleteRow(scope.$index, tableData)"
                 type="text"
                 size="small"
                 >移除</el-button
               >
               <el-button
-                @click.native.prevent="addRow(scope.$index, tableData)"
+                @touch.prevent="addRow(scope.$index, tableData)"
                 type="text"
                 size="small"
                 >添加</el-button
@@ -487,8 +493,8 @@
           ></el-input-number>
         </div>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisibleAuto = false">取 消</el-button>
-          <el-button type="primary" @click="autuEnsure">确 定</el-button>
+          <el-button @touchstart="dialogVisibleAuto = false">取 消</el-button>
+          <el-button type="primary" @touchstart="autuEnsure">确 定</el-button>
         </span>
       </el-dialog>
       <el-dialog
@@ -502,7 +508,7 @@
           <el-tree
             :data="wenjianList"
             accordion
-            @node-click="handleNodeClick"
+            @touchstart="handleNodeClick"
           ></el-tree>
         </div>
         <el-table :data="cutCoverList" style="width: 100%">
@@ -532,18 +538,24 @@
           ></el-table-column>
           <el-table-column label="修改" align="center">
             <template slot-scope="scope">
-              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+              <el-button
+                size="mini"
+                @touchstart="handleEdit(scope.$index, scope.row)"
                 >编辑</el-button
               >
-              <el-button size="mini" @click="handleDelt(scope.$index, scope.row)"
+              <el-button
+                size="mini"
+                @touchstart="handleDelt(scope.$index, scope.row)"
                 >删除</el-button
               >
             </template>
           </el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="entureChaitiao">确 定</el-button>
+          <el-button @touchstart="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @touchstart="entureChaitiao"
+            >确 定</el-button
+          >
         </span>
       </el-dialog>
     </footer>
@@ -628,7 +640,7 @@ export default {
       firstCutVideo: {}, //页面拆分相关数据
       blueBgFlag: false,
       timeMoveNumber: 0, // 控制滚动数字
-      isMobile: false
+      isMobile: false,
     };
   },
   created() {
@@ -642,9 +654,10 @@ export default {
       this.target = parseFloat(this.imgWidth) - 40;
     });
     this.setKeydown();
-    this.isMobile = navigator.userAgent.match(
-      /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
-     ) !== null
+    this.isMobile =
+      navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+      ) !== null;
   },
   mounted() {
     // 获取时间
@@ -793,7 +806,10 @@ export default {
         return;
       }
       var pickeddeng = document.getElementById("pickeddeng");
-      var finleft = pickeddeng.scrollLeft + this.isMobile ? e.touches[0].pageX : e.pageX - 40;
+      var finleft =
+        pickeddeng.scrollLeft + this.isMobile
+          ? e.touches[0].pageX
+          : e.pageX - 40;
       if (finleft > parseFloat(this.imgWidth) - 40 || finleft < -40) {
         this.stop();
         //this.$message.error("超过限制区域");
