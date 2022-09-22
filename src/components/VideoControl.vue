@@ -78,20 +78,6 @@
         </div>
       </div>
       <div class="controlLine">
-        <div class="signshowImg" v-if="signFlag" :style="`left:${signLeft}`">
-          <span
-            class="signDetail icon-qingchu iconfont"
-            @click="signDelete"
-          ></span>
-          <span
-            class="signClose icon-chuyidong iconfont"
-            @click="signFlag = false"
-          ></span>
-
-          <div class="icon-xiugai iconfont text" @click="changeSignText">
-            {{ signText }}
-          </div>
-        </div>
         <div class="dyc" id="pickeddeng">
           <div class="canFa" @mouseup="blueBgUp">
             <canvas
@@ -119,66 +105,7 @@
               <span class="turnDowm"></span>
             </div>
           </div>
-          <div
-            class="imgbackground"
-            id="imgbackground"
-            :style="`width:${imgWidth};`"
-            @mousemove="faPKMove"
-            @mouseup="faPKup"
-          >
-            <div
-              class="coverlist"
-              v-for="(item, index) in cutCoverList"
-              :key="index"
-              :style="`width:${item.width};left:${item.left}`"
-              @mouseup="pkLup"
-            >
-              <el-button class="weitiaoL">
-                <span
-                  class="icon-zuo iconfont"
-                  @click="weitiao(index, 1, 1)"
-                ></span
-                >微调<span
-                  class="icon-you iconfont"
-                  @click="weitiao(index, 1, 2)"
-                ></span
-              ></el-button>
-              <span
-                class="dragLeft icon-zuo iconfont"
-                @mousedown="pkLdown(index, $event)"
-              ></span>
-
-              <div>
-                <span
-                  class="icon-bofang iconfont"
-                  @click="subSection(item)"
-                ></span>
-                <span
-                  class="icon-qingchu iconfont"
-                  @click="clearCoverBox(index)"
-                ></span>
-                <div>{{ item.timeLong }}</div>
-                <div class="icon-xiugai iconfont" @click="changeText(index)">
-                  {{ item.text }}
-                </div>
-              </div>
-              <span
-                class="dragRight icon-you iconfont"
-                @mousedown="pkRdown(index, $event)"
-                @mouseup="pkRup"
-              ></span>
-              <el-button class="weitiaoR">
-                <span
-                  class="icon-zuo iconfont"
-                  @click="weitiao(index, 2, 1)"
-                ></span
-                >微调<span
-                  class="icon-you iconfont"
-                  @click="weitiao(index, 2, 2)"
-                ></span
-              ></el-button>
-            </div>
-          </div>
+          <div class="imgbackground" :style="`width:${imgWidth};`" />
         </div>
       </div>
 
@@ -713,7 +640,6 @@ export default {
         return;
       }
       fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
-      console.log(fileUrl, "fileUrl========");
       const file = await this.trancodeWav(fileUrl);
       let sdk = window.SpeechSDK;
       var authorizationToken = await this.getAuthToken();
