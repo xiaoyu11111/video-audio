@@ -496,6 +496,7 @@
 </template>
 <script>
 import videoView from "./VideoView";
+import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 export default {
   components: {
     videoView,
@@ -645,6 +646,20 @@ export default {
     getAudioText() {
       this.stt();
     },
+    async trancodeWav() {
+      const ffmpeg = createFFmpeg({
+        log: true,
+      });
+      const file =
+        "https://vkceyugu.cdn.bspapp.com/VKCEYUGU-e37cad50-87bf-4e22-8965-c7e9ed358a6c/9471eba0-ee6c-4e62-ad0c-b8f71f3395f1.mp3";
+      if (!ffmpeg.isLoaded()) {
+        await ffmpeg.load();
+      }
+      ffmpeg.FS("writeFile", "test.wav", await fetchFile(file));
+      await ffmpeg.run("-i", "test.wav", "test1.wav");
+      const data = ffmpeg.FS("readFile", "test1.wav");
+      return new File([data.buffer], "test1.wav", { type: "audio/x-wav" });
+    },
     async getAuthToken(skip = false) {
       if (!skip && !this._isExpiration()) {
         return localStorage.getItem("ssmlToken");
@@ -683,10 +698,7 @@ export default {
       let sdk = window.SpeechSDK;
       var authorizationToken = await this.getAuthToken();
       var serviceRegion = "eastus";
-      var blob = await fetch(
-        "https://vkceyugu.cdn.bspapp.com/VKCEYUGU-0d10064e-6d54-4152-b906-938684556e01/cdd067d9-78e6-421b-8998-82370cb39a1f.wav"
-      ).then((res) => res.blob());
-      const file = new File([blob], "audio.wav", { type: "audio/x-wav" });
+      const file = await this.trancodeWav();
       let audioConfig = sdk.AudioConfig.fromWavFileInput(file);
       var speechConfig = sdk.SpeechConfig.fromAuthorizationToken(
         authorizationToken,
@@ -701,13 +713,14 @@ export default {
       let recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
       var t = "";
       recognizer.recognizing = (s, e) => {
-        console.log(e.result.privDuration);
-        console.log(`RECOGNIZING: Text=${e.result.text}`);
+        console.log(
+          `转换中: Text=${e.result.text}`,
+          e.result.privDuration / 10000000
+        );
       };
 
       recognizer.recognized = (s, e) => {
         t += e.result.text + "\n";
-        // fs.writeFileSync(text, t)
         if (e.result.reason == ResultReason.RecognizedSpeech) {
           console.log(`RECOGNIZED: Text=${e.result.text}`);
         } else if (e.result.reason == ResultReason.NoMatch) {
@@ -717,7 +730,6 @@ export default {
 
       recognizer.canceled = (s, e) => {
         console.log(`CANCELED: Reason=${e.reason}`);
-        // fs.writeFileSync(text, t)
         if (e.reason == CancellationReason.Error) {
           console.log(`"CANCELED: ErrorCode=${e.errorCode}`);
           console.log(`"CANCELED: ErrorDetails=${e.errorDetails}`);
@@ -732,7 +744,6 @@ export default {
       recognizer.sessionStopped = (s, e) => {
         console.log("\n    Session stopped event.");
         recognizer.stopContinuousRecognitionAsync();
-        // fs.writeFileSync(text, t)
       };
 
       recognizer.startContinuousRecognitionAsync();

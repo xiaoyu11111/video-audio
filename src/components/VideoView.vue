@@ -3,8 +3,11 @@
     <!-- <p>{{this.$store.state.curVideo.fileUrl}}</p> -->
     <!-- <img src="../assets/quickKey.jpg" alt  class="quickey"/> -->
     <!-- <video src="../assets/demo.mp4" id="myVideo"></video> -->
-    <!-- <audio id="myVideo" controls>
-      <source src="../assets/demo.wav" type="audio/wav" />
+    <!-- <audio id="myVideo1" controls>
+      <source
+        src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-e37cad50-87bf-4e22-8965-c7e9ed358a6c/9471eba0-ee6c-4e62-ad0c-b8f71f3395f1.mp3"
+        type="audio/mp3"
+      />
       您的浏览器不支持 audio 元素。
     </audio> -->
     <div class="audio green-audio-player">
@@ -62,8 +65,11 @@
           </div>
         </div>
       </div>
-      <audio crossorigin id="myVideo">
-        <source src="../assets/demo.wav" type="audio/wav" />
+      <audio crossorigin="anonymous" id="myVideo">
+        <source
+          src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-e37cad50-87bf-4e22-8965-c7e9ed358a6c/9471eba0-ee6c-4e62-ad0c-b8f71f3395f1.mp3"
+          type="audio/ogg"
+        />
       </audio>
     </div>
   </div>
@@ -323,7 +329,7 @@ export default {
   }
 
   .audio.green-audio-player {
-    width: 400px;
+    width: 100vw;
     min-width: 300px;
     height: 56px;
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.07);
@@ -344,7 +350,7 @@ export default {
   .audio.green-audio-player .spinner {
     width: 18px;
     height: 18px;
-    background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/355309/loading.png);
+    background-image: url(../assets/loading.png);
     background-size: cover;
     background-repeat: no-repeat;
     animation: spin 0.4s linear infinite;
