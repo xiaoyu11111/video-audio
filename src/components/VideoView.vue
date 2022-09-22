@@ -66,10 +66,8 @@
         </div>
       </div>
       <audio crossorigin="anonymous" id="myVideo">
-        <source
-          src="https://vkceyugu.cdn.bspapp.com/VKCEYUGU-e37cad50-87bf-4e22-8965-c7e9ed358a6c/9471eba0-ee6c-4e62-ad0c-b8f71f3395f1.mp3"
-          type="audio/ogg"
-        />
+        <source src="" type="audio/mpeg" />
+        您的浏览器不支持 audio 元素。
       </audio>
     </div>
   </div>
@@ -81,6 +79,12 @@ export default {
   created() {},
   mounted() {
     this.$nextTick(() => {
+      let fileUrl = this.getParaByName("url");
+      if (!fileUrl) return;
+      fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+      var audio = document.getElementById("myVideo");
+      audio.src = fileUrl;
+
       var vedio = document.getElementById("myVideo");
       var that = this;
       that.Event.$emit("allTime", vedio.duration);
@@ -292,6 +296,20 @@ export default {
     }
   },
   methods: {
+    getParaByName(name) {
+      var search = window.location.search;
+      search = search.substr(1);
+      if (typeof name === "undefined") return search;
+      var searchArr = search.split("&");
+      for (var i = 0; i < searchArr.length; i++) {
+        var searchStr = searchArr[i];
+        searchArr[i] = searchStr.split("=");
+        if (searchArr[i][0] == name) {
+          return searchStr.replace(name + "=", "");
+        }
+      }
+      return "";
+    },
     formData(time) {
       var h = time.split(":")[0];
       var m = time.split(":")[1];

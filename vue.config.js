@@ -1,4 +1,5 @@
 const path = require('path')
+const express = require('express');
 const debug = process.env.NODE_ENV !== 'production'
 //const VueConf = require('./src/assets/js/libs/vue_config_class')
 //const vueConf = new VueConf(process.argv)
@@ -28,14 +29,15 @@ module.exports = {
     },
     pwa: { // 单页插件相关配置 https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-pwa
     },
-
-    devServer: {
-        open: true,
-        // host: 'localhost',
-        port: 8080,
-        https: false,
-        hotOnly: true,
-        proxy: null,
-        // before: app => {}
+    configureWebpack: {
+      devServer: {
+        before: app => {
+          app.use('/node_modules/', express.static(path.resolve(__dirname, 'node_modules')))
+        },
+        // headers: {
+        //   "Cross-Origin-Opener-Policy": "same-origin",
+        //   "Cross-Origin-Embedder-Policy": "require-corp",
+        // },
+      }
     }
 }

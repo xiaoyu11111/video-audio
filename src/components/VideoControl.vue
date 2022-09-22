@@ -324,7 +324,7 @@
             <span>{{ clickmsg }}</span>
           </div>
           <div @touchstart="getAudioText()" class="iconfont" title="获取文案">
-            <span>获取文案</span>
+            <span>文案</span>
           </div>
         </div>
         <div class="rule">
@@ -643,15 +643,27 @@ export default {
     this.pickeddeng = document.getElementById("pickeddeng");
   },
   methods: {
+    getParaByName(name) {
+      var search = window.location.search;
+      search = search.substr(1);
+      if (typeof name === "undefined") return search;
+      var searchArr = search.split("&");
+      for (var i = 0; i < searchArr.length; i++) {
+        var searchStr = searchArr[i];
+        searchArr[i] = searchStr.split("=");
+        if (searchArr[i][0] == name) {
+          return searchStr.replace(name + "=", "");
+        }
+      }
+      return "";
+    },
     getAudioText() {
       this.stt();
     },
-    async trancodeWav() {
+    async trancodeWav(file) {
       const ffmpeg = createFFmpeg({
         log: true,
       });
-      const file =
-        "https://vkceyugu.cdn.bspapp.com/VKCEYUGU-e37cad50-87bf-4e22-8965-c7e9ed358a6c/9471eba0-ee6c-4e62-ad0c-b8f71f3395f1.mp3";
       if (!ffmpeg.isLoaded()) {
         await ffmpeg.load();
       }
@@ -695,10 +707,17 @@ export default {
       return true;
     },
     async stt() {
+      let fileUrl = this.getParaByName("url");
+      if (!fileUrl) {
+        this.$message.error("链接不对");
+        return;
+      }
+      fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+      console.log(fileUrl, "fileUrl========");
+      const file = await this.trancodeWav(fileUrl);
       let sdk = window.SpeechSDK;
       var authorizationToken = await this.getAuthToken();
       var serviceRegion = "eastus";
-      const file = await this.trancodeWav();
       let audioConfig = sdk.AudioConfig.fromWavFileInput(file);
       var speechConfig = sdk.SpeechConfig.fromAuthorizationToken(
         authorizationToken,
@@ -2497,7 +2516,6 @@ footer {
       }
     }
     .rule {
-      padding: 0 20px;
       display: flex;
       box-sizing: border-box;
       align-items: center;
