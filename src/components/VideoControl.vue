@@ -585,7 +585,13 @@ export default {
       return "";
     },
     getAudioText() {
-      this.stt();
+      const loading = this.$loading({
+        lock: true,
+        text: "生成文案中",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+      });
+      this.stt(loading);
     },
     async trancodeWav(file) {
       const ffmpeg = createFFmpeg({
@@ -633,7 +639,7 @@ export default {
       }
       return true;
     },
-    async stt() {
+    async stt(loading) {
       let fileUrl = this.getParaByName("url");
       if (!fileUrl) {
         this.$message.error("链接不对");
@@ -675,6 +681,7 @@ export default {
 
       recognizer.canceled = (s, e) => {
         console.log(`CANCELED: Reason=${e.reason}`);
+        loading.close();
         if (e.reason == CancellationReason.Error) {
           console.log(`"CANCELED: ErrorCode=${e.errorCode}`);
           console.log(`"CANCELED: ErrorDetails=${e.errorDetails}`);
@@ -687,7 +694,8 @@ export default {
       };
 
       recognizer.sessionStopped = (s, e) => {
-        console.log("\n    Session stopped event.");
+        loading.close();
+        console.log("结束了", t);
         recognizer.stopContinuousRecognitionAsync();
       };
 
