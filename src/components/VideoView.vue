@@ -65,7 +65,7 @@
           </div>
         </div>
       </div>
-      <audio crossorigin="anonymous" id="myVideo">
+      <audio id="myVideo">
         <source src="" type="audio/mpeg" />
         您的浏览器不支持 audio 元素。
       </audio>
@@ -78,13 +78,17 @@ export default {
   props: ["play", "stop"],
   created() {},
   mounted() {
-    this.$nextTick(() => {
+    this.$nextTick(async () => {
       let fileUrl = this.getParaByName("url");
       if (!fileUrl) return;
       fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+      var blob = await fetch(fileUrl).then((res) => res.blob());
       var audio = document.getElementById("myVideo");
-      audio.src = fileUrl;
-      this.Event.$emit("allTime", audio.duration);
+      const blob1 = new Blob([blob], { type: "audio/mp3" });
+      audio.src = window.URL.createObjectURL(blob1);
+      setTimeout(() => {
+        this.Event.$emit("allTime", audio.duration);
+      }, [100]);
     });
     // // 开始和暂停播放视频
     // this.Event.$on("paly", (data) => {
