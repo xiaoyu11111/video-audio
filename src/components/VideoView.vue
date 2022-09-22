@@ -84,14 +84,7 @@ export default {
       fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
       var audio = document.getElementById("myVideo");
       audio.src = fileUrl;
-
-      var vedio = document.getElementById("myVideo");
-      var that = this;
-      that.Event.$emit("allTime", vedio.duration);
-      vedio.oncanplay = function () {
-        that.Event.$emit("allTime", vedio.duration);
-        // console.log(vedio.duration);
-      };
+      this.Event.$emit("allTime", audio.duration);
     });
     // // 开始和暂停播放视频
     // this.Event.$on("paly", (data) => {

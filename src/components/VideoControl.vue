@@ -506,9 +506,20 @@ export default {
       blueBgFlag: false,
       timeMoveNumber: 0, // 控制滚动数字
       isMobile: false,
+      textArr: [],
     };
   },
   created() {
+    let textArr = [];
+    try {
+      const textArr1 = localStorage.getItem(textArr);
+      if (!textArr1) {
+        textArr = [];
+      } else {
+        textArr = JSON.parse(textArr1);
+      }
+    } catch (error) {}
+    this.textArr = textArr;
     this.Event.$on("allTime", (data) => {
       // console.log(data);
       this.videoLongTime = this.setTime(data);
@@ -640,6 +651,7 @@ export default {
       return true;
     },
     async stt(loading) {
+      const _this = this;
       let fileUrl = this.getParaByName("url");
       if (!fileUrl) {
         this.$message.error("链接不对");
@@ -662,16 +674,23 @@ export default {
         sdk.ServicePropertyChannel.UriQueryParameter
       );
       let recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
-      var t = "";
+      let t = "";
+      let textArr = [];
       recognizer.recognizing = (s, e) => {
-        console.log(
-          `转换中: Text=${e.result.text}`,
-          e.result.privDuration / 10000000
-        );
+        // console.log(
+        //   `转换中: Text=${e.result.text}`,
+        //   e.result.privDuration / 10000000
+        // );
       };
 
       recognizer.recognized = (s, e) => {
         t += e.result.text + "\n";
+        loading.text = `生成文案中: ${t}`;
+        textArr.push({
+          offset: e.result.privOffset / 10000000,
+          duration: e.result.privDuration / 10000000,
+          text: e.result.text,
+        });
         if (e.result.reason == ResultReason.RecognizedSpeech) {
           console.log(`RECOGNIZED: Text=${e.result.text}`);
         } else if (e.result.reason == ResultReason.NoMatch) {
@@ -695,7 +714,9 @@ export default {
 
       recognizer.sessionStopped = (s, e) => {
         loading.close();
-        console.log("结束了", t);
+        _this.textArr = textArr;
+        localStorage.setItem(textArr, JSON.stringify(textArr));
+        console.log(textArr, "textArr================");
         recognizer.stopContinuousRecognitionAsync();
       };
 
