@@ -1,7 +1,8 @@
 <template>
   <div>
+    <videoView :play="play" :stop="stop" />
     <footer v-if="!isMobile">
-      <div class="menu">
+      <!-- <div class="menu">
         <div class="videoContorl">
           <div class="timeLong">
             <em>时长：</em>
@@ -12,7 +13,7 @@
           <i class="icon-bofang1 iconfont" @click="stop" v-else></i>
           <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
         </div>
-      </div>
+      </div> -->
       <div class="menu">
         <div class="controlMenu">
           <div
@@ -297,7 +298,7 @@
       </el-dialog>
     </footer>
     <footer v-if="isMobile">
-      <div class="menu">
+      <!-- <div class="menu">
         <div class="videoContorl">
           <div class="timeLong">
             <em>时长：</em>
@@ -312,7 +313,7 @@
           <i class="icon-bofang1 iconfont" @touchstart="stop" v-else></i>
           <i class="iconfont icon-kuaijin-" @touchstart="nextpage"></i>
         </div>
-      </div>
+      </div> -->
       <div class="menu">
         <div class="controlMenu">
           <div
@@ -321,6 +322,9 @@
             :title="clickmsg"
           >
             <span>{{ clickmsg }}</span>
+          </div>
+          <div @touchstart="getAudioText()" class="iconfont" title="获取文案">
+            <span>获取文案</span>
           </div>
         </div>
         <div class="rule">
@@ -340,23 +344,14 @@
         </div>
       </div>
       <div class="controlLine">
-        <div class="signshowImg" v-if="signFlag" :style="`left:${signLeft}`">
-          <span
-            class="signDetail icon-qingchu iconfont"
-            @touchstart="signDelete"
-          ></span>
-          <span
-            class="signClose icon-chuyidong iconfont"
-            @touchstart="signFlag = false"
-          ></span>
-
-          <div class="icon-xiugai iconfont text" @touchstart="changeSignText">
-            {{ signText }}
-          </div>
-        </div>
         <div class="dyc" id="pickeddeng">
-          <div class="canFa" >
-            <canvas id="canvas" :width="canvasWidth" height="80" @touchstart="sliderBlueButton"></canvas>
+          <div class="canFa">
+            <canvas
+              id="canvas"
+              :width="canvasWidth"
+              height="80"
+              @touchstart="sliderBlueButton"
+            ></canvas>
             <div
               class="signcircle"
               v-for="(item, index) in makeSignList"
@@ -376,69 +371,7 @@
               <span class="turnDowm"></span>
             </div>
           </div>
-          <div
-            class="imgbackground"
-            id="imgbackground"
-            :style="`width:${imgWidth};`"
-            @touchmove="faPKMove"
-            @touchend="faPKup"
-          >
-            <div
-              class="coverlist"
-              v-for="(item, index) in cutCoverList"
-              :key="index"
-              :style="`width:${item.width};left:${item.left}`"
-              @touchend="pkLup"
-            >
-              <el-button class="weitiaoL">
-                <span
-                  class="icon-zuo iconfont"
-                  @touchstart="weitiao(index, 1, 1)"
-                ></span
-                >微调<span
-                  class="icon-you iconfont"
-                  @touchstart="weitiao(index, 1, 2)"
-                ></span
-              ></el-button>
-              <span
-                class="dragLeft icon-zuo iconfont"
-                @touchstart="pkLdown(index, $event)"
-              ></span>
-
-              <div>
-                <span
-                  class="icon-bofang iconfont"
-                  @touchstart="subSection(item)"
-                ></span>
-                <span
-                  class="icon-qingchu iconfont"
-                  @touchstart="clearCoverBox(index)"
-                ></span>
-                <div>{{ item.timeLong }}</div>
-                <div
-                  class="icon-xiugai iconfont"
-                  @touchstart="changeText(index)"
-                >
-                  {{ item.text }}
-                </div>
-              </div>
-              <span
-                class="dragRight icon-you iconfont"
-                @touchstart="pkRdown(index, $event)"
-                @touchend="pkRup"
-              ></span>
-              <el-button class="weitiaoR">
-                <span
-                  class="icon-zuo iconfont"
-                  @touchstart="weitiao(index, 2, 1)"
-                ></span
-                >微调<span
-                  class="icon-you iconfont"
-                  @touchstart="weitiao(index, 2, 2)"
-                ></span
-              ></el-button>
-            </div>
-          </div>
+          <div class="imgbackground" :style="`width:${imgWidth};`" />
         </div>
       </div>
 
@@ -562,7 +495,11 @@
   </div>
 </template>
 <script>
+import videoView from "./VideoView";
 export default {
+  components: {
+    videoView,
+  },
   data() {
     return {
       wenjianList: [], //个人文件list
@@ -705,6 +642,101 @@ export default {
     this.pickeddeng = document.getElementById("pickeddeng");
   },
   methods: {
+    getAudioText() {
+      this.stt();
+    },
+    async getAuthToken(skip = false) {
+      if (!skip && !this._isExpiration()) {
+        return localStorage.getItem("ssmlToken");
+      }
+      const res = await fetch(
+        "https://e37cad50-87bf-4e22-8965-c7e9ed358a6c.bspapp.com/text-to-speech/get-person-token-for-speech"
+      ).then((res) => res.json());
+      if (res.token.length > 50) {
+        const token = res.token;
+        localStorage.setItem(
+          "data_expiration",
+          `${Date.parse(new Date()) + 180000}`
+        );
+        localStorage.setItem("ssmlToken", token);
+        return token;
+      }
+      return null;
+    },
+    _isExpiration() {
+      // 当前时间
+      var timestamp = Date.parse(new Date());
+      // 缓存中的过期时间
+      var data_expiration = localStorage.getItem("data_expiration");
+      // 如果缓存中没有data_expiration，说明也没有token，还未登录
+      if (data_expiration) {
+        // 如果超时了，清除缓存，重新登录
+        if (+timestamp > +data_expiration) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      return true;
+    },
+    async stt() {
+      let sdk = window.SpeechSDK;
+      var authorizationToken = await this.getAuthToken();
+      var serviceRegion = "eastus";
+      var blob = await fetch(
+        "https://vkceyugu.cdn.bspapp.com/VKCEYUGU-0d10064e-6d54-4152-b906-938684556e01/cdd067d9-78e6-421b-8998-82370cb39a1f.wav"
+      ).then((res) => res.blob());
+      const file = new File([blob], "audio.wav", { type: "audio/x-wav" });
+      let audioConfig = sdk.AudioConfig.fromWavFileInput(file);
+      var speechConfig = sdk.SpeechConfig.fromAuthorizationToken(
+        authorizationToken,
+        serviceRegion
+      );
+      speechConfig.speechRecognitionLanguage = "zh-CN";
+      speechConfig.setServiceProperty(
+        "punctuation",
+        "explicit",
+        sdk.ServicePropertyChannel.UriQueryParameter
+      );
+      let recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
+      var t = "";
+      recognizer.recognizing = (s, e) => {
+        console.log(e.result.privDuration);
+        console.log(`RECOGNIZING: Text=${e.result.text}`);
+      };
+
+      recognizer.recognized = (s, e) => {
+        t += e.result.text + "\n";
+        // fs.writeFileSync(text, t)
+        if (e.result.reason == ResultReason.RecognizedSpeech) {
+          console.log(`RECOGNIZED: Text=${e.result.text}`);
+        } else if (e.result.reason == ResultReason.NoMatch) {
+          console.log("NOMATCH: Speech could not be recognized.");
+        }
+      };
+
+      recognizer.canceled = (s, e) => {
+        console.log(`CANCELED: Reason=${e.reason}`);
+        // fs.writeFileSync(text, t)
+        if (e.reason == CancellationReason.Error) {
+          console.log(`"CANCELED: ErrorCode=${e.errorCode}`);
+          console.log(`"CANCELED: ErrorDetails=${e.errorDetails}`);
+          console.log(
+            "CANCELED: Did you update the key and location/region info?"
+          );
+        }
+
+        recognizer.stopContinuousRecognitionAsync();
+      };
+
+      recognizer.sessionStopped = (s, e) => {
+        console.log("\n    Session stopped event.");
+        recognizer.stopContinuousRecognitionAsync();
+        // fs.writeFileSync(text, t)
+      };
+
+      recognizer.startContinuousRecognitionAsync();
+    },
     //微调
     weitiao(index, flag1, flag2) {
       // flag1 1 为左边微调  2为右边微调
@@ -805,7 +837,7 @@ export default {
       if (!this.blueBgFlag) {
         return;
       }
-      this.sliderBlueButton(e)
+      this.sliderBlueButton(e);
     },
     blueBgUp() {
       this.blueBgFlag = false;
@@ -813,9 +845,9 @@ export default {
     sliderBlueButton(e) {
       var pickeddeng = document.getElementById("pickeddeng");
       var finleft =
-        pickeddeng.scrollLeft + (this.isMobile
-          ? e.changedTouches[0].pageX
-          : e.pageX) - 60;
+        pickeddeng.scrollLeft +
+        (this.isMobile ? e.changedTouches[0].pageX : e.pageX) -
+        60;
       if (finleft > parseFloat(this.imgWidth) - 40 || finleft < -40) {
         this.stop();
         //this.$message.error("超过限制区域");
@@ -1354,6 +1386,7 @@ export default {
       //     return;
       //   }
       this.bofangFlag = false;
+
       this.Event.$emit("paly", true); //播放视频
       if (this.currentRunMsg == "clickIn") {
         this.clickIninterval();
@@ -2484,8 +2517,6 @@ footer {
   .controlLine {
     position: relative;
     width: 100%;
-    height: calc(100% - 40px);
-    background: #1d1e22;
     .signshowImg {
       width: 150px;
       height: 100px;
@@ -2534,6 +2565,7 @@ footer {
     .dyc {
       position: relative;
       overflow: auto;
+      background: #1d1e22;
       &::-webkit-scrollbar {
         height: 10px;
       }
@@ -2565,7 +2597,7 @@ footer {
       }
       .imgbackground {
         left: 20px;
-        height: 100px;
+        height: 30px;
         background-repeat: repeat !important;
         background-size: contain !important;
         background: url("../assets/demo.jpg");

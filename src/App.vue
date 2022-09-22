@@ -1,7 +1,7 @@
 <template>
   <div id="#app">
     <!-- 视频显示 -->
-    <videoView></videoView>
+    <!-- <videoView></videoView> -->
 
     <!-- 控制 -->
     <videoControl></videoControl>
@@ -10,6 +10,7 @@
 <script>
 import videoView from "./components/VideoView";
 import videoControl from "./components/VideoControl";
+import "./common/speech-sdk";
 export default {
   components: {
     videoView,
