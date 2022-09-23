@@ -23,6 +23,10 @@ export default {
   },
   created() {
     this.renderResize();
+    setTimeout(function () {
+      var x = document.body.scrollWidth; //获取页面最大宽度
+      document.body.scrollLeft(x); //设置滚动条最左方位置
+    }, 100);
     window.addEventListener("resize", this.renderResize, false);
   },
   destroyed() {
@@ -42,12 +46,13 @@ export default {
         document.body.style.transform = "none";
       }
       if (width <= height) {
-        document.body.style.width = height - 40 + "px";
+        document.body.style.width = height - 50 + "px";
         document.body.style.height = width + "px";
         document.body.style.position = "absolute";
         document.body.style.top = (height - width) / 2 + "px";
-        document.body.style.left = 0 - (height - width) / 2 + 30 + "px";
+        document.body.style.left = 0 - (height - width) / 2 + 20 + "px";
         document.body.style.transform = "rotate(90deg)";
+        document.body.scrollTo();
       }
     },
   },
@@ -62,6 +67,7 @@ html {
   overflow: auto;
 }
 body {
+  overflow: auto;
   background-color: aliceblue;
   padding: 0 15px;
 }
