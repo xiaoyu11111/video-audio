@@ -170,6 +170,7 @@ export default {
   },
   computed: {
     audioText() {
+      let str = "";
       this.textArr.map((item, i) => {
         if (i === this.textArr.length - 1) {
           str +=
@@ -185,6 +186,7 @@ export default {
         str += "(" + item.offset + ")," + item.text;
         return item;
       });
+      return str;
     },
   },
   created() {
@@ -281,6 +283,7 @@ export default {
         text: "生成文案中",
         spinner: "el-icon-loading",
         background: "rgba(0, 0, 0, 0.7)",
+        customClass: "audio-text-loading",
       });
       this.stt(loading);
     },
@@ -1345,6 +1348,13 @@ footer {
       width: 150px;
       margin: auto;
     }
+  }
+}
+.audio-text-loading {
+  .el-loading-spinner {
+    top: 10%;
+    height: 95%;
+    overflow: auto;
   }
 }
 </style>
