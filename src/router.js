@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import VideoCut from './components/VideoCutMain.vue'
+import VideoControl from './components/VideoControl.vue'
 
 Vue.use(Router)
 
@@ -11,7 +11,7 @@ export default new Router({
     {
       path: '/',
       name: 'home',
-      component: VideoCut
+      component: VideoControl
     }
   ]
 })

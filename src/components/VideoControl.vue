@@ -1,12 +1,7 @@
 <template>
   <div>
     <videoView :play="play" :stop="stop" />
-    <el-input v-model="commandText" placeholder="请输入命令" id="input">
-      <el-button slot="append" type="primary" id="run">执行命令</el-button>
-    </el-input>
-    <el-input type="textarea" :rows="2" placeholder="请输入内容" id="output">
-    </el-input>
-    <el-button id="files" class="download-files" />
+    <audioFormat />
     <footer v-if="!isMobile">
       <!-- <div class="menu">
         <div class="videoContorl">
@@ -379,10 +374,11 @@
 </template>
 <script>
 import videoView from "./VideoView";
-import "../common/terminal";
+import audioFormat from "./AudioFormat";
 export default {
   components: {
     videoView,
+    audioFormat,
   },
   data() {
     return {
@@ -463,8 +459,6 @@ export default {
       timeMoveNumber: 0, // 控制滚动数字
 
       isMobile: false,
-      commandText:
-        "-i input.mp3 -ab 96k -ar 24000 -ac 1 output(js-audio-converter.com).wav",
       textArr: [],
     };
   },
@@ -555,6 +549,11 @@ export default {
       return "";
     },
     getAudioText() {
+      const url = document.getElementById("download-url").href;
+      if (!url || !url.includes(".wav")) {
+        this.$message.error("请先执行命令, 生成wav文件");
+        return;
+      }
       const loading = this.$loading({
         lock: true,
         text: "生成文案中",
@@ -2637,8 +2636,5 @@ footer {
       margin: auto;
     }
   }
-}
-.download-files {
-  width: 100%;
 }
 </style>
