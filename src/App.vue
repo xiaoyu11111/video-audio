@@ -22,10 +22,7 @@ export default {
     };
   },
   created() {
-    const _this = this;
-    document.addEventListener("DOMContentLoaded", function () {
-      _this.renderResize();
-    });
+    this.renderResize();
     window.addEventListener("resize", this.renderResize, false);
   },
   destroyed() {
@@ -36,22 +33,21 @@ export default {
       var width = document.documentElement.clientWidth;
       var height = document.documentElement.clientHeight;
       this.isLandscape = width <= height;
-      var dom = document.getElementById("#app");
       if (width > height) {
-        dom.style.width = width + "px";
-        dom.style.height = height + "px";
-        dom.style.position = "absolute";
-        dom.style.top = "0px";
-        dom.style.left = "0px";
-        dom.style.transform = "none";
+        document.body.style.width = width + "px";
+        document.body.style.height = height + "px";
+        document.body.style.position = "absolute";
+        document.body.style.top = "0px";
+        document.body.style.left = "0px";
+        document.body.style.transform = "none";
       }
       if (width <= height) {
-        dom.style.width = height - 40 + "px";
-        dom.style.height = width + "px";
-        dom.style.position = "absolute";
-        dom.style.top = (height - width) / 2 + "px";
-        dom.style.left = 0 - (height - width) / 2 + 30 + "px";
-        dom.style.transform = "rotate(90deg)";
+        document.body.style.width = height - 40 + "px";
+        document.body.style.height = width + "px";
+        document.body.style.position = "absolute";
+        document.body.style.top = (height - width) / 2 + "px";
+        document.body.style.left = 0 - (height - width) / 2 + 30 + "px";
+        document.body.style.transform = "rotate(90deg)";
       }
     },
   },
@@ -62,8 +58,10 @@ export default {
   margin: 0;
   padding: 0;
 }
-body {
+html {
   overflow: auto;
+}
+body {
   background-color: aliceblue;
   padding: 0 15px;
 }
