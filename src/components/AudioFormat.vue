@@ -13,7 +13,6 @@
   </div>
 </template>
 <script>
-import "../common/terminal";
 export default {
   data() {
     return {
@@ -22,7 +21,7 @@ export default {
         "-i input.mp3 -ab 96k -ar 24000 -ac 1 output(js-audio-converter.com).wav",
     };
   },
-  created() {
+  mounted() {
     var worker;
     var sampleImageData;
     var sampleVideoData;
@@ -188,21 +187,23 @@ export default {
       return "";
     }
 
-    initWorker();
-    let fileUrl = getParaByName("url");
-    if (!fileUrl) {
-      this.$message.error("链接不对");
-      return;
-    }
-    fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
-    retrieveSampleVideo(fileUrl);
-    // retrieveSampleImage();
+    document.addEventListener("DOMContentLoaded", function () {
+      initWorker();
+      let fileUrl = getParaByName("url");
+      if (!fileUrl) {
+        this.$message.error("链接不对");
+        return;
+      }
+      fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+      retrieveSampleVideo(fileUrl);
+      // retrieveSampleImage();
 
-    var inputElement = document.querySelector("#input");
-    outputElement = document.querySelector("#output");
-    filesElement = document.querySelector("#files");
-    document.querySelector("#run").addEventListener("click", function () {
-      runCommand(inputElement.value);
+      var inputElement = document.querySelector("#input");
+      outputElement = document.querySelector("#output");
+      filesElement = document.querySelector("#files");
+      document.querySelector("#run").addEventListener("click", function () {
+        runCommand(inputElement.value);
+      });
     });
   },
   methods: {},
