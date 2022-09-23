@@ -107,6 +107,7 @@ function getDownloadLink(fileData, fileName) {
     var blob = new Blob([fileData]);
     var src = window.URL.createObjectURL(blob);
     a.href = src;
+    a.id = 'download-url'
     a.textContent = '点击下载文件 ' + fileName + "!";
     return a;
   }

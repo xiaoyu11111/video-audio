@@ -429,7 +429,6 @@
 </template>
 <script>
 import videoView from "./VideoView";
-import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import "../common/terminal";
 export default {
   components: {
@@ -615,16 +614,12 @@ export default {
       this.stt(loading);
     },
     async trancodeWav(file) {
-      const ffmpeg = createFFmpeg({
-        log: true,
-      });
-      if (!ffmpeg.isLoaded()) {
-        await ffmpeg.load();
-      }
-      ffmpeg.FS("writeFile", "test.wav", await fetchFile(file));
-      await ffmpeg.run("-i", "test.wav", "test1.wav");
-      const data = ffmpeg.FS("readFile", "test1.wav");
-      return new File([data.buffer], "test1.wav", { type: "audio/x-wav" });
+      var blob = await fetch(document.getElementById('download-url').href).then(res => res.blob())
+      return new File(
+        [blob],
+        'audio.wav',
+        { type: 'audio/x-wav' }
+      );
     },
     async getAuthToken(skip = false) {
       if (!skip && !this._isExpiration()) {
