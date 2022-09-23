@@ -53,9 +53,7 @@
     <footer v-if="isMobile">
       <div class="menu">
         <div class="controlMenu">
-          <el-button @touchstart="getAudioText()" size="mini"
-            >获取文案</el-button
-          >
+          <el-button size="mini" @click="getAudioText()">获取文案</el-button>
         </div>
         <div class="rule">
           <div class="block slider">
@@ -253,8 +251,8 @@ export default {
       return "";
     },
     getAudioText() {
-      const url = document.getElementById("download-url").href;
-      if (!url) {
+      const url = document.getElementById("download-url");
+      if (!url || !url.href) {
         this.$message.error("请先执行命令, 生成wav文件");
         return;
       }

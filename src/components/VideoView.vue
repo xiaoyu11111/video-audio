@@ -66,7 +66,7 @@
         </div>
       </div>
       <audio id="myVideo">
-        <source src="../assets/demo.wav" type="audio/mpeg" />
+        <source src="" type="audio/mpeg" />
         您的浏览器不支持 audio 元素。
       </audio>
     </div>
@@ -79,13 +79,13 @@ export default {
   created() {},
   mounted() {
     this.$nextTick(async () => {
-      // let fileUrl = this.getParaByName("url");
-      // if (!fileUrl) return;
-      // fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
-      // var blob = await fetch(fileUrl).then((res) => res.blob());
+      let fileUrl = this.getParaByName("url");
+      if (!fileUrl) return;
+      fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+      var blob = await fetch(fileUrl).then((res) => res.blob());
       var audio = document.getElementById("myVideo");
-      // const blob1 = new Blob([blob], { type: "audio/mp3" });
-      // audio.src = window.URL.createObjectURL(blob1);
+      const blob1 = new Blob([blob], { type: "audio/mp3" });
+      audio.src = window.URL.createObjectURL(blob1);
       setTimeout(() => {
         this.Event.$emit("allTime", audio.duration);
       }, [100]);
