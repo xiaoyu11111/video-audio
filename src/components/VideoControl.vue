@@ -1,6 +1,12 @@
 <template>
   <div>
     <videoView :play="play" :stop="stop" />
+    <el-input v-model="commandText" placeholder="请输入命令" id="input">
+      <el-button slot="append" type="primary" id="run">执行命令</el-button>
+    </el-input>
+    <el-input type="textarea" :rows="2" placeholder="请输入内容" id="output">
+    </el-input>
+    <el-button id="files" class="download-files" />
     <footer v-if="!isMobile">
       <!-- <div class="menu">
         <div class="videoContorl">
@@ -424,6 +430,7 @@
 <script>
 import videoView from "./VideoView";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+import "../common/terminal";
 export default {
   components: {
     videoView,
@@ -505,7 +512,10 @@ export default {
       firstCutVideo: {}, //页面拆分相关数据
       blueBgFlag: false,
       timeMoveNumber: 0, // 控制滚动数字
+
       isMobile: false,
+      commandText:
+        "-i input.mp3 -ab 96k -ar 24000 -ac 1 output(js-audio-converter.com).wav",
       textArr: [],
     };
   },
@@ -2684,5 +2694,8 @@ footer {
       margin: auto;
     }
   }
+}
+.download-files {
+  width: 100%;
 }
 </style>

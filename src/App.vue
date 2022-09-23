@@ -25,6 +25,12 @@ export default {
 }
 body {
   background-color: aliceblue;
+  padding: 0 8px;
+}
+textarea {
+  width: calc(100% - 16px);
+  padding: 8px;
+  border: none;
 }
 .el-message-box {
   width: 100% !important;
