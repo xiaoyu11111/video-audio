@@ -25,7 +25,7 @@ export default {
     this.renderResize();
     setTimeout(function () {
       var x = document.body.scrollWidth; //获取页面最大宽度
-      document.body.scrollLeft(x); //设置滚动条最左方位置
+      document.body.scrollTo(x, 0);
     }, 100);
     window.addEventListener("resize", this.renderResize, false);
   },
@@ -52,7 +52,6 @@ export default {
         document.body.style.top = (height - width) / 2 + "px";
         document.body.style.left = 0 - (height - width) / 2 + 20 + "px";
         document.body.style.transform = "rotate(90deg)";
-        document.body.scrollTo();
       }
     },
   },
