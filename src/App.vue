@@ -16,6 +16,35 @@ export default {
     videoView,
     videoControl,
   },
+  created() {
+    this.renderResize();
+    window.addEventListener("resize", this.renderResize, false);
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.renderResize, false);
+  },
+  methods: {
+    renderResize() {
+      var width = document.documentElement.clientWidth;
+      var height = document.documentElement.clientHeight;
+      if (width > height) {
+        document.body.style.width = width + "px";
+        document.body.style.height = height + "px";
+        document.body.style.position = "absolute";
+        document.body.style.top = "0px";
+        document.body.style.left = "0px";
+        document.body.style.transform = "none";
+      }
+      if (width <= height) {
+        document.body.style.width = height + "px";
+        document.body.style.height = width + "px";
+        document.body.style.position = "absolute";
+        document.body.style.top = (height - width) / 2 + "px";
+        document.body.style.left = 0 - (height - width) / 2 + "px";
+        document.body.style.transform = "rotate(90deg)";
+      }
+    },
+  },
 };
 </script>
 <style lang="less">
