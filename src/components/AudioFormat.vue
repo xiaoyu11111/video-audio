@@ -22,6 +22,9 @@ export default {
     };
   },
   mounted() {
+    if (process.env.NODE_ENV !== "production") {
+      return;
+    }
     var worker;
     var sampleImageData;
     var sampleVideoData;
@@ -191,7 +194,7 @@ export default {
       initWorker();
       let fileUrl = getParaByName("url");
       if (!fileUrl) {
-        this.$message.error("链接不对");
+        _this.$message.error("链接不对");
         return;
       }
       fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);

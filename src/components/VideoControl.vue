@@ -3,37 +3,11 @@
     <videoView :play="play" :stop="stop" />
     <audioFormat />
     <footer v-if="!isMobile">
-      <!-- <div class="menu">
-        <div class="videoContorl">
-          <div class="timeLong">
-            <em>时长：</em>
-            <span>{{ videoLongTime }}</span>
-          </div>
-          <i class="iconfont icon-kuaijin-1" @click="prevPage"></i>
-          <i class="iconfont icon-bofang" @click="play" v-if="bofangFlag"></i>
-          <i class="icon-bofang1 iconfont" @click="stop" v-else></i>
-          <i class="iconfont icon-kuaijin-" @click="nextpage"></i>
-        </div>
-      </div> -->
       <div class="menu">
         <div class="controlMenu">
-          <div
-            @click="onControl(1)"
-            class="iconfont icon-dadian"
-            :title="clickmsg"
-          >
-            <span>{{ clickmsg }}</span>
-          </div>
-          <div @click="getAudioText()" class="iconfont" title="获取文案">
-            <span>文案</span>
-          </div>
+          <el-button @click="getAudioText()" size="mini">获取文案</el-button>
         </div>
         <div class="rule">
-          <span
-            class="iconfont icon-qingchu"
-            title="删除所有拆条"
-            @click="clearAllVideo"
-          ></span>
           <div class="block slider">
             <el-slider
               v-model="value2"
@@ -75,142 +49,15 @@
           <div class="imgbackground" :style="`width:${imgWidth};`" />
         </div>
       </div>
-
-      <el-dialog
-        title="拆条设置"
-        :visible.sync="dialogVisibleAuto"
-        width="600"
-        append-to-body
-        class="autuSplice"
-      >
-        <el-radio-group v-model="radio">
-          <el-radio :label="1">自定义拆条</el-radio>
-          <el-radio :label="2">平均拆条</el-radio>
-        </el-radio-group>
-        <el-table :data="tableData" style="width: 100%" v-if="radio == 1">
-          <el-table-column
-            type="index"
-            label="拆条列表"
-            width="200"
-            align="center"
-          ></el-table-column>
-          <el-table-column
-            prop="timeLong"
-            label="时长"
-            align="center"
-          ></el-table-column>
-          <el-table-column fixed="right" label="操作" align="center">
-            <template slot-scope="scope">
-              <el-button
-                @click.native.prevent="deleteRow(scope.$index, tableData)"
-                type="text"
-                size="small"
-                >移除</el-button
-              >
-              <el-button
-                @click.native.prevent="addRow(scope.$index, tableData)"
-                type="text"
-                size="small"
-                >添加</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-        <div class="round" v-else>
-          <span>每段时长</span>
-          <el-input-number
-            v-model="autoNum"
-            :min="1"
-            :max="60"
-            label="设置平均拆条时间"
-            controls-position="right"
-          ></el-input-number>
-        </div>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisibleAuto = false">取 消</el-button>
-          <el-button type="primary" @click="autuEnsure">确 定</el-button>
-        </span>
-      </el-dialog>
-      <el-dialog
-        :title="spliceMsg"
-        :visible.sync="dialogVisible"
-        width="600"
-        append-to-body
-      >
-        <span>选择存放文件夹</span>
-        <div class="wenjianBox" style="height: 160px; overflow: auto">
-          <el-tree
-            :data="wenjianList"
-            accordion
-            @node-click="handleNodeClick"
-          ></el-tree>
-        </div>
-        <el-table :data="cutCoverList" style="width: 100%">
-          <el-table-column
-            label="名称"
-            align="center"
-            show-overflow-tooltip
-            prop="text"
-          ></el-table-column>
-          <el-table-column
-            label="开始时间"
-            align="center"
-            show-overflow-tooltip
-            prop="startTime"
-          ></el-table-column>
-          <el-table-column
-            label="结束时间"
-            align="center"
-            show-overflow-tooltip
-            prop="endTime"
-          ></el-table-column>
-          <el-table-column
-            label="分段时长"
-            align="center"
-            show-overflow-tooltip
-            prop="timeLong"
-          ></el-table-column>
-          <el-table-column label="修改" align="center">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="handleEdit(scope.$index, scope.row)"
-                >编辑</el-button
-              >
-              <el-button
-                size="mini"
-                @click="handleDelt(scope.$index, scope.row)"
-                >删除</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="entureChaitiao">确 定</el-button>
-        </span>
-      </el-dialog>
     </footer>
     <footer v-if="isMobile">
       <div class="menu">
         <div class="controlMenu">
-          <div
-            @touchstart="onControl(1)"
-            class="iconfont icon-dadian"
-            :title="clickmsg"
+          <el-button @touchstart="getAudioText()" size="mini"
+            >获取文案</el-button
           >
-            <span>{{ clickmsg }}</span>
-          </div>
-          <div @touchstart="getAudioText()" class="iconfont" title="获取文案">
-            <span>文案</span>
-          </div>
         </div>
         <div class="rule">
-          <span
-            class="iconfont icon-qingchu"
-            title="删除所有拆条"
-            @touchstart="clearAllVideo"
-          ></span>
           <div class="block slider">
             <el-slider
               v-model="value2"
@@ -252,123 +99,6 @@
           <div class="imgbackground" :style="`width:${imgWidth};`" />
         </div>
       </div>
-
-      <el-dialog
-        title="拆条设置"
-        :visible.sync="dialogVisibleAuto"
-        width="600"
-        append-to-body
-        class="autuSplice"
-      >
-        <el-radio-group v-model="radio">
-          <el-radio :label="1">自定义拆条</el-radio>
-          <el-radio :label="2">平均拆条</el-radio>
-        </el-radio-group>
-        <el-table :data="tableData" style="width: 100%" v-if="radio == 1">
-          <el-table-column
-            type="index"
-            label="拆条列表"
-            width="200"
-            align="center"
-          ></el-table-column>
-          <el-table-column
-            prop="timeLong"
-            label="时长"
-            align="center"
-          ></el-table-column>
-          <el-table-column fixed="right" label="操作" align="center">
-            <template slot-scope="scope">
-              <el-button
-                @touch.prevent="deleteRow(scope.$index, tableData)"
-                type="text"
-                size="small"
-                >移除</el-button
-              >
-              <el-button
-                @touch.prevent="addRow(scope.$index, tableData)"
-                type="text"
-                size="small"
-                >添加</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-        <div class="round" v-else>
-          <span>每段时长</span>
-          <el-input-number
-            v-model="autoNum"
-            :min="1"
-            :max="60"
-            label="设置平均拆条时间"
-            controls-position="right"
-          ></el-input-number>
-        </div>
-        <span slot="footer" class="dialog-footer">
-          <el-button @touchstart="dialogVisibleAuto = false">取 消</el-button>
-          <el-button type="primary" @touchstart="autuEnsure">确 定</el-button>
-        </span>
-      </el-dialog>
-      <el-dialog
-        :title="spliceMsg"
-        :visible.sync="dialogVisible"
-        width="600"
-        append-to-body
-      >
-        <span>选择存放文件夹</span>
-        <div class="wenjianBox" style="height: 160px; overflow: auto">
-          <el-tree
-            :data="wenjianList"
-            accordion
-            @touchstart="handleNodeClick"
-          ></el-tree>
-        </div>
-        <el-table :data="cutCoverList" style="width: 100%">
-          <el-table-column
-            label="名称"
-            align="center"
-            show-overflow-tooltip
-            prop="text"
-          ></el-table-column>
-          <el-table-column
-            label="开始时间"
-            align="center"
-            show-overflow-tooltip
-            prop="startTime"
-          ></el-table-column>
-          <el-table-column
-            label="结束时间"
-            align="center"
-            show-overflow-tooltip
-            prop="endTime"
-          ></el-table-column>
-          <el-table-column
-            label="分段时长"
-            align="center"
-            show-overflow-tooltip
-            prop="timeLong"
-          ></el-table-column>
-          <el-table-column label="修改" align="center">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @touchstart="handleEdit(scope.$index, scope.row)"
-                >编辑</el-button
-              >
-              <el-button
-                size="mini"
-                @touchstart="handleDelt(scope.$index, scope.row)"
-                >删除</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-        <span slot="footer" class="dialog-footer">
-          <el-button @touchstart="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @touchstart="entureChaitiao"
-            >确 定</el-button
-          >
-        </span>
-      </el-dialog>
     </footer>
   </div>
 </template>
@@ -382,29 +112,8 @@ export default {
   },
   data() {
     return {
-      wenjianList: [], //个人文件list
       turnFlag: "",
-      index: null,
-      tableData: [
-        {
-          timeLong: "3秒",
-        },
-        {
-          timeLong: "4秒",
-        },
-      ],
-      autoNum: 5,
-      ctNum: 0, //剪辑的视频段落数量
-      isCtData: false, //是否已剪辑了视频
-      isVideoData: false, //是否已添加视频文件
-      dialogVisible: false, //弹框显示隐藏
-
-      // 自动拆条
-      dialogVisibleAuto: false, //拆条flag
       radio: 1,
-
-      videoList: null, //视频列表
-      // dialogVisible: false,
       //   底部dyc
       topMoveBox: null, //移动的蓝色时间盒子
       number: 5, //刻度对应秒数
@@ -435,7 +144,6 @@ export default {
       pickeddeng: null,
       bofangFlag: true, //播放flag
       signFlag: false, //标记flag
-      scrollFlag: false, //滚动标识
       target: 1400, //目标位置
       // 盒子拖拽部分
       downFlag: false, //按下的标志
@@ -457,7 +165,6 @@ export default {
       firstCutVideo: {}, //页面拆分相关数据
       blueBgFlag: false,
       timeMoveNumber: 0, // 控制滚动数字
-
       isMobile: false,
       textArr: [],
     };
@@ -482,7 +189,6 @@ export default {
       this.imgWidth = (this.videoLong / this.number) * 100 + "px";
       this.target = parseFloat(this.imgWidth) - 40;
     });
-    this.setKeydown();
     this.isMobile =
       navigator.userAgent.match(
         /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
@@ -524,8 +230,6 @@ export default {
 
     // 设置图片盒子宽度
     this.imgWidth = (this.videoLong / this.number) * 100 + "px";
-    // this.pickeddeng = document.getElementById("pickeddeng");
-    // this.pickeddeng.addEventListener("scroll", this.handleScroll, true);
 
     // 快速选段改变
     this.Event.$on("quickChooseTime", (val) => {
@@ -674,97 +378,6 @@ export default {
 
       recognizer.startContinuousRecognitionAsync();
     },
-    //微调
-    weitiao(index, flag1, flag2) {
-      // flag1 1 为左边微调  2为右边微调
-      // flag2 1 为向左微调  2为向右微调
-      const currentCut = this.cutCoverList[index];
-      // console.log(currentCut);
-      const timeMove = document.getElementById("blueBg");
-
-      // var movePX = (100 / this.number / 100) * 10;
-      // var currentLeft = parseFloat(window.getComputedStyle(timeMove).left);
-      var movePX = (100 / this.number / 100) * 10; //移动距离
-      if (flag1 === 1) {
-        //移动时间轴  更新时间
-        timeMove.style.left = parseFloat(currentCut.left) - 40 + "px";
-        var fininal = parseFloat(currentCut.left) - 40;
-        this.timeCurrentLeft = this.getStartEndTime(fininal + 40);
-        // this.Event.$emit("currentTime", this.timeCurrentLeft);
-
-        //调整开始位置
-        if (flag2 === 1) {
-          //开始位置向左调
-          currentCut.left = parseFloat(currentCut.left) - movePX + "px";
-          currentCut.width = parseFloat(currentCut.width) + movePX + "px";
-          //修改拆条时长
-          currentCut.startTime = this.getStartEndTime(
-            parseFloat(currentCut.left)
-          );
-          currentCut.timeLong = this.getTimeBesides(
-            currentCut.startTime,
-            currentCut.endTime
-          );
-          this.prevPage();
-        } else {
-          //开始位置向右调
-          currentCut.left = parseFloat(currentCut.left) + movePX + "px";
-          currentCut.width = parseFloat(currentCut.width) - movePX + "px";
-          currentCut.startTime = this.getStartEndTime(
-            parseFloat(currentCut.left)
-          );
-          currentCut.timeLong = this.getTimeBesides(
-            currentCut.startTime,
-            currentCut.endTime
-          );
-          this.nextpage();
-        }
-      } else {
-        // console.log(parseFloat(currentCut.left + currentCut.width - 40))
-        // timeMove.style.left = parseFloat(currentCut.left + currentCut.width - 40) + "px";
-        timeMove.style.left =
-          parseFloat(currentCut.left) +
-          parseFloat(currentCut.width) -
-          40 +
-          "px";
-        var fininal =
-          parseFloat(currentCut.left) + parseFloat(currentCut.width) - 40;
-        this.timeCurrentLeft = this.getStartEndTime(fininal + 40);
-        this.Event.$emit("currentTime", this.timeCurrentLeft);
-        //调整结束位置
-        if (flag2 === 1) {
-          //结束位置向左调
-          currentCut.width = parseFloat(currentCut.width) - movePX + "px";
-          currentCut.endTime = this.getStartEndTime(
-            parseFloat(currentCut.left) + parseFloat(currentCut.width)
-          );
-          currentCut.timeLong = this.getTimeBesides(
-            currentCut.startTime,
-            currentCut.endTime
-          );
-          this.prevPage();
-        } else {
-          //结束位置向右调
-          currentCut.width = parseFloat(currentCut.width) + movePX + "px";
-          currentCut.endTime = this.getStartEndTime(
-            parseFloat(currentCut.left) + parseFloat(currentCut.width)
-          );
-          currentCut.timeLong = this.getTimeBesides(
-            currentCut.startTime,
-            currentCut.endTime
-          );
-          this.nextpage();
-        }
-      }
-    },
-
-    setKeydown() {
-      document.addEventListener("keydown", this.keyboardEvent);
-    },
-    removerKeydown() {
-      document.removeEventListener("keydown", this.keyboardEvent);
-    },
-
     //时间进度条移动
     blueBgDown() {
       this.stop();
@@ -800,539 +413,23 @@ export default {
       );
       this.Event.$emit("currentTime", this.timeCurrentLeft);
     },
-    handleNodeClick(data) {
-      this.$store.commit("setparentId", data.id);
-      this.$store.commit("setfileFirstDir", data.firstDir);
-      this.$store.commit("setfileFL", data.fileFL);
-      // console.log(this.$store.state.curVideo)
-    },
-    // pk
-    faPKMove($event) {
-      if (!this.downFlag) {
-        return;
-      }
-      var pickeddeng = document.getElementById("pickeddeng");
-      var currentBox = this.cutCoverList[this.index];
-      var curWidth = parseFloat(currentBox.width);
-      var curLeft = parseFloat(currentBox.left);
-      var finleft = pickeddeng.scrollLeft + $event.pageX - 30;
-      if (this.turnFlag == "left") {
-        var finright = curLeft + curWidth;
-        var finwidth = finright - finleft;
-        currentBox.width = finwidth + "px";
-        currentBox.left = finleft + "px";
-
-        currentBox.startTime = this.getStartEndTime(
-          parseFloat(currentBox.left)
-        );
-        currentBox.timeLong = this.getTimeBesides(
-          currentBox.startTime,
-          currentBox.endTime
-        );
-        this.topMoveBox.style.left = finleft - 40 + "px";
-        this.timeCurrentLeft = this.setDetailTime(
-          parseFloat(
-            Math.floor(
-              (this.number / 100) * (this.topMoveBox.offsetLeft + 40) * 100
-            ) / 100
-          ).toFixed(2)
-        );
-        this.Event.$emit("currentTime", this.timeCurrentLeft);
-      } else if (this.turnFlag == "center") {
-        // 设置左侧位置
-
-        currentBox.left = finleft - 30 + "px";
-        currentBox.startTime = this.getStartEndTime(
-          parseFloat(currentBox.left)
-        );
-        currentBox.endTime = this.getStartEndTime(
-          parseFloat(currentBox.left) + parseFloat(currentBox.width)
-        );
-        currentBox.timeLong = this.getTimeBesides(
-          currentBox.startTime,
-          currentBox.endTime
-        );
-
-        this.topMoveBox.style.left = finleft - 70 + "px";
-        this.timeCurrentLeft = this.setDetailTime(
-          parseFloat(
-            Math.floor(
-              (this.number / 100) * (this.topMoveBox.offsetLeft + 40) * 100
-            ) / 100
-          ).toFixed(2)
-        );
-        this.Event.$emit("currentTime", this.timeCurrentLeft);
-      } else if (this.turnFlag == "right") {
-        // 设置宽度
-        var finwidth = finleft - curLeft + 30;
-        // console.log(finwidth);
-        currentBox.width = finwidth + "px";
-        currentBox.endTime = this.getStartEndTime(
-          parseFloat(currentBox.left) + parseFloat(currentBox.width)
-        );
-        currentBox.timeLong = this.getTimeBesides(
-          currentBox.startTime,
-          currentBox.endTime
-        );
-        this.topMoveBox.style.left =
-          finwidth - 40 + parseFloat(currentBox.left) + "px";
-        this.timeCurrentLeft = this.setDetailTime(
-          parseFloat(
-            Math.floor(
-              (this.number / 100) * (this.topMoveBox.offsetLeft + 40) * 100
-            ) / 100
-          ).toFixed(2)
-        );
-        this.Event.$emit("currentTime", this.timeCurrentLeft);
-      }
-    },
-    faPKup() {
-      this.downFlag = false;
-    },
-
-    pkLdown(index, $event) {
-      this.index = index;
-      this.turnFlag = "left";
-      this.downFlag = true;
-      this.stop();
-    },
-    pkCdown(index, $event) {
-      this.index = index;
-      this.turnFlag = "center";
-      this.downFlag = true;
-      this.stop();
-    },
-    pkRdown(index, $event) {
-      this.index = index;
-      this.turnFlag = "right";
-      this.downFlag = true;
-      this.stop();
-    },
-
-    pkLup() {
-      this.downFlag = false;
-    },
-    pkRup() {
-      this.downFlag = false;
-    },
-    // pk
-    handleScroll() {
-      // this.countNumber = this.pickeddeng.scrollLeft/1400 + 1;
-    },
-    //快捷键
-    keyboardEvent() {
-      //   console.log(event);
-      var e = event || window.event || arguments.callee.caller.arguments[0];
-      if (e.keyCode == 122) {
-        e.preventDefault(); //阻止F11的全屏事件
-      } else if (e.keyCode == 83) {
-        //S键
-        this.onControl(3);
-      } else if (e.keyCode == 27) {
-        //Esc键
-        this.isfullScreen = false;
-      } else if (e.keyCode == 32) {
-        //space空格键
-        if (this.bofangFlag) {
-          this.play();
-        } else {
-          this.stop();
-        }
-      } else if (e.ctrlKey && e.keyCode == 77) {
-        // console.log('ctrl+m');打标记
-        // this.onControl(2);
-      } else if (e.keyCode == 40) {
-        // 打入点打出点
-        this.timeMove();
-        this.clickmsg = this.clickmsg == "打入点" ? "打出点" : "打入点";
-      } else if (e.keyCode == 35) {
-        //end
-        this.backToend();
-      } else if (e.keyCode == 46) {
-        //清空拆条
-        this.clearAllVideo();
-      } else if (e.keyCode == 37) {
-        //←
-        // console.log('←');
-        // 上一帧
-        this.prevPage();
-      } else if (e.keyCode == 39) {
-        //→
-        // console.log('→');
-        // 下一帧
-        this.nextpage();
-      } else if (e.ctrlKey && e.keyCode == 189) {
-        //ctrl + -
-        e.preventDefault(); //阻止浏览器默认行为
-        // console.log('ctrl + -');
-        if (this.value2 == 0) {
-          this.$message.error("不能再减了~");
-          return;
-        }
-        this.value2 -= 20;
-        this.stepChange();
-      } else if (e.ctrlKey && e.keyCode == 187) {
-        //ctrl + +
-        e.preventDefault(); //阻止浏览器默认行为
-        // console.log('ctrl + +');
-        if (this.value2 == 100) {
-          this.$message.error("不能再加了~");
-          return;
-        }
-        this.value2 += 20;
-        this.stepChange();
-      } else if (e.keyCode == 36) {
-        //Home
-        // console.log("Home");
-        this.backTostart();
-      }
-    },
-    //鼠标悬浮显示当前图片
-    showMoveImg($event) {
-      var currentTime = this.setDetailTime(
-        ($event.offsetX - 20) * (this.number / 100)
-      );
-      this.Event.$emit("currentImg", currentTime);
-      // console.log($event)
-    },
-    //反选
-    turnReserve() {
-      if (this.cutCoverList.length > 0) {
-        var turnReverse = []; //反选数组列表
-        for (var i = 1; i < this.cutCoverList.length; i++) {
-          var prev = this.cutCoverList[i - 1];
-          var current = this.cutCoverList[i];
-          // if (i >= 1) {
-          //   prev = this.cutCoverList[i - 1];
-          // } else {
-          //   prev = {
-          //     left:
-          //   }
-          // }
-          var prevRight = parseFloat(prev.left) + parseFloat(prev.width);
-          var currentWidth = parseFloat(current.left) - prevRight;
-          turnReverse.push({
-            left: prevRight + "px",
-            width: currentWidth + "px",
-            clickFlag: true,
-            text: "拆条" + i,
-            startTime: this.getStartEndTime(prevRight),
-            endTime: this.getStartEndTime(currentWidth + prevRight),
-            timeLong: this.getStartEndTime(currentWidth),
-          });
-          console.log(turnReverse);
-        }
-        if (parseFloat(this.cutCoverList[0].left) >= (100 / this.number) * 3) {
-          //说明从一开始就开始打点 并且大于3秒
-          turnReverse.unshift({
-            left: "0px",
-            width: this.cutCoverList[0].left,
-            startTime: "00:00:00.00",
-            endTime: this.getStartEndTime(
-              parseFloat(this.cutCoverList[0].left)
-            ),
-            timeLong: this.getStartEndTime(
-              parseFloat(this.cutCoverList[0].left)
-            ),
-            text: "第一条",
-          });
-        }
-        var last = this.cutCoverList[this.cutCoverList.length - 1];
-        if (
-          parseFloat(last.left) + parseFloat(last.width) <=
-          parseFloat(this.imgWidth) - (100 / this.number) * 3
-        ) {
-          turnReverse.push({
-            left: parseFloat(last.left) + parseFloat(last.width) + "px",
-            width:
-              parseFloat(this.imgWidth) -
-              (parseFloat(last.left) + parseFloat(last.width)) +
-              "px",
-            startTime: this.getStartEndTime(
-              parseFloat(last.left) + parseFloat(last.width)
-            ),
-            endTime: this.getStartEndTime(
-              parseFloat(last.left) +
-                parseFloat(last.width) +
-                parseFloat(this.imgWidth) -
-                (parseFloat(last.left) + parseFloat(last.width))
-            ),
-            timeLong: this.getStartEndTime(
-              parseFloat(this.imgWidth) -
-                (parseFloat(last.left) + parseFloat(last.width))
-            ),
-            text: "最后一条",
-          });
-        }
-        this.cutCoverList = turnReverse;
-      } else {
-        this.$message("还没有进行拆条");
-      }
-    },
-    //清除所有拆条1
-    clearAllVideo() {
-      this.$confirm("是否删除所有拆条?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.cutCoverList = [];
-          this.$message({
-            type: "success",
-            message: "删除成功!",
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
-    },
-    deleteRow(index, rows) {
-      rows.splice(index, 1);
-    },
-    addRow(index, rows) {
-      this.$prompt("请输拆条时长（总秒数）", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        inputPattern: /^[0-9]*$/,
-        inputErrorMessage: "请输入数字",
-      })
-        .then(({ value }) => {
-          rows.splice(index + 1, 0, {
-            timeLong: value + "秒",
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "取消输入",
-          });
-        });
-    },
-
-    signDelete() {
-      this.$confirm("是否删除标记?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.makeSignList.splice(this.index, 1);
-          this.signFlag = false;
-          this.$message({
-            type: "success",
-            message: "删除成功",
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
-
-      // this.signLeft = this.makeSignList[index-1].left
-    },
     signClick(item, index) {
       console.log(item);
-      // this.signText = item.text;
-      // this.signIndex = index;
-      // this.signLeft = item.left;
-      // this.signFlag = true;
     },
-    // 修改分段标题
-    handleEdit(index, row) {
-      if (this.clickmsg === "打出点") {
-        this.$message.error("请先打出点后再删除");
-        return;
-      }
-      this.changeText(index);
-    },
-    handleDelt(index, row) {
-      this.cutCoverList.splice(index, 1);
-    },
-    // 分段播放
-    subSection(value) {
-      if (this.clickmsg === "打出点") {
-        this.$message.error("请先打出点后再删除");
-        return;
-      }
-      this.subPlayValue = value;
-      this.Event.$emit("subSectionPlay", value);
-      this.topMoveBox.style.left = parseFloat(value.left) - 40 + "px";
-      this.subrunning(parseFloat(value.left) + parseFloat(value.width));
-    },
-
-    // 黄色盒子宽高
-
-    // 鼠标按下
-    dragLeft(index, $event) {
-      this.downFlag = true;
-      this.offsetStart = $event.offsetX;
-    },
-    dragRight(index, $event) {
-      this.downFlag = true;
-      this.offsetStart = $event.offsetX;
-    },
-
-    // 鼠标移动
-    dragLeftMove(index, $event) {
-      if (this.downFlag) {
-        this.setLeftAndStart(index, $event);
-      } else {
-        return;
-      }
-    },
-    dragRightMove(index, $event) {
-      if (this.downFlag) {
-        this.setWidthAndEnd(index, $event);
-      } else {
-        return;
-      }
-    },
-    // 鼠标抬起
-    dragLeftUp(index, $event) {
-      this.downFlag = false;
-      this.setLeftAndStart(index, $event);
-    },
-    dragRightUp(index, $event) {
-      this.downFlag = false;
-      this.setWidthAndEnd(index, $event);
-    },
-
-    // 设置宽及左侧距离变换起始时间
-    setWidthAndEnd(index, $event) {
-      var currentBox = this.cutCoverList[index];
-      var width = parseFloat(currentBox.width);
-      console.log($event.offsetX, $event.offsetX - this.offsetStart);
-      var finwidth = width + ($event.offsetX - this.offsetStart);
-      console.log(finwidth);
-      currentBox.width = finwidth + "px";
-      currentBox.endTime = this.getStartEndTime(
-        parseFloat(currentBox.left) + parseFloat(currentBox.width)
-      );
-      currentBox.timeLong = this.getTimeBesides(
-        currentBox.startTime,
-        currentBox.endTime
-      );
-      this.topMoveBox.style.left =
-        finwidth - 40 + parseFloat(currentBox.left) + "px";
-      this.timeCurrentLeft = this.setDetailTime(
-        parseFloat(
-          Math.floor(
-            (this.number / 100) * (this.topMoveBox.offsetLeft + 40) * 100
-          ) / 100
-        ).toFixed(2)
-      );
-      this.Event.$emit("currentTime", this.timeCurrentLeft);
-    },
-    setLeftAndStart(index, $event) {
-      var currentBox = this.cutCoverList[index];
-      var left = parseFloat(currentBox.left);
-      var finleft = left + ($event.offsetX - this.offsetStart);
-      currentBox.left = finleft + "px";
-      currentBox.startTime = this.getStartEndTime(parseFloat(currentBox.left));
-      this.topMoveBox.style.left = finleft - 40 + "px";
-      this.timeCurrentLeft = this.setDetailTime(
-        parseFloat(
-          Math.floor(
-            (this.number / 100) * (this.topMoveBox.offsetLeft + 40) * 100
-          ) / 100
-        ).toFixed(2)
-      );
-      this.Event.$emit("currentTime", this.timeCurrentLeft);
-    },
-    // 修改标记名称
-    changeSignText(index) {
-      this.$prompt("请输入标记标题", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-      })
-        .then(({ value }) => {
-          this.makeSignList[this.signIndex].text = value;
-          this.signText = value;
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "取消输入",
-          });
-        });
-    },
-    // 修改片段名称
-    changeText(index) {
-      this.$prompt("请输入拆条标题", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-      })
-        .then(({ value }) => {
-          this.cutCoverList[index].text = value;
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "取消输入",
-          });
-        });
-    },
-    // 删除单个覆盖盒子
-    clearCoverBox(index) {
-      if (this.clickmsg === "打出点") {
-        this.$message.error("请先打出点后再删除");
-        return;
-      }
-      this.cutCoverList.splice(index, 1);
-    },
-    // 重新设置target
-    resetTarget($event) {
-      // clearInterval(this.timeId);
-      // clearInterval(this.clickIn);
-      // this.target += 1400;
-      // var scrollpd = document.getElementById("pickeddeng");
-      // this.scrollId = setInterval(() => {
-      //   console.log("scroll");
-      //   scrollpd.scrollLeft = parseFloat(this.moveLeft) - 1400;
-      // }, 20);
-      // this.clickIninterval();
-    },
-    // pickeddeng
-
     // 播放
     play() {
-      // if (this.scrollFlag) {
-      //   this.scrollInterval();
-      // }
       if (this.currentRunMsg == "clickIn") {
         this.running();
         return;
-      } else if (this.currentRunMsg == "subrunning") {
-        this.running();
-        return;
       }
-
       this.currentRunMsg = "run";
       this.running();
     },
     running() {
-      // clearInterval(this.clickIn);
-      //   if (!this.mainFlag) {
-      //     this.$message.error("您还没有选择视频~");
-      //     return;
-      //   }
       this.bofangFlag = false;
-
       this.Event.$emit("paly", true); //播放视频
       if (this.currentRunMsg == "clickIn") {
         this.clickIninterval();
-        return;
-      } else if (this.currentRunMsg == "subrunning") {
-        this.subrunning(
-          parseFloat(this.subPlayValue.left) +
-            parseFloat(this.subPlayValue.width)
-        );
         return;
       }
       const timeMove = document.getElementsByClassName("blueBg")[0];
@@ -1352,11 +449,6 @@ export default {
           this.stop();
           timeMove.style.transition = "none";
         }
-        // if (parseInt(this.moveLeft) >= this.target) {
-        //   // this.scrollInterval();
-        //   // this.target+=1400;
-        //   // this.scrollFlag = true;
-        // }
         this.timeCurrentLeft = this.setDetailTime(
           parseFloat(
             Math.floor((this.number / 100) * (timeMove.offsetLeft + 40) * 100) /
@@ -1368,44 +460,6 @@ export default {
       // console.log(parseInt(target), parseInt(this.moveLeft), pxecachS);
       var timeCount =
         (parseInt(this.target) - parseInt(this.moveLeft)) * pxecachS;
-      // console.log(timeCount);
-      timeMove.style.transition = `all ${timeCount}s linear`;
-    },
-    subrunning(target) {
-      this.stop();
-      this.currentRunMsg = "subrunning";
-      this.bofangFlag = false;
-      const timeMove = document.getElementsByClassName("blueBg")[0];
-      timeMove.style.left = target + "px";
-      this.Event.$emit("paly", true); //播放视频
-      this.subTimeId = setInterval(() => {
-        console.log("subrunning");
-        this.moveLeft = window.getComputedStyle(timeMove).left;
-        this.timeMoveNumber = parseInt(parseInt(this.moveLeft) / 1600);
-        if (parseFloat(this.moveLeft) / 1400 > this.countNumber) {
-          this.countNumber = parseInt(parseFloat(this.moveLeft) / 1400) + 1;
-        }
-        if (parseFloat(this.moveLeft) + 40 > target) {
-          clearInterval(this.subTimeId);
-          timeMove.style.left = this.moveLeft;
-          this.stop();
-          timeMove.style.transition = "none";
-          clearInterval(this.subTimeId);
-          this.currentRunMsg = "run";
-        }
-        if (parseInt(this.moveLeft) >= target) {
-          // this.resetTarget();
-        }
-        this.timeCurrentLeft = this.setDetailTime(
-          parseFloat(
-            Math.floor((this.number / 100) * (timeMove.offsetLeft + 40) * 100) /
-              100
-          ).toFixed(2)
-        );
-      }, 20);
-      var pxecachS = this.number / 100; // 对应的每px所需要的秒
-      // console.log(parseInt(target), parseInt(this.moveLeft), pxecachS);
-      var timeCount = (parseInt(target) - parseInt(this.moveLeft)) * pxecachS;
       // console.log(timeCount);
       timeMove.style.transition = `all ${timeCount}s linear`;
     },
@@ -1469,14 +523,9 @@ export default {
       this.timeCurrentLeft = this.getStartEndTime(fininal + 40);
       this.Event.$emit("currentTime", this.timeCurrentLeft);
     },
-    // 改变覆盖盒子大小
-    changeCoverSize(index) {},
+
     // 打入计时器
     clickIninterval() {
-      //   if (!this.mainFlag) {
-      //     this.$message.error("您还没有选择视频~");
-      //     return;
-      //   }
       if (this.currentRunMsg == "run") {
         clearInterval(this.timeId);
       }
@@ -1523,18 +572,6 @@ export default {
       timeMove.style.left = target + "px";
       timeMove.style.transition = `all ${timeCount}s linear`;
     },
-    // 滚动计时器
-    // scrollInterval() {
-    //   console.log("scroll1")
-    //   this.scrollFlag = true;
-    //   this.target += 1400;
-    //   var scrollpd = document.getElementById("pickeddeng");
-    //   this.scrollId = setInterval(() => {
-    //     console.log("scroll");
-    //     scrollpd.scrollLeft = parseFloat(this.moveLeft) - 1400;
-    //   }, 20);
-    // },
-
     //改变刻度
     stepChange() {
       // 鼠标松开时触发
@@ -1853,62 +890,6 @@ export default {
           ),
         });
         // clearInterval(this.timeId);
-        // this.clickIninterval();
-      }
-    },
-    // 点击控制线控件
-    onControl(index) {
-      switch (index) {
-        case 1: //打入点
-          //   if (!this.mainFlag) {
-          //     this.$message.error("您还没有选择视频~");
-          //     return;
-          //   }
-          this.timeMove();
-          this.clickmsg = this.clickmsg == "打入点" ? "打出点" : "打入点";
-          break;
-        case 2: //视音频分离
-          var curVideo = this.firstCutVideo;
-          console.log(curVideo);
-          var data = {
-            id: curVideo.id,
-            fileMd5: curVideo.fileId,
-            fileFirstDir: curVideo.fileFirstDir,
-            fileFL: curVideo.fileFL,
-            parentId: 0,
-          };
-          console.log(data);
-          break;
-        case 3: //快速选段
-          const moveLeft = document.getElementById("blueBg");
-          this.moveLeft = window.getComputedStyle(moveLeft).left;
-          console.log(this.moveLeft);
-          var width = (this.quickChoseTime / this.number) * 100 + "px";
-          this.$set(this.cutCoverList, this.cutCoverList.length, {
-            clickFlag: true,
-            text: "片段" + parseInt(parseInt(this.cutCoverList.length) + 1),
-            left: parseFloat(this.moveLeft) + 40 + "px",
-            width: width,
-            startTime: this.getStartEndTime(parseFloat(this.moveLeft) + 40),
-            endTime: this.getStartEndTime(
-              parseFloat(this.moveLeft) + 40 + parseFloat(width)
-            ),
-            timeLong: this.getStartEndTime(parseFloat(width)),
-          });
-          moveLeft.style.left =
-            parseFloat(this.moveLeft) + parseFloat(width) + "px";
-          // 设置当前时间
-          this.timeCurrentLeft = this.setDetailTime(
-            parseFloat(
-              Math.floor(
-                (this.number / 100) * (moveLeft.offsetLeft + 40) * 100
-              ) / 100
-            ).toFixed(2)
-          );
-          break;
-        case 4: //自动选段
-          this.dialogVisibleAuto = true;
-          break;
       }
     },
     getStartEndTime(leftPX) {
@@ -1918,247 +899,6 @@ export default {
         ).toFixed(2)
       );
     },
-    // 自动拆条的确认
-    autuEnsure() {
-      var timeMove = document.getElementById("blueBg");
-      var left = parseFloat(window.getComputedStyle(timeMove).left) + 40;
-      if (this.radio == 1) {
-        //自定义拆条
-        var timeLong = [];
-        for (var i = 0; i < this.tableData.length; i++) {
-          timeLong.push(parseInt(this.tableData[i].timeLong));
-        }
-        var setAutoList = [];
-        for (var i = 0; i < timeLong.length; i++) {
-          var prev = null;
-          if (i - 1 >= 0) {
-            prev = setAutoList[i - 1];
-          } else {
-            prev = {
-              left: left + "px",
-              width: "0",
-              clickFlag: true,
-              text: "片段" + (i + 1),
-              startTime: "00:00:00.00",
-              endTime: "00:00:00.00",
-              timeLong: "00:00:00.00",
-            };
-          }
-
-          var width = (timeLong[i] / this.number) * 100 + "px";
-          var left = parseFloat(prev.left) + parseFloat(prev.width) + "px";
-          setAutoList.push({
-            left,
-            width,
-            clickFlag: true,
-            text:
-              "片段" +
-              parseInt(
-                parseInt(this.cutCoverList.length) + setAutoList.length + 1
-              ),
-            startTime: this.getStartEndTime(parseFloat(left)),
-            endTime: this.getStartEndTime(parseFloat(left)) + parseFloat(width),
-            timeLong: this.getStartEndTime(parseFloat(width)),
-          });
-        }
-        console.log(setAutoList);
-        for (var i = 0; i < setAutoList.length; i++) {
-          this.$set(
-            this.cutCoverList,
-            this.cutCoverList.length,
-            setAutoList[i]
-          );
-        }
-        this.dialogVisibleAuto = false;
-      } else {
-        // 平均拆条
-        // this.imgWidth //下面图片宽度
-        var autoWidth = (this.autoNum / this.number) * 100;
-        var maxNumber = Math.floor(parseFloat(this.imgWidth) / autoWidth);
-        var setAutoList = [];
-        for (var i = 0; i < maxNumber; i++) {
-          var prev = null;
-          if (i - 1 >= 0) {
-            prev = setAutoList[i - 1];
-          } else {
-            console.log(left);
-            prev = {
-              left: left + "px",
-              width: "0px",
-              clickFlag: true,
-              text: "拆条1",
-              startTime: this.getStartEndTime(left),
-              endTime: this.getStartEndTime(autoWidth),
-              timeLong: this.getStartEndTime(autoWidth),
-            };
-          }
-
-          var left = parseFloat(prev.left) + parseFloat(prev.width) + "px";
-          setAutoList.push({
-            left: parseFloat(prev.left) + parseFloat(prev.width) + "px",
-            width: autoWidth + "px",
-            clickFlag: true,
-            text: "拆条" + (this.cutCoverList.length + i + 1),
-            startTime: this.getStartEndTime(
-              parseFloat(prev.left) + parseFloat(prev.width)
-            ),
-            endTime: this.getStartEndTime(
-              parseFloat(prev.left) + parseFloat(prev.width) * 2
-            ),
-            timeLong: this.getStartEndTime(autoWidth),
-          });
-        }
-        for (var i = 0; i < setAutoList.length; i++) {
-          this.$set(
-            this.cutCoverList,
-            this.cutCoverList.length,
-            setAutoList[i]
-          );
-        }
-        this.dialogVisibleAuto = false;
-      }
-    },
-    entureChaitiao() {
-      var curVideo = this.$store.state.curVideo;
-      // console.log(this.$store.state.curVideo);
-      var optionTimes = [];
-
-      // if (this.numberFlag == "01") {
-      //   //  拆分
-      //   for (var i = 0; i < this.cutCoverList.length; i++) {
-      //     var Lstart = this.cutCoverList[i].startTime.split(".")[0];
-      //     var Lend = this.cutCoverList[i].endTime.split(".")[0];
-      //     var Rstart = String(
-      //       (parseInt(this.cutCoverList[i].startTime.split(".")[1]) / 100) *
-      //         1000
-      //     );
-      //     var Rend = String(
-      //       (parseInt(this.cutCoverList[i].endTime.split(".")[1]) / 100) * 1000
-      //     );
-      //     optionTimes.push({
-      //       fileName: this.cutCoverList[i].text,
-      //       startTime: Lstart + "." + Rstart,
-      //       endTime: Lend + "." + Rend
-      //     });
-      //   }
-      // } else if (this.numberFlag == "00") {
-      // 合并
-      for (var i = 0; i < this.cutCoverList.length; i++) {
-        var Lstart = this.cutCoverList[i].startTime.split(".")[0];
-        var Rstart = String(
-          (parseInt(this.cutCoverList[i].startTime.split(".")[1]) / 100) * 1000
-        );
-        var timeLone = null;
-        var Lend = null;
-        var Rend = null;
-        if (this.cutCoverList[i].timeLong.length > 8) {
-          Lend = this.cutCoverList[i].timeLong.split(".")[0];
-          Rend = String(
-            (parseInt(this.cutCoverList[i].timeLong.split(".")[1]) / 100) * 1000
-          );
-          timeLone = Lend + "." + Rend;
-        } else {
-          Rend = this.cutCoverList[i].timeLong;
-          timeLone = Rend;
-        }
-
-        optionTimes.push({
-          fileName: this.cutCoverList[i].text,
-          startTime: Lstart + "." + Rstart,
-          endTime: timeLone,
-        });
-      }
-      // }
-      // var curVideo = this.$store.state.curVideo;
-      var data = {
-        id: curVideo.id,
-        fileMD5: curVideo.fileId,
-        optionTimes: optionTimes, //起止时间
-        optionType: this.numberFlag, //00拆分  01合并,
-        fileFirstDir: curVideo.fileFirstDir,
-        fileFL: curVideo.fileFL,
-        parentId: curVideo.parentId,
-        isSrcVideo: false,
-        fileName: "拆条1",
-      };
-      console.log(data);
-      // return
-    },
-    serveSubmit(number) {
-      this.dialogVisible = true;
-    },
-    submitOne() {
-      if (this.cutCoverList.length == 0) {
-        this.$message.error("还没有进行拆条");
-        return;
-      }
-      this.$confirm("是否合并提交视频?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "info",
-      })
-        .then(() => {
-          this.entureChaitiao("01");
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
-    },
-
-    // 获取时间间隔
-    getTimeBesides(str1, str2) {
-      var time1 = str1?.split(".")[0]?.split(":");
-      var time2 = str2?.split(".")[0]?.split(":");
-      var hour1 = parseInt(time1[0]) * 3600;
-      var min1 = parseInt(time1[1]) * 60;
-      var second1 = parseInt(time1[2]);
-
-      var hour2 = parseInt(time2[0]) * 3600;
-      var min2 = parseInt(time2[1]) * 60;
-      var second2 = parseInt(time2[2]);
-
-      var timeall1 = hour1 + min1 + second1;
-      var timeall2 = hour2 + min2 + second2;
-
-      var between = timeall2 - timeall1;
-      var lessHour =
-        parseInt(between / 3600) >= 10
-          ? parseInt(between / 3600)
-          : "0" + parseInt(between / 3600);
-      var lessMin =
-        parseInt((between % 3600) / 60) >= 10
-          ? parseInt((between % 3600) / 60)
-          : "0" + parseInt((between % 3600) / 60);
-      var lessSecond =
-        parseInt(between % 60) >= 10
-          ? parseInt(between % 60)
-          : "0" + parseInt(between % 60);
-      // console.log(str1)
-      // console.log(str2)
-      var msStart = parseInt(str1.split(".")[1]);
-      var msEnd = parseInt(str2.split(".")[1]);
-      // console.log(msStart,msEnd)
-
-      var ms = msEnd - msStart;
-      if (msStart > msEnd) {
-        if (parseInt(lessSecond) < 10) {
-          lessSecond = "0" + String(parseInt(lessSecond) - 1);
-        } else {
-          lessSecond = String(parseInt(lessSecond) - 1);
-        }
-      }
-      if (ms < 0) {
-        ms = ms + 100;
-      }
-      if (ms < 10) {
-        ms = "0" + ms;
-      }
-      return `${lessHour}:${lessMin}:${lessSecond}.${ms}`;
-    },
-
     // 回到起点
     backTostart() {
       this.stop();
@@ -2197,13 +937,6 @@ export default {
       );
     },
   },
-  beforeDestroy() {
-    this.pickeddeng.removeEventListener("scroll", this.handleScroll);
-  },
-  destroyed() {
-    this.removerKeydown();
-    // document.removeEventListener("keydown", this.keyboardEvent);
-  },
   watch: {
     timeMoveNumber(val, old) {
       this.pickeddeng.scrollLeft = val * 1600;
@@ -2217,39 +950,10 @@ export default {
     imgWidth(val, old) {
       this.target = parseFloat(val) - 40;
     },
-    scrollFlag(val, old) {
-      if (val) {
-        // this.scrollInterval()
-        // this.resetTarget()
-      }
-    },
   },
 };
 </script>
 <style lang="less">
-.weitiaoL,
-.weitiaoR {
-  line-height: 0 !important;
-  text-align: center;
-  position: absolute;
-  width: 70px;
-  top: 0px;
-  height: 20px;
-  cursor: pointer;
-  padding: 0;
-  border: 0;
-  z-index: 999;
-  color: #666;
-  > span {
-    margin-left: -13px;
-  }
-}
-.weitiaoL {
-  left: 0;
-}
-.weitiaoR {
-  right: 0;
-}
 .autuSplice {
   .el-dialog {
     > div:nth-of-type(2) {
@@ -2284,22 +988,11 @@ footer {
     justify-content: center;
     background: #1d1e22;
     .controlMenu {
-      padding: 5px;
+      padding: 5px 10px 5px 0;
       display: flex;
       box-sizing: border-box;
       align-items: center;
-      > div {
-        background-color: skyblue;
-        padding: 0px 10px;
-        border-radius: 5px;
-        margin-right: 20px;
-        position: relative;
-        font-size: 22px;
-        color: #e9d9d9;
-        cursor: pointer;
-        white-space: nowrap;
-        display: flex;
-        align-items: center;
+      .item {
         &::after {
           content: "";
           display: block;

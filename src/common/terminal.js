@@ -158,10 +158,6 @@ function getParaByName(name) {
 document.addEventListener("DOMContentLoaded", function() {
   initWorker();
   let fileUrl = getParaByName("url");
-  if (!fileUrl) {
-    this.$message.error("链接不对");
-    return;
-  }
   fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
   retrieveSampleVideo(fileUrl);
   // retrieveSampleImage();
