@@ -188,23 +188,21 @@ export default {
       return "";
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-      initWorker();
-      let fileUrl = getParaByName("url");
-      if (!fileUrl) {
-        this.$message.error("链接不对");
-        return;
-      }
-      fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
-      retrieveSampleVideo(fileUrl);
-      // retrieveSampleImage();
+    initWorker();
+    let fileUrl = getParaByName("url");
+    if (!fileUrl) {
+      this.$message.error("链接不对");
+      return;
+    }
+    fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+    retrieveSampleVideo(fileUrl);
+    // retrieveSampleImage();
 
-      var inputElement = document.querySelector("#input");
-      outputElement = document.querySelector("#output");
-      filesElement = document.querySelector("#files");
-      document.querySelector("#run").addEventListener("click", function () {
-        runCommand(inputElement.value);
-      });
+    var inputElement = document.querySelector("#input");
+    outputElement = document.querySelector("#output");
+    filesElement = document.querySelector("#files");
+    document.querySelector("#run").addEventListener("click", function () {
+      runCommand(inputElement.value);
     });
   },
   methods: {},

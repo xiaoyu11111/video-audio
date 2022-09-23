@@ -550,7 +550,7 @@ export default {
     },
     getAudioText() {
       const url = document.getElementById("download-url").href;
-      if (!url || !url.includes(".wav")) {
+      if (!url) {
         this.$message.error("请先执行命令, 生成wav文件");
         return;
       }
