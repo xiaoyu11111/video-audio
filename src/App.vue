@@ -36,7 +36,7 @@ export default {
         document.body.style.transform = "none";
       }
       if (width <= height) {
-        document.body.style.width = height + "px";
+        document.body.style.width = height - 40 + "px";
         document.body.style.height = width + "px";
         document.body.style.position = "absolute";
         document.body.style.top = (height - width) / 2 + "px";
