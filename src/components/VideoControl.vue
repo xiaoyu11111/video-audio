@@ -109,6 +109,7 @@ export default {
     videoView,
     audioFormat,
   },
+  props: ["isLandscape"],
   data() {
     return {
       turnFlag: "",
@@ -417,7 +418,13 @@ export default {
       var pickeddeng = document.getElementById("pickeddeng");
       var finleft =
         pickeddeng.scrollLeft +
-        (this.isMobile ? e.changedTouches[0].pageX : e.pageX) -
+        (this.isMobile
+          ? this.isLandscape
+            ? e.changedTouches[0].pageY
+            : e.changedTouches[0].pageX
+          : this.isLandscape
+          ? e.pageY
+          : e.pageX) -
         60;
       if (finleft > parseFloat(this.imgWidth) - 40 || finleft < -40) {
         this.stop();

@@ -4,7 +4,7 @@
     <!-- <videoView></videoView> -->
 
     <!-- 控制 -->
-    <videoControl></videoControl>
+    <videoControl :isLandscape="isLandscape"></videoControl>
   </div>
 </template>
 <script>
@@ -15,6 +15,11 @@ export default {
   components: {
     videoView,
     videoControl,
+  },
+  data() {
+    return {
+      isLandscape: false,
+    };
   },
   created() {
     this.renderResize();
@@ -27,6 +32,7 @@ export default {
     renderResize() {
       var width = document.documentElement.clientWidth;
       var height = document.documentElement.clientHeight;
+      this.isLandscape = width <= height;
       if (width > height) {
         document.body.style.width = width + "px";
         document.body.style.height = height + "px";
