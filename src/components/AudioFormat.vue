@@ -17,8 +17,7 @@ export default {
   data() {
     return {
       showDownload: false,
-      commandText:
-        "-i input.mp3 -ab 96k -ar 24000 -ac 1 output(js-audio-converter.com).wav",
+      commandText: "-i input.mp3 -ab 48k -ar 8000 -ac 1 output.wav",
     };
   },
   mounted() {
