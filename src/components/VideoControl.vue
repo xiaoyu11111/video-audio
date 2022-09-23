@@ -98,6 +98,7 @@
         </div>
       </div>
     </footer>
+    <el-input type="textarea" autosize v-model="audioText" disabled />
   </div>
 </template>
 <script>
@@ -166,6 +167,25 @@ export default {
       isMobile: false,
       textArr: [],
     };
+  },
+  computed: {
+    audioText() {
+      this.textArr.map((item, i) => {
+        if (i === this.textArr.length - 1) {
+          str +=
+            "(" +
+            item.offset +
+            ")," +
+            item.text +
+            "(" +
+            (item.offset + item.duration).toFixed(2) +
+            ")";
+          return item;
+        }
+        str += "(" + item.offset + ")," + item.text;
+        return item;
+      });
+    },
   },
   created() {
     let textArr = [];
@@ -976,7 +996,6 @@ export default {
 }
 footer {
   width: 100%;
-  height: 250px;
   border-top: 2px solid #1d1e22;
 
   .menu {
