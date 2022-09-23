@@ -54,7 +54,7 @@ export default {
 }
 body {
   background-color: aliceblue;
-  padding: 0 8px;
+  padding: 0 15px;
 }
 textarea {
   width: calc(100% - 16px);
