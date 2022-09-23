@@ -156,7 +156,6 @@ function getParaByName(name) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-
   initWorker();
   let fileUrl = getParaByName("url");
   if (!fileUrl) {

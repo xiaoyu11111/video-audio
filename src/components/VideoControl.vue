@@ -29,45 +29,11 @@
           >
             <span>{{ clickmsg }}</span>
           </div>
-          <!-- <div @click="onControl(2)" class="iconfont icon-biaoji" title="视音频分离">
-            <span>视音频分离</span>
-          </div> -->
-          <!-- <div
-            @click="onControl(3)"
-            class="iconfont icon-kaishijianji"
-            title="快速选段"
-            @keyup.83="onControl(3)"
-          >
-            <span>快速选段</span>
+          <div @click="getAudioText()" class="iconfont" title="获取文案">
+            <span>文案</span>
           </div>
-          <div
-            @click="onControl(4)"
-            class="iconfont icon-zidong"
-            title="自动选段"
-          >
-            <span>自动选段</span>
-          </div> -->
-          <!-- <div class="contorlBtn">
-            <el-button
-              class="el-icon-success"
-              size="mini"
-              @click="serveSubmit('00')"
-              >分段提交</el-button
-            >
-            <el-button
-              class="iconfont icon-tuisong"
-              size="mini"
-              @click="serveSubmit('01')"
-              >合并提交</el-button
-            >
-          </div> -->
         </div>
         <div class="rule">
-          <!-- <span
-            class="iconfont icon-fanxuan"
-            title="反选"
-            @click="turnReserve"
-          ></span> -->
           <span
             class="iconfont icon-qingchu"
             title="删除所有拆条"
@@ -231,22 +197,6 @@
       </el-dialog>
     </footer>
     <footer v-if="isMobile">
-      <!-- <div class="menu">
-        <div class="videoContorl">
-          <div class="timeLong">
-            <em>时长：</em>
-            <span>{{ videoLongTime }}</span>
-          </div>
-          <i class="iconfont icon-kuaijin-1" @touchstart="prevPage"></i>
-          <i
-            class="iconfont icon-bofang"
-            @touchstart="play"
-            v-if="bofangFlag"
-          ></i>
-          <i class="icon-bofang1 iconfont" @touchstart="stop" v-else></i>
-          <i class="iconfont icon-kuaijin-" @touchstart="nextpage"></i>
-        </div>
-      </div> -->
       <div class="menu">
         <div class="controlMenu">
           <div
@@ -614,12 +564,10 @@ export default {
       this.stt(loading);
     },
     async trancodeWav(file) {
-      var blob = await fetch(document.getElementById('download-url').href).then(res => res.blob())
-      return new File(
-        [blob],
-        'audio.wav',
-        { type: 'audio/x-wav' }
+      var blob = await fetch(document.getElementById("download-url").href).then(
+        (res) => res.blob()
       );
+      return new File([blob], "audio.wav", { type: "audio/x-wav" });
     },
     async getAuthToken(skip = false) {
       if (!skip && !this._isExpiration()) {
