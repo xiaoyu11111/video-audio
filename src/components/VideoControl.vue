@@ -258,7 +258,6 @@ export default {
       this.pickeddeng = document.getElementById("pickeddeng");
     },
     handleChange(e) {
-      console.log(e.target.files[0],'==')
       this.uploadfile = e.target.files[0]
     },
     getAudioText() {
