@@ -104,15 +104,18 @@
       </div>
     </footer>
     <el-input type="textarea" autosize v-model="audioText" disabled />
+    <animationFlash :animationTime="animationTime"/>
   </div>
 </template>
 <script>
 import videoView from "./VideoView";
 import audioFormat from "./AudioFormat";
+import animationFlash from "./AnimationFlash";
 export default {
   components: {
     videoView,
     audioFormat,
+    animationFlash
   },
   props: ["isLandscape"],
   data() {
@@ -171,8 +174,9 @@ export default {
       blueBgFlag: false,
       timeMoveNumber: 0, // 控制滚动数字
       isMobile: false,
-      textArr: [],
-      uploadfile: null
+      textArr: [], // 语音转文字数组
+      uploadfile: null, // 上传的文件
+      animationTime: 0 // 动画时长
     };
   },
   computed: {
@@ -208,7 +212,7 @@ export default {
     } catch (error) {}
     this.textArr = textArr;
     this.Event.$on("allTime", (data) => {
-      // console.log(data);
+      this.animationTime = data.toFixed(1)
       this.videoLongTime = this.setTime(data);
       // this.canvasWidth = parseInt(this.imgWidth);
       this.videoLong = data;
