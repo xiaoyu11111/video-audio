@@ -25,7 +25,7 @@
               id="canvas"
               :width="canvasWidth"
               height="80"
-              @mousemove="showMoveImg"
+              @click="sliderBlueButton"
             ></canvas>
             <div
               class="signcircle"

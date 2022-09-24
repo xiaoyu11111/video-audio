@@ -38,7 +38,7 @@ export default {
       var height = document.documentElement.clientHeight;
       this.isLandscape = width <= height;
       if (width > height) {
-        document.body.style.width = width + "px";
+        document.body.style.width = width - 30 + "px";
         document.body.style.height = height + "px";
         document.body.style.position = "absolute";
         document.body.style.top = "0px";
@@ -47,7 +47,7 @@ export default {
       }
       if (width <= height) {
         document.body.style.width = height - 50 + "px";
-        document.body.style.height = width + "px";
+        document.body.style.height = width - 20 + "px";
         document.body.style.position = "absolute";
         document.body.style.top = (height - width) / 2 + "px";
         document.body.style.left = 0 - (height - width) / 2 + 20 + "px";
@@ -68,7 +68,7 @@ html {
 body {
   overflow: auto;
   background-color: aliceblue;
-  padding: 0 15px;
+  padding: 15px 15px;
 }
 textarea {
   width: calc(100% - 16px);
