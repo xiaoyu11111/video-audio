@@ -193,7 +193,7 @@ export default {
   created() {
     let textArr = [];
     try {
-      const textArr1 = localStorage.getItem(textArr);
+      const textArr1 = localStorage.getItem('textArr');
       if (!textArr1) {
         textArr = [];
       } else {
@@ -393,8 +393,7 @@ export default {
       recognizer.sessionStopped = (s, e) => {
         loading.close();
         _this.textArr = textArr;
-        localStorage.setItem(textArr, JSON.stringify(textArr));
-        console.log(textArr, "textArr================");
+        localStorage.setItem('textArr', JSON.stringify(textArr));
         recognizer.stopContinuousRecognitionAsync();
       };
 
