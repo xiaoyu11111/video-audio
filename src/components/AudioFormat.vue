@@ -14,11 +14,20 @@
 </template>
 <script>
 export default {
+  props: ['uploadfile'],
   data() {
     return {
       showDownload: false,
       commandText: "-i input.mp3 -ab 48k -ar 8000 -ac 1 output.wav",
     };
+  },
+  watch: {
+    uploadfile(val, old) {
+      const _this = this
+      this.fileToArrayBuffer(val).then(arrayBuffer => {
+        _this.sampleVideoData = new Uint8Array(arrayBuffer)
+      })
+    },
   },
   mounted() {
     if (process.env.NODE_ENV !== "production") {
@@ -26,7 +35,6 @@ export default {
     }
     var worker;
     var sampleImageData;
-    var sampleVideoData;
     var outputElement;
     var filesElement;
     var running = false;
@@ -39,7 +47,7 @@ export default {
       background: "rgba(0, 0, 0, 0.7)",
     });
     function isReady() {
-      return !running && isWorkerLoaded && sampleVideoData;
+      return !running && isWorkerLoaded && this.sampleVideoData;
     }
 
     function startRunning() {
@@ -67,21 +75,6 @@ export default {
         var arrayBuffer = oReq.response;
         if (arrayBuffer) {
           sampleImageData = new Uint8Array(arrayBuffer);
-        }
-      };
-
-      oReq.send(null);
-    }
-
-    function retrieveSampleVideo(fileUrl) {
-      var oReq = new XMLHttpRequest();
-      oReq.open("GET", fileUrl, true);
-      oReq.responseType = "arraybuffer";
-
-      oReq.onload = function (oEvent) {
-        var arrayBuffer = oReq.response;
-        if (arrayBuffer) {
-          sampleVideoData = new Uint8Array(arrayBuffer);
         }
       };
 
@@ -118,7 +111,7 @@ export default {
             // },
             {
               name: "input.mp3",
-              data: sampleVideoData,
+              data: this.sampleVideoData,
             },
           ],
         });
@@ -192,14 +185,11 @@ export default {
     document.addEventListener("DOMContentLoaded", function () {
       initWorker();
       let fileUrl = getParaByName("url");
-      if (!fileUrl) {
-        _this.$message.error("链接不对");
-        return;
+      if (fileUrl) {
+        fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+        this.retrieveSampleVideo(fileUrl);
       }
-      fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
-      retrieveSampleVideo(fileUrl);
       // retrieveSampleImage();
-
       var inputElement = document.querySelector("#input");
       outputElement = document.querySelector("#output");
       filesElement = document.querySelector("#files");
@@ -208,7 +198,34 @@ export default {
       });
     });
   },
-  methods: {},
+  methods: {
+    fileToArrayBuffer(file){
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => { 
+                resolve(e.target.result); 
+            };
+            reader.onerror = () => {
+                reject();
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    },
+    retrieveSampleVideo(fileUrl) {
+      var oReq = new XMLHttpRequest();
+      oReq.open("GET", fileUrl, true);
+      oReq.responseType = "arraybuffer";
+
+      oReq.onload = function (oEvent) {
+        var arrayBuffer = oReq.response;
+        if (arrayBuffer) {
+          this.sampleVideoData = new Uint8Array(arrayBuffer);
+        }
+      };
+
+      oReq.send(null);
+    }
+  }
 };
 </script>
 <style lang="less">

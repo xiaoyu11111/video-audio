@@ -1,7 +1,12 @@
 <template>
   <div>
-    <videoView :play="play" :stop="stop" />
-    <audioFormat />
+    <div class="file">
+      <input type="file" name="file"  @change="handleChange"
+        accept=".mp3, .wav, .ogg, .acc"
+      >上传音频文件</input>
+    </div>
+    <videoView :play="play" :stop="stop" :uploadfile="uploadfile"/>
+    <audioFormat :uploadfile="uploadfile"/>
     <footer v-if="!isMobile">
       <div class="menu">
         <div class="controlMenu">
@@ -167,6 +172,7 @@ export default {
       timeMoveNumber: 0, // 控制滚动数字
       isMobile: false,
       textArr: [],
+      uploadfile: null
     };
   },
   computed: {
@@ -216,62 +222,44 @@ export default {
       ) !== null;
   },
   mounted() {
-    // 获取时间
-
-    var canvas = document.getElementById("canvas");
-    this.canvas = canvas;
-    var cxt = canvas.getContext("2d");
-    cxt.fillStyle = "#fff";
-    this.cxt = cxt;
-    var config = {
-      height: 200,
-      width: this.canvasWidth,
-      // 刻度尺相关
-      start: "00:00:00",
-      end: "00:20:10",
-      size: 300, // 刻度尺总刻度数
-      // unit:10,
-      x: 20, // 刻度尺x坐标位置
-      y: 70, // 刻度尺y坐标位置
-      w: 10, // 刻度线的间隔
-      h: 10, // 刻度线基础长度
-
-      // 事件相关
-      mousedown: false,
-      // start: []
-    };
-    this.config = config;
-    // this.config.width = this.canvasWidth
-    this.showCanvas();
-    // console.log(this.setTime(600));
-    const timeMove = document.getElementsByClassName("blueBg")[0];
-    this.topMoveBox = timeMove;
-    // console.log(timeMove,timeMove.style.left)
-    timeMove.style.left = "-40px";
-
-    // 设置图片盒子宽度
-    this.imgWidth = (this.videoLong / this.number) * 100 + "px";
-
-    // 快速选段改变
-    this.Event.$on("quickChooseTime", (val) => {
-      this.quickChoseTime = val;
-    });
-    this.pickeddeng = document.getElementById("pickeddeng");
+    this.initCancas()
   },
   methods: {
-    getParaByName(name) {
-      var search = window.location.search;
-      search = search.substr(1);
-      if (typeof name === "undefined") return search;
-      var searchArr = search.split("&");
-      for (var i = 0; i < searchArr.length; i++) {
-        var searchStr = searchArr[i];
-        searchArr[i] = searchStr.split("=");
-        if (searchArr[i][0] == name) {
-          return searchStr.replace(name + "=", "");
-        }
-      }
-      return "";
+    initCancas() {
+      var canvas = document.getElementById("canvas");
+      this.canvas = canvas;
+      var cxt = canvas.getContext("2d");
+      cxt.fillStyle = "#fff";
+      this.cxt = cxt;
+      var config = {
+        height: 200,
+        width: this.canvasWidth,
+        // 刻度尺相关
+        start: "00:00:00",
+        end: "00:20:10",
+        size: 300, // 刻度尺总刻度数
+        // unit:10,
+        x: 20, // 刻度尺x坐标位置
+        y: 70, // 刻度尺y坐标位置
+        w: 10, // 刻度线的间隔
+        h: 10, // 刻度线基础长度
+
+        // 事件相关
+        mousedown: false,
+        // start: []
+      };
+      this.config = config;
+      this.showCanvas();
+      const timeMove = document.getElementsByClassName("blueBg")[0];
+      this.topMoveBox = timeMove;
+      timeMove.style.left = "-40px";
+      // 设置图片盒子宽度
+      this.imgWidth = (this.videoLong / this.number) * 100 + "px";
+      this.pickeddeng = document.getElementById("pickeddeng");
+    },
+    handleChange(e) {
+      console.log(e.target.files[0],'==')
+      this.uploadfile = e.target.files[0]
     },
     getAudioText() {
       const url = document.getElementById("download-url");
@@ -288,7 +276,7 @@ export default {
       });
       this.stt(loading);
     },
-    async trancodeWav(file) {
+    async trancodeWav() {
       var blob = await fetch(document.getElementById("download-url").href).then(
         (res) => res.blob()
       );
@@ -330,13 +318,7 @@ export default {
     },
     async stt(loading) {
       const _this = this;
-      let fileUrl = this.getParaByName("url");
-      if (!fileUrl) {
-        this.$message.error("链接不对");
-        return;
-      }
-      fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
-      const file = await this.trancodeWav(fileUrl);
+      const file = await this.trancodeWav();
       let sdk = window.SpeechSDK;
       var authorizationToken = await this.getAuthToken();
       var serviceRegion = "eastus";
@@ -976,7 +958,7 @@ export default {
     },
     imgWidth(val, old) {
       this.target = parseFloat(val) - 40;
-    },
+    }
   },
 };
 </script>
@@ -1362,5 +1344,27 @@ footer {
     height: 95%;
     overflow: auto;
   }
+}
+.file {
+  position: relative;
+  display: inline-block;
+  background: #409eff;
+  border-radius: 2px;
+  padding: 4px 16px;
+  color: #fff;
+  font-size: 14px;
+}
+.file input {
+  position: absolute;
+  font-size: 0.8rem;
+  right: 0;
+  top: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.file:hover {
+  background: #68b1fb;
+  color: #fff;
+  text-decoration: none;
 }
 </style>

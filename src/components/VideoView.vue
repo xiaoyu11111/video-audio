@@ -75,7 +75,7 @@
 
 <script>
 export default {
-  props: ["play", "stop"],
+  props: ["play", "stop", "uploadfile"],
   created() {},
   mounted() {
     this.$nextTick(async () => {
@@ -315,6 +315,16 @@ export default {
       return parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(s) + "." + ms;
     },
   },
+  watch: {
+    uploadfile(val, old) {
+      var audio = document.getElementById("myVideo");
+      const blob1 = new Blob([val], { type: "audio/mp3" });
+      audio.src = window.URL.createObjectURL(blob1);
+      setTimeout(() => {
+        this.Event.$emit("allTime", audio.duration);
+      }, [100]);
+    },
+  }
 };
 </script>
 
