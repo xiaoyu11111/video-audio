@@ -111,7 +111,7 @@ export default {
             // },
             {
               name: "input.mp3",
-              data: this.sampleVideoData,
+              data: _this.sampleVideoData,
             },
           ],
         });
@@ -187,7 +187,7 @@ export default {
       let fileUrl = getParaByName("url");
       if (fileUrl) {
         fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
-        this.retrieveSampleVideo(fileUrl);
+        _this.retrieveSampleVideo(fileUrl);
       }
       // retrieveSampleImage();
       var inputElement = document.querySelector("#input");
@@ -212,6 +212,7 @@ export default {
         });
     },
     retrieveSampleVideo(fileUrl) {
+      const _this = this
       var oReq = new XMLHttpRequest();
       oReq.open("GET", fileUrl, true);
       oReq.responseType = "arraybuffer";
@@ -219,7 +220,7 @@ export default {
       oReq.onload = function (oEvent) {
         var arrayBuffer = oReq.response;
         if (arrayBuffer) {
-          this.sampleVideoData = new Uint8Array(arrayBuffer);
+          _this.sampleVideoData = new Uint8Array(arrayBuffer);
         }
       };
 
