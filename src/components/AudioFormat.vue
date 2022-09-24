@@ -47,7 +47,7 @@ export default {
       background: "rgba(0, 0, 0, 0.7)",
     });
     function isReady() {
-      return !running && isWorkerLoaded && this.sampleVideoData;
+      return !running && isWorkerLoaded && _this.sampleVideoData;
     }
 
     function startRunning() {
