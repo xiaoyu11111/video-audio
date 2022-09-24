@@ -119,7 +119,7 @@ export default {
       number: 5, //刻度对应秒数
       maxTimeLong: 360000, //除以10 即为刻度尺 个 刻度
       videoLongTime: "00:00:00",
-      value2: 80, //选择刻度尺刻度大小
+      value2: 100, //选择刻度尺刻度大小
       canvas: null,
       canvasWidth: 60000,
       cxt: null,
