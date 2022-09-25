@@ -1,6 +1,47 @@
 <template>
   <div>
-    <el-form :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="60px" class="demo-dynamic">
+    <el-form v-if="isMobile" :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="60px" class="demo-dynamic">
+      <el-form-item
+        v-for="(changjing, index) in dynamicValidateForm.changjings"
+        :label="'场景' + (index + 1)"
+        :key="changjing.key"
+        :prop="'changjings.' + index + '.title'"
+        :rules="{
+          required: true, message: '场景名不能为空', trigger: 'blur'
+        }"
+      >
+      <el-row>
+        <el-col :span="5">场景:</el-col>
+        <el-col :span="19"><el-input v-model="changjing.title"></el-input></el-col>
+      </el-row>
+      <el-row v-if="index !== 0">
+        <el-col :span="5">开始时间s:</el-col>
+        <el-col :span="19"><el-input-number :precision="2" :min="0" v-model="changjing.startTime"></el-input-number></el-col>
+      </el-row>
+      <el-row>
+          <el-col :span="5">场景特效:</el-col>
+          <el-col v-for="(effect, index1) in changjing.effects" :span="8" :key="changjing + 1 + index1">
+            <el-cascader :append-to-body="false" :options="effectOptions" clearable :value="effect" @change="(value)=>changeChangjingEffect(value, index, index1)"></el-cascader>
+          </el-col>
+          <el-col :offset="5" :span="19" class="effect-num"><span>个数</span><el-input-number :min="0" v-model="changjing.effectsNum" @change="(value) => changeChangjingEffectNum(value, index)"></el-input-number></el-col>
+        </el-row>
+        <el-row>
+          <el-col v-for="(peopleitem, index1) in changjing.people" :span="24" :key="changjing + 2 + index1">
+            <el-col v-if="index1 == 0" :span="5">人物:</el-col>
+            <el-col :offset="index1 == 0 ? 0 : 5 " :span="8"><el-cascader :append-to-body="false" :options="peopleOptions" clearable :value="peopleitem" @change="(value)=>changeChangjingPeople(value, index, index1)"></el-cascader></el-col>
+            <el-col :offset="5" :span="19" class="effect-num"><span>出场点(s)</span><el-input-number :precision="2" :min="0" v-model="changjing.peopleTimes[index1]" @change="(value) => changeChangjingPeopleTimes(value, index, index1)"></el-input-number></el-col>
+          </el-col>
+          <el-col :offset="5" :span="19" class="effect-num"><span>个数</span><el-input-number :min="1" v-model="changjing.peopleNum" @change="(value) => changeChangjingPeopleNum(value, index)"></el-input-number></el-col>
+        </el-row>
+        <el-button v-if="dynamicValidateForm.changjings.length > 1" @click.prevent="removechangjing(changjing)">删除场景</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="submitForm('dynamicValidateForm')">生成脚本</el-button>
+        <el-button @click="addchangjing">新增场景</el-button>
+        <el-button @click="resetForm()">重置</el-button>
+      </el-form-item>
+    </el-form>
+    <el-form v-if="!isMobile" :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="60px" class="demo-dynamic">
       <el-form-item
         v-for="(changjing, index) in dynamicValidateForm.changjings"
         :label="'场景' + (index + 1)"
@@ -21,14 +62,14 @@
       <el-row>
           <el-col :span="3">场景特效:</el-col>
           <el-col v-for="(effect, index1) in changjing.effects" :span="4" :key="changjing + 1 + index1">
-            <el-cascader :append-to-body="false" :options="effectOptions" :filterable="!isLandscape" clearable :value="effect" @change="(value)=>changeChangjingEffect(value, index, index1)"></el-cascader>
+            <el-cascader :append-to-body="false" :options="effectOptions" clearable :value="effect" @change="(value)=>changeChangjingEffect(value, index, index1)"></el-cascader>
           </el-col>
           <el-col :offset="3" :span="21" class="effect-num"><span>个数</span><el-input-number :min="0" v-model="changjing.effectsNum" @change="(value) => changeChangjingEffectNum(value, index)"></el-input-number></el-col>
         </el-row>
         <el-row>
           <el-col v-for="(peopleitem, index1) in changjing.people" :span="24" :key="changjing + 2 + index1">
             <el-col v-if="index1 == 0" :span="3">人物:</el-col>
-            <el-col :offset="index1 == 0 ? 0 : 3 " :span="4"><el-cascader :append-to-body="false" :options="peopleOptions" :filterable="!isLandscape" clearable :value="peopleitem" @change="(value)=>changeChangjingPeople(value, index, index1)"></el-cascader></el-col>
+            <el-col :offset="index1 == 0 ? 0 : 3 " :span="4"><el-cascader :append-to-body="false" :options="peopleOptions" clearable :value="peopleitem" @change="(value)=>changeChangjingPeople(value, index, index1)"></el-cascader></el-col>
             <el-col :span="10" class="effect-num"><span>出场时间(s)</span><el-input-number :precision="2" :min="0" v-model="changjing.peopleTimes[index1]" @change="(value) => changeChangjingPeopleTimes(value, index, index1)"></el-input-number></el-col>
           </el-col>
           <el-col :offset="3" :span="21" class="effect-num"><span>个数</span><el-input-number :min="1" v-model="changjing.peopleNum" @change="(value) => changeChangjingPeopleNum(value, index)"></el-input-number></el-col>
@@ -56,7 +97,7 @@
     peopleTimes: []
   }]
 export default {
-  props: ['animationTime', 'isLandscape'],
+  props: ['animationTime', 'isMobile'],
   data() {
     return { 
       effectOptions: [],
@@ -89,7 +130,7 @@ export default {
         children: location
       }
     ))
-    const people = ['小唐','小白龙','土地','蔡文姬','大牛','男1','男2','男3','男4','男5','男6','男7','男8','男9','boy','erdan','girl','laoban','mama','meimei','女1','女2','xz','悟空']
+    const people = ['乌龟', '小唐','小白龙','土地','蔡文姬','大牛','男1','男2','男3','男4','男5','男6','男7','男8','男9','boy','erdan','girl','laoban','mama','meimei','女1','女2','xz','悟空']
     this.peopleOptions = people.map(name => (
       {
         value: name,

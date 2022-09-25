@@ -5,109 +5,32 @@
         accept=".mp3, .wav, .ogg, .acc"
       >上传音频文件</input>
     </div>
-    <videoView :play="play" :stop="stop" :uploadfile="uploadfile"/>
-    <audioFormat :uploadfile="uploadfile"/>
-    <footer v-if="!isMobile">
-      <div class="menu">
-        <div class="controlMenu">
-          <el-button @click="getAudioText()" size="mini">获取文案</el-button>
-        </div>
-        <div class="rule">
-          <div class="block slider">
-            <el-slider
-              v-model="value2"
-              :step="20"
-              show-stops
-              @change="stepChange"
-            ></el-slider>
-          </div>
-        </div>
-      </div>
-      <div class="controlLine">
-        <div class="dyc" id="pickeddeng">
-          <div class="canFa" @mouseup="blueBgUp">
-            <canvas
-              id="canvas"
-              :width="canvasWidth"
-              height="80"
-              @click="sliderBlueButton"
-            ></canvas>
-            <div
-              class="signcircle"
-              v-for="(item, index) in makeSignList"
-              :key="index"
-              :style="`left:${item.left}`"
-              @click="signClick(item, index)"
-            ></div>
-            <div
-              class="blueBg"
-              id="blueBg"
-              ref="timeMove"
-              @mousedown="blueBgDown"
-              @mousemove="blueBgMove"
-              @mouseup="blueBgUp"
-            >
-              {{ timeCurrentLeft }}
-              <span class="turnDowm"></span>
-            </div>
-          </div>
-          <div class="imgbackground" :style="`width:${imgWidth};`" />
-        </div>
-      </div>
-    </footer>
-    <footer v-if="isMobile">
-      <div class="menu">
-        <div class="controlMenu">
-          <el-button size="mini" @click="getAudioText()">获取文案</el-button>
-        </div>
-        <div class="rule">
-          <div class="block slider">
-            <el-slider
-              v-model="value2"
-              :step="20"
-              show-stops
-              @change="stepChange"
-            ></el-slider>
-          </div>
-        </div>
-      </div>
-      <div class="controlLine">
-        <div class="dyc" id="pickeddeng">
-          <div class="canFa">
-            <canvas
-              id="canvas"
-              :width="canvasWidth"
-              height="80"
-              @touchstart="sliderBlueButton"
-            ></canvas>
-            <div
-              class="signcircle"
-              v-for="(item, index) in makeSignList"
-              :key="index"
-              :style="`left:${item.left}`"
-              @touchstart="signClick(item, index)"
-            ></div>
-            <div
-              class="blueBg"
-              id="blueBg"
-              ref="timeMove"
-              @touchstart="blueBgDown"
-              @touchmove.prevent="blueBgMove"
-              @touchend="blueBgUp"
-            >
-              {{ timeCurrentLeft }}
-              <span class="turnDowm"></span>
-            </div>
-          </div>
-          <div class="imgbackground" :style="`width:${imgWidth};`" />
-        </div>
-      </div>
-    </footer>
-    <el-input type="textarea" autosize v-model="audioText" disabled />
-    <animationFlash :animationTime="animationTime" :isLandscape="isLandscape"/>
+    <div class="tools-btn">
+      <audioFormat :uploadfile="uploadfile"/>
+    </div>
+    <div class="tools-btn">
+      <el-button @click="playWave()" class="mgx10">播放/暂停</el-button>
+      <span class="mgx10">总时长: {{this.animationTime}}s</span>
+      <span>当前时间: {{this.curPlayingTime}}s</span>
+      <el-slider
+        v-model="sliderValue"
+        :step="1"
+        @change="stepChange"
+      ></el-slider>
+    </div>
+    <div id="waveform"></div>
+    <div id="wave-timeline"></div>
+    <div class="tools-btn">
+      <el-button @click="getAudioText()">获取文案</el-button>
+    </div>
+    <el-input v-if="audioText" type="textarea" autosize v-model="audioText" disabled />
+    <animationFlash :animationTime="animationTime" :isMobile="isMobile"/>
   </div>
 </template>
 <script>
+import WaveSurfer from 'wavesurfer.js';
+import Timeline from "wavesurfer.js/dist/plugin/wavesurfer.timeline.js"
+import Regions from "wavesurfer.js/dist/plugin/wavesurfer.regions.js";
 import videoView from "./VideoView";
 import audioFormat from "./AudioFormat";
 import animationFlash from "./AnimationFlash";
@@ -120,63 +43,13 @@ export default {
   props: ["isLandscape"],
   data() {
     return {
-      turnFlag: "",
-      radio: 1,
-      //   底部dyc
-      topMoveBox: null, //移动的蓝色时间盒子
-      number: 5, //刻度对应秒数
-      maxTimeLong: 360000, //除以10 即为刻度尺 个 刻度
-      videoLongTime: "00:00:00",
-      value2: 100, //选择刻度尺刻度大小
-      canvas: null,
-      canvasWidth: 60000,
-      cxt: null,
-      clickmsg: "打入点", //打入打出
-      config: {},
-      timeCurrentLeft: "00:00:00:00", //当前距离左侧时间
-      clickCurrentTime: null, //点击距离
-
-      timeId: null, //计算定时器
-      clickIn: null, //打入定时器
-      scrollId: null, //滚动定时器
-      subTimeId: null, //分段播放移动计时器
-
-      subPlayValue: null, //分段播放数据
-      moveLeft: -40, //移动中bgleft坐标
-      cutCoverList: [], //裁剪列表
-      makeSignList: [], //标记列表
-      coverBoxWidth: "0px",
-      clickCurrentLeft: null, //点击打入时，距离左侧位置
-      videoLong: 600,
-      imgWidth: "0px", //图片的宽度
-      pickeddeng: null,
-      bofangFlag: true, //播放flag
-      signFlag: false, //标记flag
-      target: 1400, //目标位置
-      // 盒子拖拽部分
-      downFlag: false, //按下的标志
-      offsetStart: null,
-      offsetEnd: null,
-      currentRunMsg: "run",
-      signIndex: null, //当前点击标记的index
-      signLeft: "0px",
-      signText: "标记1",
-
-      // 快速选段
-      quickChoseTime: 6,
-
-      mainImgUrl: "../assets/demo.jpg", //底部封面图
-      mainFlag: false, //是否选择了视频
-      numberFlag: "00", //00 拆分  01合并
-      spliceMsg: "拆分提交",
-      countNumber: 1,
-      firstCutVideo: {}, //页面拆分相关数据
-      blueBgFlag: false,
-      timeMoveNumber: 0, // 控制滚动数字
+      sliderValue: 0,
       isMobile: false,
       textArr: [], // 语音转文字数组
       uploadfile: null, // 上传的文件
-      animationTime: 0 // 动画时长
+      animationTime: 0, // 动画时长
+      wavesurfer: null,
+      curPlayingTime: 0,
     };
   },
   computed: {
@@ -211,24 +84,69 @@ export default {
       }
     } catch (error) {}
     this.textArr = textArr;
-    this.Event.$on("allTime", (data) => {
-      this.animationTime = data.toFixed(1)
-      this.videoLongTime = this.setTime(data);
-      // this.canvasWidth = parseInt(this.imgWidth);
-      this.videoLong = data;
-      this.maxTimeLong = Math.ceil(data) * 100;
-      this.imgWidth = (this.videoLong / this.number) * 100 + "px";
-      this.target = parseFloat(this.imgWidth) - 40;
-    });
     this.isMobile =
       navigator.userAgent.match(
         /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
       ) !== null;
   },
   mounted() {
-    this.initCancas()
+    var wavesurfer = WaveSurfer.create({
+        backgroundColor: 'rgb(105,160,174, 0.1)',
+        container: '#waveform',
+        waveColor: 'violet',
+        barWidth: 2,
+        barGap: 2,
+        responsive: true,
+        scrollParent: true,
+        progressColor: 'purple',
+        plugins: [
+          Timeline.create({
+              container: "#wave-timeline",
+              primaryColor: 'blue',
+              secondaryColor: 'red',
+              primaryFontColor: 'blue',
+              secondaryFontColor: 'red'
+          }),
+          Regions.create({})
+        ]
+    });
+    this.wavesurfer = wavesurfer
+    let fileUrl = this.getParaByName("url");
+    if (!fileUrl) return;
+    fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+    wavesurfer.load(fileUrl)
+    const _this = this
+    wavesurfer.on('ready', function () {
+      _this.animationTime = wavesurfer.getDuration().toFixed(1)
+    });
+    wavesurfer.on('audioprocess', function () {
+      _this.curPlayingTime = wavesurfer.getCurrentTime().toFixed(2)
+    });
+    wavesurfer.on('seek', function () {
+      _this.curPlayingTime = wavesurfer.getCurrentTime().toFixed(2)
+    });
   },
   methods: {
+    stepChange(value) {
+      this.wavesurfer.seekAndCenter(value/100)
+    },
+    playWave() {
+      this.wavesurfer.playPause();
+    },
+    getParaByName(name) {
+      var search = window.location.search;
+      search = search.substr(1);
+      if (typeof name === "undefined") return search;
+      var searchArr = search.split("&");
+      for (var i = 0; i < searchArr.length; i++) {
+        var searchStr = searchArr[i];
+        searchArr[i] = searchStr.split("=");
+        if (searchArr[i][0] == name) {
+          return searchStr.replace(name + "=", "");
+        }
+      }
+      return "";
+    },
     initCancas() {
       var canvas = document.getElementById("canvas");
       this.canvas = canvas;
@@ -263,6 +181,11 @@ export default {
     },
     handleChange(e) {
       this.uploadfile = e.target.files[0]
+      this.wavesurfer.loadBlob(e.target.files[0])
+      const _this = this
+      this.wavesurfer.on('ready', function () {
+        _this.animationTime = wavesurfer.getDuration().toFixed(1)
+      });
     },
     getAudioText() {
       const url = document.getElementById("download-url");
@@ -383,585 +306,9 @@ export default {
       };
 
       recognizer.startContinuousRecognitionAsync();
-    },
-    //时间进度条移动
-    blueBgDown() {
-      this.stop();
-      this.blueBgFlag = true;
-    },
-    blueBgMove(e) {
-      if (!this.blueBgFlag) {
-        return;
-      }
-      this.sliderBlueButton(e);
-    },
-    blueBgUp() {
-      this.blueBgFlag = false;
-    },
-    sliderBlueButton(e) {
-      var pickeddeng = document.getElementById("pickeddeng");
-      var finleft =
-        pickeddeng.scrollLeft +
-        (this.isMobile
-          ? this.isLandscape
-            ? e.changedTouches[0].pageY
-            : e.changedTouches[0].pageX
-          : this.isLandscape
-          ? e.pageY
-          : e.pageX) -
-        60;
-      if (finleft > parseFloat(this.imgWidth) - 40 || finleft < -40) {
-        this.stop();
-        //this.$message.error("超过限制区域");
-        return;
-      }
-      document.getElementById("blueBg").style.left = finleft + "px";
-      this.timeCurrentLeft = this.setDetailTime(
-        parseFloat(
-          Math.floor(
-            (this.number / 100) * (this.topMoveBox.offsetLeft + 40) * 100
-          ) / 100
-        ).toFixed(2)
-      );
-      this.Event.$emit("currentTime", this.timeCurrentLeft);
-    },
-    signClick(item, index) {
-      console.log(item);
-    },
-    // 播放
-    play() {
-      if (this.currentRunMsg == "clickIn") {
-        this.running();
-        return;
-      }
-      this.currentRunMsg = "run";
-      this.running();
-    },
-    running() {
-      this.bofangFlag = false;
-      this.Event.$emit("paly", true); //播放视频
-      if (this.currentRunMsg == "clickIn") {
-        this.clickIninterval();
-        return;
-      }
-      const timeMove = document.getElementsByClassName("blueBg")[0];
-      // var target = this.target;
-      timeMove.style.left = this.target + "px";
-
-      this.timeId = setInterval(() => {
-        this.moveLeft = window.getComputedStyle(timeMove).left;
-        // console.log(this.moveLeft);
-        this.timeMoveNumber = parseInt(parseInt(this.moveLeft) / 1600);
-        if (parseFloat(this.moveLeft) / 1400 > this.countNumber) {
-          this.countNumber = parseInt(parseFloat(this.moveLeft) / 1400) + 1;
-        }
-        if (parseFloat(this.moveLeft) + 40 > parseFloat(this.imgWidth)) {
-          clearInterval(this.timeId);
-          timeMove.style.left = this.moveLeft;
-          this.stop();
-          timeMove.style.transition = "none";
-        }
-        this.timeCurrentLeft = this.setDetailTime(
-          parseFloat(
-            Math.floor((this.number / 100) * (timeMove.offsetLeft + 40) * 100) /
-              100
-          ).toFixed(2)
-        );
-      }, 20);
-      var pxecachS = this.number / 100; // 对应的每px所需要的秒
-      // console.log(parseInt(target), parseInt(this.moveLeft), pxecachS);
-      var timeCount =
-        (parseInt(this.target) - parseInt(this.moveLeft)) * pxecachS;
-      // console.log(timeCount);
-      timeMove.style.transition = `all ${timeCount}s linear`;
-    },
-    // 暂停
-    stop() {
-      this.Event.$emit("paly", false); //暂停视频
-      this.bofangFlag = true;
-      // this.zanting();
-      const timeMove = document.getElementsByClassName("blueBg")[0];
-      this.moveLeft = window.getComputedStyle(timeMove).left;
-      timeMove.style.left = this.moveLeft;
-      timeMove.style.transition = `none`;
-      clearInterval(this.timeId);
-      clearInterval(this.clickIn);
-      clearInterval(this.subTimeId);
-      clearInterval(this.scrollId);
-    },
-
-    prevPage() {
-      // 上一帧
-      this.stop();
-      const timeMove = document.getElementById("blueBg");
-      var movePX = (100 / this.number / 100) * 10;
-      var currentLeft = parseFloat(window.getComputedStyle(timeMove).left);
-      if (currentLeft <= -40) {
-        timeMove.style.left = "-40px";
-        timeMove.style.transition = "none";
-        this.timeCurrentLeft = this.setDetailTime(
-          parseFloat(
-            Math.floor((this.number / 100) * (timeMove.offsetLeft + 40) * 100) /
-              100
-          ).toFixed(2)
-        );
-        return;
-      }
-      var fininal = currentLeft - movePX;
-      timeMove.style.left = fininal + "px";
-      this.timeCurrentLeft = this.getStartEndTime(fininal + 40);
-      this.Event.$emit("currentTime", this.timeCurrentLeft); //触发上一帧下一帧
-    },
-
-    nextpage() {
-      // 下一帧
-      this.stop();
-      const timeMove = document.getElementById("blueBg");
-      var movePX = (100 / this.number / 100) * 10;
-      var currentLeft = parseFloat(window.getComputedStyle(timeMove).left);
-      if (currentLeft >= parseFloat(this.imgWidth) - 40) {
-        timeMove.style.left = parseFloat(this.imgWidth) - 40 + "px";
-        timeMove.style.transition = "none";
-        this.timeCurrentLeft = this.setDetailTime(
-          parseFloat(
-            Math.floor((this.number / 100) * (timeMove.offsetLeft + 40) * 100) /
-              100
-          ).toFixed(2)
-        );
-        return;
-      }
-      var fininal = currentLeft + movePX;
-      timeMove.style.left = fininal + "px";
-      this.timeCurrentLeft = this.getStartEndTime(fininal + 40);
-      this.Event.$emit("currentTime", this.timeCurrentLeft);
-    },
-
-    // 打入计时器
-    clickIninterval() {
-      if (this.currentRunMsg == "run") {
-        clearInterval(this.timeId);
-      }
-      this.currentRunMsg = "clickIn";
-      const timeMove = document.getElementsByClassName("blueBg")[0];
-      var target = this.target;
-      this.clickIn = setInterval(() => {
-        // console.log("clickIn");
-        this.moveLeft = window.getComputedStyle(timeMove).left;
-
-        this.timeMoveNumber = parseInt(parseInt(this.moveLeft) / 1600); //赋值让底部滚动
-        if (parseFloat(this.moveLeft) / 1400 > this.countNumber) {
-          this.countNumber = parseInt(parseFloat(this.moveLeft) / 1400) + 1;
-        }
-        // console.log(this.moveLeft, this.imgWidth);
-        if (parseFloat(this.moveLeft) + 40 >= parseFloat(this.imgWidth)) {
-          clearInterval(this.clickIn);
-          this.timeMove();
-          this.clickmsg = "打入点";
-          timeMove.style.left = this.moveLeft;
-          timeMove.style.transition = "none";
-          this.stop();
-        }
-        if (this.cutCoverList.length > 0) {
-          var current = this.cutCoverList[this.cutCoverList.length - 1];
-          var coverBoxWidth =
-            parseFloat(this.moveLeft) - parseFloat(this.clickCurrentLeft + 40);
-
-          current.width = coverBoxWidth + "px";
-          current.timeLong = this.getStartEndTime(coverBoxWidth);
-        }
-
-        this.timeCurrentLeft = this.setDetailTime(
-          parseFloat(
-            Math.floor((this.number / 100) * (timeMove.offsetLeft + 40) * 100) /
-              100
-          ).toFixed(2)
-        );
-      }, 10);
-      var pxecachS = this.number / 100; // 对应的每px所需要的秒
-      // console.log(parseInt(target), parseInt(this.moveLeft), pxecachS);
-      var timeCount = (parseInt(target) - parseInt(this.moveLeft)) * pxecachS;
-      // console.log(timeCount);
-      timeMove.style.left = target + "px";
-      timeMove.style.transition = `all ${timeCount}s linear`;
-    },
-    //改变刻度
-    stepChange() {
-      // 鼠标松开时触发
-      // console.log(this.value2);
-      var number = this.number;
-      // var moveLeft = parseFloat(document.getElementById("blueBg").style.left);
-      switch (this.value2) {
-        case 0:
-          this.number = 600;
-          break;
-        case 20:
-          this.number = 120;
-          break;
-        case 40:
-          this.number = 30;
-          break;
-        case 60:
-          this.number = 10;
-          break;
-        case 80:
-          this.number = 5;
-          break;
-        case 100:
-          this.number = 1;
-          break;
-        default:
-          break;
-      }
-      // 修改拆条宽度
-      for (var i = 0; i < this.cutCoverList.length; i++) {
-        this.cutCoverList[i].left =
-          parseFloat(
-            (number * parseFloat(this.cutCoverList[i].left)) / this.number
-          ) + "px";
-        this.cutCoverList[i].width =
-          parseFloat(
-            (number * parseFloat(this.cutCoverList[i].width)) / this.number
-          ) + "px";
-      }
-      var moveBox = document.getElementById("blueBg");
-      var moveBoxLeft = document.getElementById("blueBg").style.left;
-      moveBox.style.left =
-        parseFloat((number * parseFloat(moveBoxLeft)) / this.number) + "px";
-      this.timeCurrentLeft = this.setDetailTime(
-        parseFloat(
-          Math.floor(
-            (this.number / 100) * (this.topMoveBox.offsetLeft + 40) * 100
-          ) / 100
-        ).toFixed(2)
-      );
-      this.showCanvas();
-      this.imgWidth = (this.videoLong / this.number) * 100 + "px";
-      this.stop();
-    },
-    // 获取总秒树
-    getCountS(time) {
-      var hour = time.split(":")[0];
-      var min = time.split(":")[1];
-      var s = time.split(".")[0].split(":")[2];
-      var ms = time.split(".")[1];
-      return parseFloat(
-        parseInt(hour) * 3600 + parseInt(min * 60) + s + "." + ms
-      );
-    },
-    showCanvas() {
-      var that = this;
-
-      this.drawCan(this.cxt, this.config, that.number);
-
-      // 鼠标按下时 记录状态及位置
-      this.canvas.addEventListener("dblclick", function (e) {
-        var scrollpd = document.getElementById("pickeddeng");
-        var scrollLeft = scrollpd.scrollLeft;
-
-        if (e.offsetX > parseInt(scrollLeft) + 1400) {
-          that.$message.error("超过最大位置，请选择左侧位置~");
-          return;
-        }
-        that.stop();
-        that.clickCurrentTime = e.offsetX;
-        var timeMove = document.getElementById("blueBg");
-        timeMove.style.left = e.offsetX - 60 + "px";
-
-        that.timeCurrentLeft = that.setDetailTime(
-          parseFloat(
-            Math.floor((that.number / 100) * (timeMove.offsetLeft + 40) * 100) /
-              100
-          ).toFixed(2)
-        );
-
-        that.config.mousedown = true;
-        that.config.start = [e.offsetX, e.offsetY];
-        that.bofangFlag = true;
-        that.Event.$emit("currentTime", that.timeCurrentLeft);
-        // console.log(e.offsetX, e.offsetY)
-      });
-      // 鼠标放开时 重置状态
-      this.canvas.addEventListener("mouseup", function (e) {
-        that.config.mousedown = false;
-        that.config.x += e.offsetX - that.config.start[0];
-        // console.log(that.config.x);
-        if (that.config.x > 10) {
-          that.config.x = 20;
-          that.drawCan(that.cxt, that.config, that.number);
-        }
-      });
-      // 鼠标划出canvas时 重置状态
-      this.canvas.addEventListener("mouseout", function (e) {
-        that.config.mousedown = false;
-      });
-      // 鼠标移动时 改变位置
-      // this.canvas.addEventListener("mousemove", function(e) {
-      //   // 如果鼠标左键被按下 可以拖动
-      //   if (that.config.mousedown) {
-      //     that.config.x += e.offsetX - that.config.start[0];
-      //     console.log(e.offsetY);
-      //     that.config.start = [e.offsetX, e.offsetY];
-      //     that.drawCan(that.cxt, that.config, that.number);
-      //   }
-      // });
-    },
-    drawCan(cxt, config, number) {
-      var size = 36000; //size/10则生成多少个刻度
-      var x = config.x || 0;
-      var y = config.y || 0;
-      var w = config.w || 5;
-      var h = config.h || 10;
-      var offset = 3; // 上面数字的偏移量
-      // 画之前清空画布
-      cxt.clearRect(0, 0, config.width, config.height);
-      // 设置画笔属性
-      cxt.strokeStyle = "#fff";
-      cxt.lineWidth = 1;
-      cxt.font = 12;
-      // console.log(size);
-      for (var i = 0; i <= size; i++) {
-        // 开始一条路径
-        cxt.beginPath();
-        // 移动到指定位置
-        cxt.moveTo(x + i * w, y);
-        // 满10刻度时刻度线长一些 并且在上方表明刻度
-        if (i % 10 == 0 && this.number == 1) {
-          // 区间为 1 s
-          offset = 20;
-          cxt.fillText(this.setTime(i / 10), x + i * w - offset, y - h * 2.5);
-          cxt.lineTo(x + i * w, y - h * 2);
-        }
-
-        if (i % 10 == 0 && this.number == 5) {
-          // 区间为 5 s
-          offset = 20;
-          cxt.fillText(this.setTime(i / 2), x + i * w - offset, y - h * 2.5);
-          cxt.lineTo(x + i * w, y - h * 2);
-        }
-        if (i % 10 == 0 && this.number == 10) {
-          // 区间为 10 s
-          offset = 20;
-          // console.log(i * number, x + i * w - offset, y - h * 2.5)
-          // 按照第一个参数递增
-          cxt.fillText(this.setTime(i), x + i * w - offset, y - h * 2.5);
-          cxt.lineTo(x + i * w, y - h * 2);
-        }
-        if (i % 10 == 0 && this.number == 30) {
-          // 区间为 30 s
-          offset = 20;
-          cxt.fillText(this.setTime(i * 3), x + i * w - offset, y - h * 2.5);
-          cxt.lineTo(x + i * w, y - h * 2);
-        }
-        if (i % 10 == 0 && this.number == 120) {
-          // 区间为 120 s
-          offset = 20;
-          cxt.fillText(this.setTime(i * 12), x + i * w - offset, y - h * 2.5);
-          cxt.lineTo(x + i * w, y - h * 2);
-        }
-        if (i % 10 == 0 && this.number == 600) {
-          // 区间为 600 s
-          offset = 20;
-          cxt.fillText(this.setTime(i * 60), x + i * w - offset, y - h * 2.5);
-          cxt.lineTo(x + i * w, y - h * 2);
-        } else {
-          // 满5刻度时的刻度线略长于1刻度的
-          cxt.lineTo(x + i * w, y - (i % 5 === 0 ? 1.5 : 1) * h);
-        }
-
-        // 画出路径
-        cxt.stroke();
-      }
-      // var myj=0
-      // for(var i=0;i<this.maxTimeLong;i+=this.number){
-      //   myj++;
-      //   cxt.fillText(i, x + i * w - offset,45);
-      //   console.log(i, x + i * w - offset,45)
-      // }
-
-      // if (i % 10 == 0) {
-      //   // 计算偏移量
-      //   offset = 20;
-      //   // console.log(i/10)
-      //   // offset = (String(i / 10).length * 6) / 2;
-      //   // console.log(cxt.fillText(i / 10, x + i * w - offset, y - h * 2.5))
-      //   // cxt.fillText(i / 10, x + i * w - offset, y - h * 2.5);
-      //   // cxt.fillText("00:00:23", x + i * w - offset, y - h * 2.5)
-      //   cxt.lineTo(x + i * w, y - h * 2);
-      // } else {
-      //   // 满5刻度时的刻度线略长于1刻度的
-      //   cxt.lineTo(x + i * w, y - (i % 5 === 0 ? 1.5 : 1) * h);
-      // }
-    },
-    setTime(time) {
-      var secondTime = parseInt(time); // 秒
-      var minuteTime = 0; // 分
-      var hourTime = 0; // 小时
-      if (secondTime > 60) {
-        //如果秒数大于60，将秒数转换成整数
-        //获取分钟，除以60取整数，得到整数分钟
-        minuteTime = parseInt(secondTime / 60);
-        //获取秒数，秒数取佘，得到整数秒数
-        secondTime = parseInt(secondTime % 60);
-        //如果分钟大于60，将分钟转换成小时
-        if (minuteTime > 60) {
-          //获取小时，获取分钟除以60，得到整数小时
-          hourTime = parseInt(minuteTime / 60);
-          //获取小时后取佘的分，获取分钟除以60取佘的分
-          minuteTime = parseInt(minuteTime % 60);
-        }
-      }
-      hourTime = hourTime < 10 ? String("0" + hourTime) : hourTime;
-      minuteTime = minuteTime < 10 ? String("0" + minuteTime) : minuteTime;
-      secondTime = secondTime < 10 ? String("0" + secondTime) : secondTime;
-      return hourTime + ":" + minuteTime + ":" + secondTime;
-    },
-    setDetailTime(time) {
-      // console.log(time)
-      var detail = null;
-      if (time % 1 == 0) {
-        detail = "00";
-      } else {
-        detail = String(parseFloat(parseInt(time * 100) / 100)).split(".")[1]; // 秒
-      }
-      if (String(detail).length == 1) {
-        detail = String(detail + "0");
-      }
-      var secondTime = parseInt(time); // 秒
-      var minuteTime = 0; // 分
-      var hourTime = 0; // 小时
-      if (secondTime >= 60) {
-        //如果秒数大于60，将秒数转换成整数
-        //获取分钟，除以60取整数，得到整数分钟
-        minuteTime = parseInt(secondTime / 60);
-        //获取秒数，秒数取佘，得到整数秒数
-        secondTime = parseInt(secondTime % 60);
-        //如果分钟大于60，将分钟转换成小时
-        if (minuteTime >= 60) {
-          //获取小时，获取分钟除以60，得到整数小时
-          hourTime = parseInt(minuteTime / 60);
-          //获取小时后取佘的分，获取分钟除以60取佘的分
-          minuteTime = parseInt(minuteTime % 60);
-        }
-      }
-      hourTime = hourTime < 10 ? String("0" + hourTime) : hourTime;
-      minuteTime = minuteTime < 10 ? String("0" + minuteTime) : minuteTime;
-      secondTime = secondTime < 10 ? String("0" + secondTime) : secondTime;
-      return hourTime + ":" + minuteTime + ":" + secondTime + "." + detail;
-    },
-    timeMove() {
-      const timeMove = document.getElementsByClassName("blueBg")[0];
-      if (this.clickmsg == "打出点") {
-        // 添加结束时间
-        var currentBox = this.cutCoverList[this.cutCoverList.length - 1];
-        var start = this.getCountS(currentBox.startTime);
-        var end = this.getCountS(
-          this.getStartEndTime(
-            parseFloat(currentBox.left) + parseFloat(currentBox.width)
-          )
-        );
-        if (end - start < 3) {
-          this.$message.error("最短剪辑3秒");
-          this.clickmsg = "打入点";
-          return;
-        }
-        currentBox.endTime = this.getStartEndTime(
-          parseFloat(currentBox.left) + parseFloat(currentBox.width)
-        );
-
-        clearInterval(this.clickIn);
-        this.currentRunMsg = "run";
-        this.running();
-        // this.timeId = setInterval(() => {
-        //   this.moveLeft = window.getComputedStyle(timeMove).left;
-        //   this.timeCurrentLeft = this.setDetailTime(
-        //     parseFloat(
-        //       Math.floor(
-        //         (this.number / 100) * (timeMove.offsetLeft + 40) * 100
-        //       ) / 100
-        //     ).toFixed(2)
-        //   );
-        //   this.coverBoxWidth =parseFloat(this.moveLeft) - parseFloat(this.clickCurrentLeft);
-        // }, 10);
-      } else if (this.clickmsg == "打入点") {
-        // this.bofangFlag = false;
-        clearInterval(this.timeId);
-        this.currentRunMsg = "clickIn";
-        this.running();
-        // return;
-        var target = this.target;
-        this.clickCurrentLeft = window.getComputedStyle(timeMove).left;
-        // console.log(this.clickCurrentLeft)
-        // 添加覆盖盒子
-        this.$set(this.cutCoverList, this.cutCoverList.length, {
-          clickFlag: true,
-          text: "拆条" + parseInt(parseInt(this.cutCoverList.length) + 1),
-          left: parseFloat(this.clickCurrentLeft) + 40 + "px",
-          width: "0px",
-          startTime: this.getStartEndTime(
-            parseFloat(this.clickCurrentLeft) + 40
-          ),
-        });
-        // clearInterval(this.timeId);
-      }
-    },
-    getStartEndTime(leftPX) {
-      return this.setDetailTime(
-        parseFloat(
-          Math.floor((this.number / 100) * leftPX * 100) / 100
-        ).toFixed(2)
-      );
-    },
-    // 回到起点
-    backTostart() {
-      this.stop();
-      this.Event.$emit("currentTime", this.timeCurrentLeft);
-      const timeMove = document.getElementById("blueBg");
-      const scrollpd = document.getElementById("pickeddeng");
-      scrollpd.scrollLeft = 0;
-      timeMove.style.left = "-40px";
-      timeMove.style.transition = "none";
-      this.timeCurrentLeft = this.setDetailTime(
-        parseFloat(
-          Math.floor((this.number / 100) * (timeMove.offsetLeft + 40) * 100) /
-            100
-        ).toFixed(2)
-      );
-    },
-
-    //回到尾部
-    backToend() {
-      this.stop();
-      this.Event.$emit("currentTime", this.timeCurrentLeft);
-      const timeMove = document.getElementById("blueBg");
-      const scrollpd = document.getElementById("pickeddeng");
-      if (parseInt(this.imgWidth) > 1400) {
-        scrollpd.scrollLeft = parseInt(this.imgWidth) - 1400;
-      } else {
-        scrollpd.scrollLeft = 0;
-      }
-      timeMove.style.left = parseFloat(this.imgWidth) - 40 + "px";
-      timeMove.style.transition = "none";
-      this.timeCurrentLeft = this.setDetailTime(
-        parseFloat(
-          Math.floor((this.number / 100) * (timeMove.offsetLeft + 40) * 100) /
-            100
-        ).toFixed(2)
-      );
-    },
+    }
   },
   watch: {
-    timeMoveNumber(val, old) {
-      this.pickeddeng.scrollLeft = val * 1600;
-    },
-    videoLong(val, old) {
-      this.maxTimeLong = (Math.floor(val / this.number) + 1) * 10;
-    },
-    maxTimeLong(val, old) {
-      this.showCanvas();
-    },
-    imgWidth(val, old) {
-      this.target = parseFloat(val) - 40;
-    }
   },
 };
 </script>
@@ -1353,7 +700,7 @@ footer {
   display: inline-block;
   background: #409eff;
   border-radius: 2px;
-  padding: 4px 16px;
+  padding: 11px 16px;
   color: #fff;
   font-size: 14px;
 }
@@ -1369,5 +716,11 @@ footer {
   background: #68b1fb;
   color: #fff;
   text-decoration: none;
+}
+.tools-btn {
+  margin: 5px 0;
+}
+.mgx10 {
+  margin:0 10px;
 }
 </style>

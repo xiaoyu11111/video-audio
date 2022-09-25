@@ -22,15 +22,15 @@ export default {
     };
   },
   created() {
-    this.renderResize();
-    setTimeout(function () {
-      var x = document.body.scrollWidth; //获取页面最大宽度
-      document.body.scrollTo(x, 0);
-    }, 100);
-    window.addEventListener("resize", this.renderResize, false);
+    // this.renderResize();
+    // setTimeout(function () {
+    //   var x = document.body.scrollWidth; //获取页面最大宽度
+    //   document.body.scrollTo(x, 0);
+    // }, 100);
+    // window.addEventListener("resize", this.renderResize, false);
   },
   destroyed() {
-    window.removeEventListener("resize", this.renderResize, false);
+    // window.removeEventListener("resize", this.renderResize, false);
   },
   methods: {
     renderResize() {
