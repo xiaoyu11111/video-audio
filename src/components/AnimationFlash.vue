@@ -344,7 +344,7 @@ export default {
       var name = changjing[i].people[j].title
       var start = changjing[i].people[j].start
       fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
-      if (start && start !== 1) {
+      if (start && start !== changjing[i].start) {
         fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1)
       }
       fl.getDocumentDOM().getTimeline().setSelectedFrames(start || changjing[i].start-1, start || changjing[i].start-1);
