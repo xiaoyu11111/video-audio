@@ -719,8 +719,8 @@ footer {
 .file input {
   position: absolute;
   font-size: 0.8rem;
-  right: 0;
-  top: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   cursor: pointer;
 }
