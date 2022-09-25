@@ -12,11 +12,20 @@
       <el-button @click="playWave()" class="mgx10">播放/暂停</el-button>
       <span class="mgx10">总时长: {{this.animationTime}}s</span>
       <span>当前时间: {{this.curPlayingTime}}s</span>
-      <el-slider
-        v-model="sliderValue"
-        :step="1"
-        @change="stepChange"
-      ></el-slider>
+      <el-row >
+        <el-col :span="6">播放速度:</el-col>
+        <el-col :span="18"><el-input-number :precision="1" :step="0.1" :min="0" :max='2' v-model="audioRate" @change="changAudioRate"></el-input-number></el-col>
+      </el-row>
+      <el-row >
+        <el-col :span="6">时间进度:</el-col>
+        <el-col :span="18">
+          <el-slider
+            v-model="sliderValue"
+            :step="1"
+            @change="stepChange"
+          ></el-slider>
+        </el-col>
+      </el-row>
     </div>
     <div id="waveform"></div>
     <div id="wave-timeline"></div>
@@ -50,6 +59,7 @@ export default {
       animationTime: 0, // 动画时长
       wavesurfer: null,
       curPlayingTime: 0,
+      audioRate: 1
     };
   },
   computed: {
@@ -95,7 +105,6 @@ export default {
         container: '#waveform',
         waveColor: 'violet',
         barWidth: 2,
-        barGap: 2,
         responsive: true,
         scrollParent: true,
         progressColor: 'purple',
@@ -127,6 +136,9 @@ export default {
     });
   },
   methods: {
+    changAudioRate(value) {
+      this.wavesurfer.setPlaybackRate(value)
+    },
     stepChange(value) {
       this.wavesurfer.seekAndCenter(value/100)
     },
