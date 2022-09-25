@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="100px" class="demo-dynamic">
+    <el-form :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="60px" class="demo-dynamic">
       <el-form-item
         v-for="(changjing, index) in dynamicValidateForm.changjings"
         :label="'场景' + (index + 1)"
@@ -19,20 +19,20 @@
         <el-col :span="21"><el-input-number :precision="2" :min="0" v-model="changjing.startTime"></el-input-number></el-col>
       </el-row>
       <el-row>
-        <el-col :span="3">场景特效:</el-col>
-        <el-col v-for="(effect, index1) in changjing.effects" :span="4" :key="changjing + 1 + index1">
-          <el-cascader :options="effectOptions" filterable clearable :value="effect" @change="(value)=>changeChangjingEffect(value, index, index1)"></el-cascader>
-        </el-col>
-        <el-col :span="7" class="effect-num"><span>个数</span><el-input-number :min="0" v-model="changjing.effectsNum" @change="(value) => changeChangjingEffectNum(value, index)"></el-input-number></el-col>
-      </el-row>
-      <el-row>
-        <el-col v-for="(peopleitem, index1) in changjing.people" :span="24" :key="changjing + 2 + index1">
-          <el-col v-if="index1 == 0" :span="3">人物:</el-col>
-          <el-col :offset="index1 == 0 ? 0 : 3 " :span="4"><el-cascader :options="peopleOptions" filterable clearable :value="peopleitem" @change="(value)=>changeChangjingPeople(value, index, index1)"></el-cascader></el-col>
-          <el-col :span="9" class="effect-num"><span>出场时间(s)</span><el-input-number :precision="2" :min="0" v-model="changjing.peopleTimes[index1]" @change="(value) => changeChangjingPeopleTimes(value, index, index1)"></el-input-number></el-col>
-        </el-col>
-        <el-col :offset="3" :span="7" class="effect-num"><span>个数</span><el-input-number :min="1" v-model="changjing.peopleNum" @change="(value) => changeChangjingPeopleNum(value, index)"></el-input-number></el-col>
-      </el-row>
+          <el-col :span="3">场景特效:</el-col>
+          <el-col v-for="(effect, index1) in changjing.effects" :span="4" :key="changjing + 1 + index1">
+            <el-cascader :append-to-body="false" :options="effectOptions" :filterable="!isLandscape" clearable :value="effect" @change="(value)=>changeChangjingEffect(value, index, index1)"></el-cascader>
+          </el-col>
+          <el-col :offset="3" :span="21" class="effect-num"><span>个数</span><el-input-number :min="0" v-model="changjing.effectsNum" @change="(value) => changeChangjingEffectNum(value, index)"></el-input-number></el-col>
+        </el-row>
+        <el-row>
+          <el-col v-for="(peopleitem, index1) in changjing.people" :span="24" :key="changjing + 2 + index1">
+            <el-col v-if="index1 == 0" :span="3">人物:</el-col>
+            <el-col :offset="index1 == 0 ? 0 : 3 " :span="4"><el-cascader :append-to-body="false" :options="peopleOptions" :filterable="!isLandscape" clearable :value="peopleitem" @change="(value)=>changeChangjingPeople(value, index, index1)"></el-cascader></el-col>
+            <el-col :span="10" class="effect-num"><span>出场时间(s)</span><el-input-number :precision="2" :min="0" v-model="changjing.peopleTimes[index1]" @change="(value) => changeChangjingPeopleTimes(value, index, index1)"></el-input-number></el-col>
+          </el-col>
+          <el-col :offset="3" :span="21" class="effect-num"><span>个数</span><el-input-number :min="1" v-model="changjing.peopleNum" @change="(value) => changeChangjingPeopleNum(value, index)"></el-input-number></el-col>
+        </el-row>
         <el-button v-if="dynamicValidateForm.changjings.length > 1" @click.prevent="removechangjing(changjing)">删除场景</el-button>
       </el-form-item>
       <el-form-item>
@@ -56,7 +56,7 @@
     peopleTimes: []
   }]
 export default {
-  props: ['animationTime'],
+  props: ['animationTime', 'isLandscape'],
   data() {
     return { 
       effectOptions: [],
@@ -81,7 +81,7 @@ export default {
           value: '下',
           label: '下'
         }]
-    const arr = ['下雨','流线(水平)','流线(垂直)','光圈','光圈1','光圈2','光圈3','闪电','雷电','流线(水平)1','流线(垂直)1']
+    const arr = ['流线(水平)','流线(水平)1','流线(水平)2','流线(垂直)','流线(垂直)1','光圈','光圈1','光圈2','光圈3','下雨','闪电','雷电']
     this.effectOptions = arr.map(name => (
       {
         value: name,
@@ -159,14 +159,14 @@ export default {
           const finalChangjings = _.map(changjings, (item, i) => {
             const start = i == 0 ? 1 : Math.ceil(item.startTime * 30)
             return {
-              title: item.title,
+              title: '场景/'+item.title,
               start,
-              people: _.compact(_.map(item.people, arr => {
+              people: _.compact(_.map(item.people, (arr, index) => {
                 if (_.isEmpty(arr)) return null
                 return {
                   title: arr[0], 
-                  start: _.isNil(item.peopleTimes[i]) ? start : 
-                  start > (Math.ceil(item.peopleTimes[i] * 30) || 1) ? start : (Math.ceil(item.peopleTimes[i] * 30) || 1)
+                  start: _.isNil(item.peopleTimes[index]) ? start : 
+                  start > (Math.ceil(item.peopleTimes[index] * 30) || 1) ? start : (Math.ceil(item.peopleTimes[index] * 30) || 1)
                 }
               })),
               effects: _.compact(_.map(item.effects, arr => {
@@ -211,82 +211,57 @@ export default {
   },
   computed:{
     falshText() {
-      return  `
-// C:\Users\Administrator\AppData\Local\Adobe\Animate 2022\zh_CN\Configuration\
-
-// var configDir = fl.configDirectory;
-// fl.trace(fl.configDirectory)
-//an.getDocumentDOM().scaleSelection(-1, 1);水平翻转
-var canvasWidth = 1920 // 画布宽度
-var canvasHeight = 1080 // 画布高度
-var fs = 30 // 动画帧数
-var time = ${this.animationTime} // 动画时长
-// 场景具体信息, 出现的人物/特效
-var changjing = ${JSON.stringify(this.finalChangjings)}
-// 位置坐标, 这里一般不需要改; key: 位置名称, value: [宽, 高, 中心点]
-var effectsLocationDict = {
-  '上': [canvasWidth, 360, canvasWidth/2, 180],
-  '中': [canvasWidth, 720, canvasWidth/2, canvasHeight/2],
-  '下': [canvasWidth, 360, canvasWidth/2, canvasHeight - 180],
-  '全': [canvasWidth, canvasHeight, canvasWidth/2, canvasHeight/2]
-}
-fl.getDocumentDOM().library.deleteItem('待删除')
-fl.getDocumentDOM().library.newFolder('待删除')
-fl.getDocumentDOM().addNewScene()
-fl.getDocumentDOM().editScene(0);
-fl.getDocumentDOM().deleteScene();
-var NumLayer = fl.getDocumentDOM().getTimeline().layerCount
-// 添加图层
-fl.getDocumentDOM().getTimeline().addNewLayer("场景", "normal", true);
-fl.getDocumentDOM().getTimeline().addNewLayer("场景特效", "normal", true);
-fl.getDocumentDOM().getTimeline().addNewLayer("camera", "normal", true);
-
-// 总帧
-var insertFrames = fs * time
-fl.getDocumentDOM().getTimeline().insertFrames(insertFrames, true, 0);
-
-var NumLayer = fl.getDocumentDOM().getTimeline().layerCount
-// 选择场景层
-var bgIndex = NumLayer - 2
-fl.getDocumentDOM().getTimeline().setSelectedLayers(bgIndex);
-
-// 添加场景
-for (var i = 0; i < changjing.length; i++) {
-  if (i > 0) {
-    fl.getDocumentDOM().getTimeline().convertToBlankKeyframes(changjing[i].start - 1);
+  // var time = ${this.animationTime} // 动画时长
+  // var changjing = ${JSON.stringify(this.finalChangjings)}
+  
+        return  `
+  // C:\Users\Administrator\AppData\Local\Adobe\Animate 2022\zh_CN\Configuration\
+  
+  // var configDir = fl.configDirectory;
+  // fl.trace(fl.configDirectory)
+  //an.getDocumentDOM().scaleSelection(-1, 1);水平翻转
+  var time = ${this.animationTime} // 动画时长
+  var changjing = ${JSON.stringify(this.finalChangjings)}
+  var canvasWidth = 1920 // 画布宽度
+  var canvasHeight = 1080 // 画布高度
+  var fs = 30 // 动画帧数
+  // 位置坐标, 这里一般不需要改; key: 位置名称, value: [宽, 高, 中心点]
+  var effectsLocationDict = {
+    '上': [canvasWidth, 360, canvasWidth/2, 180],
+    '中': [canvasWidth, 720, canvasWidth/2, canvasHeight/2],
+    '下': [canvasWidth, 360, canvasWidth/2, canvasHeight - 180],
+    '全': [canvasWidth, canvasHeight, canvasWidth/2, canvasHeight/2]
   }
-  fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start-1, changjing[i].start-1);
-  fl.getDocumentDOM().library.selectItem(changjing[i].title);
-  fl.getDocumentDOM().library.addItemToDocument({x: canvasWidth/2, y: canvasHeight / 2});
-  // 场景宽度比较小，等比放大
-  var curBg = fl.getDocumentDOM().getTimeline().layers[bgIndex].frames[changjing[i].start-1].elements[0];
-  var rate = canvasWidth / curBg.width
-  var curBgWidth = curBg.width
-  var curBgHeight = curBg.height
-  if (curBgHeight * rate >= canvasHeight) {
-    curBg.width = curBgWidth * rate
-    curBg.height = curBgHeight * rate
-  } else {
-    curBg.width = curBgWidth * rate * canvasHeight/(curBgHeight * rate)
-    curBg.height = canvasHeight
-  }
-}
-
-// 选择camera层
-var cameraIndex = 0
-fl.getDocumentDOM().getTimeline().setSelectedLayers(cameraIndex);
-
-// 添加过渡效果
-for (var i = 0; i < changjing.length; i++) {
-  if (i != 0) {
-    fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[i].start - 11)
-    fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[i].start + 9)
-    fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start-11,changjing[i].start-11);
-    fl.getDocumentDOM().library.selectItem('场景/过渡页');
+  fl.getDocumentDOM().library.deleteItem('待删除')
+  fl.getDocumentDOM().library.newFolder('待删除')
+  fl.getDocumentDOM().addNewScene()
+  fl.getDocumentDOM().editScene(0);
+  fl.getDocumentDOM().deleteScene();
+  var NumLayer = fl.getDocumentDOM().getTimeline().layerCount
+  // 添加图层
+  fl.getDocumentDOM().getTimeline().addNewLayer("场景", "normal", true);
+  fl.getDocumentDOM().getTimeline().addNewLayer("场景特效", "normal", true);
+  fl.getDocumentDOM().getTimeline().addNewLayer("camera", "normal", true);
+  
+  // 总帧
+  var insertFrames = fs * time
+  fl.getDocumentDOM().getTimeline().insertFrames(insertFrames, true, 0);
+  
+  var NumLayer = fl.getDocumentDOM().getTimeline().layerCount
+  // 选择场景层
+  var bgIndex = NumLayer - 2
+  fl.getDocumentDOM().getTimeline().setSelectedLayers(bgIndex);
+  
+  // 添加场景
+  for (var i = 0; i < changjing.length; i++) {
+    if (i > 0) {
+      fl.getDocumentDOM().getTimeline().convertToBlankKeyframes(changjing[i].start - 1);
+    }
+    fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start-1, changjing[i].start-1);
+    fl.getDocumentDOM().library.selectItem(changjing[i].title);
     fl.getDocumentDOM().library.addItemToDocument({x: canvasWidth/2, y: canvasHeight / 2});
     // 场景宽度比较小，等比放大
-    var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
-    var curBg = fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[changjing[i].start-1].elements[0];
+    var curBg = fl.getDocumentDOM().getTimeline().layers[bgIndex].frames[changjing[i].start-1].elements[0];
     var rate = canvasWidth / curBg.width
     var curBgWidth = curBg.width
     var curBgHeight = curBg.height
@@ -297,88 +272,118 @@ for (var i = 0; i < changjing.length; i++) {
       curBg.width = curBgWidth * rate * canvasHeight/(curBgHeight * rate)
       curBg.height = canvasHeight
     }
-    fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[i].start - 1)
-    fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[i].start + 8)
-    fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start-2,changjing[i].start+1);
-    fl.getDocumentDOM().getTimeline().createMotionTween();
-    fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start + 8,changjing[i].start + 8);
-    fl.getDocumentDOM().setInstanceAlpha(0)
-    fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start - 11,changjing[i].start - 11);
-    fl.getDocumentDOM().setInstanceAlpha(0)
   }
-}
-// 添加人物和特效层级
-var allPeople = []
-for (var i = 0; i < changjing.length; i++) {
-    if (changjing[i].people) {
-        for (var j = 0; j < changjing[i].people.length; j++) {
-            if (allPeople.indexOf(changjing[i].people[j].title) === -1) {
-              allPeople.push(changjing[i].people[j].title)
-            }
-        }
-    }
-}
-for (var i = 0; i < allPeople.length; i++) {
-  fl.getDocumentDOM().getTimeline().addNewLayer(allPeople[i]+"人物", "normal", false);
-  fl.getDocumentDOM().getTimeline().addNewLayer(allPeople[i]+"特效", "normal", false);
-}
-// 添加人物和场景特效到对应的层级
-var layers = fl.getDocumentDOM().getTimeline().layers
-var layersDict = {}
-for (var i = 0; i < layers.length - 1; i++) {
-  layersDict[layers[i].name] = i
-}
-for (var i = 1; i < layers.length - 2; i++) {
-  fl.getDocumentDOM().getTimeline().setSelectedLayers(i);
-  for (var j = 0; j < changjing.length; j++) {
-    if (j > 0) {
-      fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[j].start - 1);
+  
+  // 选择camera层
+  var cameraIndex = 0
+  fl.getDocumentDOM().getTimeline().setSelectedLayers(cameraIndex);
+  
+  // 添加过渡效果
+  for (var i = 0; i < changjing.length; i++) {
+    if (i != 0) {
+      fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[i].start - 11)
+      fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[i].start + 9)
+      fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start-11,changjing[i].start-11);
+      fl.getDocumentDOM().library.selectItem('场景/过渡页');
+      fl.getDocumentDOM().library.addItemToDocument({x: canvasWidth/2, y: canvasHeight / 2});
+      // 场景宽度比较小，等比放大
+      var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+      var curBg = fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[changjing[i].start-1].elements[0];
+      var rate = canvasWidth / curBg.width
+      var curBgWidth = curBg.width
+      var curBgHeight = curBg.height
+      if (curBgHeight * rate >= canvasHeight) {
+        curBg.width = curBgWidth * rate
+        curBg.height = curBgHeight * rate
+      } else {
+        curBg.width = curBgWidth * rate * canvasHeight/(curBgHeight * rate)
+        curBg.height = canvasHeight
+      }
+      fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[i].start - 1)
+      fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[i].start + 8)
+      fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start-2,changjing[i].start+1);
+      fl.getDocumentDOM().getTimeline().createMotionTween();
+      fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start + 8,changjing[i].start + 8);
+      fl.getDocumentDOM().setInstanceAlpha(0)
+      fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start - 11,changjing[i].start - 11);
+      fl.getDocumentDOM().setInstanceAlpha(0)
     }
   }
-}
-for (var i = 0; i < changjing.length; i++) {
-  // 添加人物
-  for (var j = 0; j < changjing[i].people.length; j++) {
-    var name = changjing[i].people[j].title
-    var start = changjing[i].people[j].start
-    fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
-    fl.getDocumentDOM().getTimeline().setSelectedFrames(start || changjing[i].start-1, start || changjing[i].start-1);
-    fl.getDocumentDOM().library.selectItem(name + '动作/' + name + '正面站姿');
-    var addItemX = parseInt(Math.random()*(1920 -130 - 130 + 1)+130,10)
-    var addItemY = parseInt(Math.random()*(1080 -302 - 302 + 1)+302,10)
-    fl.getDocumentDOM().library.addItemToDocument({x: addItemX, y: addItemY});
-    // 修改元件名
-    var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
-    fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start || changjing[i].start-1].elements[0]]
-    var name = fl.getDocumentDOM().selection[0].libraryItem.name
-    fl.getDocumentDOM().library.duplicateItem(name)
-    var nameArr = name.split(' 复制')
-    var newName = ''
-    if (name.indexOf(' 复制') == -1) {
-        newName = name+' 复制'
-    } else {
-        newName  = nameArr[0] + ' 复制 ' + (nameArr[1] ? (+nameArr[1] + 1) : 2)
-    }
-    fl.getDocumentDOM().swapElement(newName)
-    fl.getDocumentDOM().library.selectItem(newName);
-    fl.getDocumentDOM().library.moveToFolder('待删除');
+  // 添加人物和特效层级
+  var allPeople = []
+  for (var i = 0; i < changjing.length; i++) {
+      if (changjing[i].people) {
+          for (var j = 0; j < changjing[i].people.length; j++) {
+              if (allPeople.indexOf(changjing[i].people[j].title) === -1) {
+                allPeople.push(changjing[i].people[j].title)
+              }
+          }
+      }
   }
-  // 添加场景特效
-  fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict['场景特效']);
-  for (var c = 0; c < changjing[i].effects.length; c++) {
-    var name = changjing[i].effects[c].title
-    var location = changjing[i].effects[c].location
-    fl.getDocumentDOM().getTimeline().setSelectedFrames(start || changjing[i].start-1, start || changjing[i].start-1);
-    fl.getDocumentDOM().library.selectItem('场景特效/' + name);
-    fl.getDocumentDOM().library.addItemToDocument({x: effectsLocationDict[location][2], y: effectsLocationDict[location][3]});
-    var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
-    var curBg = fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start || changjing[i].start-1].elements[c];
-    fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start || changjing[i].start-1].elements[c]]
-    fl.getDocumentDOM().scaleSelection(effectsLocationDict[location][0]/curBg.width, effectsLocationDict[location][1]/curBg.height);
+  for (var i = 0; i < allPeople.length; i++) {
+    fl.getDocumentDOM().getTimeline().addNewLayer(allPeople[i]+"人物", "normal", false);
+    fl.getDocumentDOM().getTimeline().addNewLayer(allPeople[i]+"特效", "normal", false);
   }
-}
-      `
+  // 添加人物和场景特效到对应的层级
+  var layers = fl.getDocumentDOM().getTimeline().layers
+  var layersDict = {}
+  for (var i = 0; i < layers.length - 1; i++) {
+    layersDict[layers[i].name] = i
+  }
+  for (var i = 1; i < layers.length - 2; i++) {
+    fl.getDocumentDOM().getTimeline().setSelectedLayers(i);
+    for (var j = 0; j < changjing.length; j++) {
+      if (j > 0) {
+        fl.getDocumentDOM().getTimeline().convertToKeyframes(changjing[j].start - 1);
+      }
     }
+  }
+  for (var i = 0; i < changjing.length; i++) {
+    // 添加人物
+    for (var j = 0; j < changjing[i].people.length; j++) {
+      var name = changjing[i].people[j].title
+      var start = changjing[i].people[j].start
+      fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
+      if (start && start !== 1) {
+        fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1)
+      }
+      fl.getDocumentDOM().getTimeline().setSelectedFrames(start || changjing[i].start-1, start || changjing[i].start-1);
+      fl.getDocumentDOM().library.selectItem(name + '动作/' + name + '正面站姿');
+      var addItemX = parseInt(Math.random()*(1920 -130 - 130 + 1)+130,10)
+      var addItemY = parseInt(Math.random()*(1080 -302 - 302 + 1)+302,10)
+      fl.getDocumentDOM().library.addItemToDocument({x: addItemX, y: addItemY});
+      // 修改元件名
+      var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+      fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start || changjing[i].start-1].elements[0]]
+      var name = fl.getDocumentDOM().selection[0].libraryItem.name
+      fl.getDocumentDOM().library.duplicateItem(name)
+      var nameArr = name.split(' 复制')
+      var newName = ''
+      if (name.indexOf(' 复制') == -1) {
+          newName = name+' 复制'
+      } else {
+          newName  = nameArr[0] + ' 复制 ' + (nameArr[1] ? (+nameArr[1] + 1) : 2)
+      }
+      fl.getDocumentDOM().swapElement(newName)
+      fl.getDocumentDOM().library.selectItem(newName);
+      fl.getDocumentDOM().library.moveToFolder('待删除');
+    }
+    // 添加场景特效
+    fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict['场景特效']);
+    for (var c = 0; c < changjing[i].effects.length; c++) {
+      var name = changjing[i].effects[c].title
+      var location = changjing[i].effects[c].location
+      fl.getDocumentDOM().getTimeline().setSelectedFrames(changjing[i].start-1, changjing[i].start-1);
+      fl.getDocumentDOM().library.selectItem('场景特效/' + name);
+      fl.getDocumentDOM().library.addItemToDocument({x: effectsLocationDict[location][2], y: effectsLocationDict[location][3]});
+      var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+      var curBg = fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[changjing[i].start-1].elements[c];
+      fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[changjing[i].start-1].elements[c]]
+      fl.getDocumentDOM().scaleSelection(effectsLocationDict[location][0]/curBg.width, effectsLocationDict[location][1]/curBg.height);
+    }
+  }
+        `
+      }
   }
 };
 </script>

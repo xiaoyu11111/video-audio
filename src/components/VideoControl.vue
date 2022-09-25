@@ -104,7 +104,7 @@
       </div>
     </footer>
     <el-input type="textarea" autosize v-model="audioText" disabled />
-    <animationFlash :animationTime="animationTime"/>
+    <animationFlash :animationTime="animationTime" :isLandscape="isLandscape"/>
   </div>
 </template>
 <script>
@@ -1207,7 +1207,7 @@ footer {
       overflow: auto;
       background: #1d1e22;
       &::-webkit-scrollbar {
-        height: 10px;
+        height: 15px;
       }
       /*滚动条滑块*/
       &::-webkit-scrollbar-thumb {

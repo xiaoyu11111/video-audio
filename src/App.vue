@@ -78,4 +78,5 @@ textarea {
 .el-message-box {
   width: 100% !important;
 }
+
 </style>
