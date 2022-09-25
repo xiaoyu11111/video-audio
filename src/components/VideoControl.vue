@@ -13,11 +13,11 @@
       <span class="mgx10">总时长: {{this.animationTime}}s</span>
       <span>当前时间: {{this.curPlayingTime}}s</span>
       <el-row >
-        <el-col :span="6">播放速度:</el-col>
+        <el-col :span="isMobile ? 6 : 3">播放速度:</el-col>
         <el-col :span="18"><el-input-number :precision="1" :step="0.1" :min="0" :max='2' v-model="audioRate" @change="changAudioRate"></el-input-number></el-col>
       </el-row>
       <el-row >
-        <el-col :span="6">时间进度:</el-col>
+        <el-col :span="isMobile ? 6 : 3">时间进度:</el-col>
         <el-col :span="18">
           <el-slider
             v-model="sliderValue"
