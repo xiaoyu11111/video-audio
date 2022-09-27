@@ -192,7 +192,7 @@ export default {
       this.pickeddeng = document.getElementById("pickeddeng");
     },
     handleChange(e) {
-      this.uploadfile = this.files;
+      this.uploadfile = e.target.files;
       // this.uploadfile = e.target.files[0];
       this.wavesurfer.loadBlob(e.target.files[0]);
       const _this = this;
