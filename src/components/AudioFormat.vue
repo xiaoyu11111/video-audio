@@ -18,14 +18,14 @@ export default {
   data() {
     return {
       showDownload: false,
-      commandText: "-i input.mp3 -ab 48k -ar 8000 -ac 1 output.wav",
+      commandText: "-i /input/input.mp3 -ab 48k -ar 8000 -ac 1 output.wav",
     };
   },
   watch: {
     uploadfile(val, old) {
       const _this = this;
       if (val) {
-        this.commandText = `-i ${val[0].name} -ab 48k -ar 8000 -ac 1 output.wav`;
+        this.commandText = `-i /input/${val[0].name} -ab 48k -ar 8000 -ac 1 output.wav`;
         _this.sampleVideoData = val;
       }
       // this.fileToArrayBuffer(val).then(arrayBuffer => {
