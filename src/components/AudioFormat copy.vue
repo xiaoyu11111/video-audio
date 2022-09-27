@@ -14,7 +14,7 @@
 </template>
 <script>
 export default {
-  props: ["uploadfile"],
+  props: ['uploadfile'],
   data() {
     return {
       showDownload: false,
@@ -23,15 +23,10 @@ export default {
   },
   watch: {
     uploadfile(val, old) {
-      const _this = this;
-      if (val) {
-        this.commandText = `-i ${val[0].name} -ab 48k -ar 8000 -ac 1 output.wav`;
-        _this.sampleVideoData = val;
-      }
-      // this.fileToArrayBuffer(val).then(arrayBuffer => {
-      //   // _this.sampleVideoData = new Uint8Array(arrayBuffer)
-      //   _this.sampleVideoData = new Uint8Array(arrayBuffer)
-      // })
+      const _this = this
+      this.fileToArrayBuffer(val).then(arrayBuffer => {
+        _this.sampleVideoData = new Uint8Array(arrayBuffer)
+      })
     },
   },
   mounted() {
@@ -109,17 +104,16 @@ export default {
         worker.postMessage({
           type: "command",
           arguments: args,
-          files: _this.sampleVideoData,
-          // files: [
-          //   // {
-          //   //   "name": "input.jpeg",
-          //   //   "data": sampleImageData
-          //   // },
-          //   {
-          //     name: "input.mp3",
-          //     data: _this.sampleVideoData,
-          //   },
-          // ],
+          files: [
+            // {
+            //   "name": "input.jpeg",
+            //   "data": sampleImageData
+            // },
+            {
+              name: "input.mp3",
+              data: _this.sampleVideoData,
+            },
+          ],
         });
       }
     }
@@ -192,8 +186,7 @@ export default {
       initWorker();
       let fileUrl = getParaByName("url");
       if (fileUrl) {
-        fileUrl =
-          "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
+        fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
         _this.retrieveSampleVideo(fileUrl);
       }
       // retrieveSampleImage();
@@ -206,20 +199,20 @@ export default {
     });
   },
   methods: {
-    fileToArrayBuffer(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          resolve(e.target.result);
-        };
-        reader.onerror = () => {
-          reject();
-        };
-        reader.readAsArrayBuffer(file);
-      });
+    fileToArrayBuffer(file){
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => { 
+                resolve(e.target.result); 
+            };
+            reader.onerror = () => {
+                reject();
+            };
+            reader.readAsArrayBuffer(file);
+        });
     },
     retrieveSampleVideo(fileUrl) {
-      const _this = this;
+      const _this = this
       var oReq = new XMLHttpRequest();
       oReq.open("GET", fileUrl, true);
       oReq.responseType = "arraybuffer";
@@ -227,14 +220,13 @@ export default {
       oReq.onload = function (oEvent) {
         var arrayBuffer = oReq.response;
         if (arrayBuffer) {
-          // _this.sampleVideoData = new Uint8Array(arrayBuffer);
-          _this.sampleVideoData = [new File([arrayBuffer], "input.mp3")];
+          _this.sampleVideoData = new Uint8Array(arrayBuffer);
         }
       };
 
       oReq.send(null);
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="less">

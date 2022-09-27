@@ -37,8 +37,8 @@
   </div>
 </template>
 <script>
-import WaveSurfer from 'wavesurfer.js';
-import Timeline from "wavesurfer.js/dist/plugin/wavesurfer.timeline.js"
+import WaveSurfer from "wavesurfer.js";
+import Timeline from "wavesurfer.js/dist/plugin/wavesurfer.timeline.js";
 import Regions from "wavesurfer.js/dist/plugin/wavesurfer.regions.js";
 import videoView from "./VideoView";
 import audioFormat from "./AudioFormat";
@@ -47,7 +47,7 @@ export default {
   components: {
     videoView,
     audioFormat,
-    animationFlash
+    animationFlash,
   },
   props: ["isLandscape"],
   data() {
@@ -59,7 +59,7 @@ export default {
       animationTime: 0, // 动画时长
       wavesurfer: null,
       curPlayingTime: 0,
-      audioRate: 1
+      audioRate: 1,
     };
   },
   computed: {
@@ -86,7 +86,7 @@ export default {
   created() {
     let textArr = [];
     try {
-      const textArr1 = localStorage.getItem('textArr');
+      const textArr1 = localStorage.getItem("textArr");
       if (!textArr1) {
         textArr = [];
       } else {
@@ -101,46 +101,46 @@ export default {
   },
   mounted() {
     var wavesurfer = WaveSurfer.create({
-        backgroundColor: 'rgb(105,160,174, 0.1)',
-        container: '#waveform',
-        waveColor: 'violet',
-        barWidth: 2,
-        responsive: true,
-        scrollParent: true,
-        progressColor: 'purple',
-        plugins: [
-          Timeline.create({
-              container: "#wave-timeline",
-              primaryColor: 'blue',
-              secondaryColor: 'red',
-              primaryFontColor: 'blue',
-              secondaryFontColor: 'red'
-          }),
-          Regions.create({})
-        ]
+      backgroundColor: "rgb(105,160,174, 0.1)",
+      container: "#waveform",
+      waveColor: "violet",
+      barWidth: 2,
+      responsive: true,
+      scrollParent: true,
+      progressColor: "purple",
+      plugins: [
+        Timeline.create({
+          container: "#wave-timeline",
+          primaryColor: "blue",
+          secondaryColor: "red",
+          primaryFontColor: "blue",
+          secondaryFontColor: "red",
+        }),
+        Regions.create({}),
+      ],
     });
-    this.wavesurfer = wavesurfer
+    this.wavesurfer = wavesurfer;
     let fileUrl = this.getParaByName("url");
     if (!fileUrl) return;
     fileUrl = "https://vkceyugu.cdn.bspapp.com" + decodeURIComponent(fileUrl);
-    wavesurfer.load(fileUrl)
-    const _this = this
-    wavesurfer.on('ready', function () {
-      _this.animationTime = wavesurfer.getDuration().toFixed(1)
+    wavesurfer.load(fileUrl);
+    const _this = this;
+    wavesurfer.on("ready", function () {
+      _this.animationTime = wavesurfer.getDuration().toFixed(1);
     });
-    wavesurfer.on('audioprocess', function () {
-      _this.curPlayingTime = wavesurfer.getCurrentTime().toFixed(2)
+    wavesurfer.on("audioprocess", function () {
+      _this.curPlayingTime = wavesurfer.getCurrentTime().toFixed(2);
     });
-    wavesurfer.on('seek', function () {
-      _this.curPlayingTime = wavesurfer.getCurrentTime().toFixed(2)
+    wavesurfer.on("seek", function () {
+      _this.curPlayingTime = wavesurfer.getCurrentTime().toFixed(2);
     });
   },
   methods: {
     changAudioRate(value) {
-      this.wavesurfer.setPlaybackRate(value)
+      this.wavesurfer.setPlaybackRate(value);
     },
     stepChange(value) {
-      this.wavesurfer.seekAndCenter(value/100)
+      this.wavesurfer.seekAndCenter(value / 100);
     },
     playWave() {
       this.wavesurfer.playPause();
@@ -192,11 +192,12 @@ export default {
       this.pickeddeng = document.getElementById("pickeddeng");
     },
     handleChange(e) {
-      this.uploadfile = e.target.files[0]
-      this.wavesurfer.loadBlob(e.target.files[0])
-      const _this = this
-      this.wavesurfer.on('ready', function () {
-        _this.animationTime = wavesurfer.getDuration().toFixed(1)
+      this.uploadfile = this.files;
+      // this.uploadfile = e.target.files[0];
+      this.wavesurfer.loadBlob(e.target.files[0]);
+      const _this = this;
+      this.wavesurfer.on("ready", function () {
+        _this.animationTime = wavesurfer.getDuration().toFixed(1);
       });
     },
     getAudioText() {
@@ -313,15 +314,14 @@ export default {
       recognizer.sessionStopped = (s, e) => {
         loading.close();
         _this.textArr = textArr;
-        localStorage.setItem('textArr', JSON.stringify(textArr));
+        localStorage.setItem("textArr", JSON.stringify(textArr));
         recognizer.stopContinuousRecognitionAsync();
       };
 
       recognizer.startContinuousRecognitionAsync();
-    }
+    },
   },
-  watch: {
-  },
+  watch: {},
 };
 </script>
 <style lang="less">
@@ -733,6 +733,6 @@ footer {
   margin: 5px 0;
 }
 .mgx10 {
-  margin:0 10px;
+  margin: 0 10px;
 }
 </style>
