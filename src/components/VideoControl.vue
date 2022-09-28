@@ -2,7 +2,7 @@
   <div>
     <div class="file">
       <input type="file" name="file"  @change="handleChange"
-        accept=".mp3, .wav, .ogg, .acc"
+        accept=".mp3, .wav, .ogg, .acc, .mp4"
       >上传音频文件</input>
     </div>
     <div class="tools-btn">
@@ -30,16 +30,25 @@
     <div id="waveform"></div>
     <div id="wave-timeline"></div>
     <div class="tools-btn">
-      <el-button @click="getAudioText()">获取文案</el-button>
+      <el-button @click="getAudioText()">语音转文字</el-button>
     </div>
-    <el-input v-if="audioText" type="textarea" autosize v-model="audioText" disabled />
-    <animationFlash :animationTime="animationTime" :isMobile="isMobile"/>
+    <el-input v-if="audioText" type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="audioText" disabled />
+    <div class="tools-btn">
+      输入语音对应的文字
+    </div>
+    <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="customAudioText" placeholder="输入语音对应的文字"/>
+    <div class="tools-btn">
+      自动文字对应的时间
+    </div>
+    <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="customAudioTextTime" placeholder="自动文字对应的时间"/>
+    <animationFlash :animationTime="animationTime" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/>
   </div>
 </template>
 <script>
 import WaveSurfer from "wavesurfer.js";
 import Timeline from "wavesurfer.js/dist/plugin/wavesurfer.timeline.js";
 import Regions from "wavesurfer.js/dist/plugin/wavesurfer.regions.js";
+import _ from "lodash";
 import videoView from "./VideoView";
 import audioFormat from "./AudioFormat";
 import animationFlash from "./AnimationFlash";
@@ -60,9 +69,31 @@ export default {
       wavesurfer: null,
       curPlayingTime: 0,
       audioRate: 1,
+      customAudioText: "",
+      customAudioTextTimes: [],
+      peopleTimeArr: [],
     };
   },
   computed: {
+    customAudioTextTime() {
+      localStorage.setItem("customAudioText", this.customAudioText);
+      const data = this.customAudioText
+        .replaceAll("：", ":")
+        .split("\n")
+        .filter((item) => item);
+      const list = _.map(this.peopleTimeArr, (arr, i) => {
+        const title = _.includes(data[i], ":")
+          ? data[i]?.split(":")?.[0]?.trim()
+          : "旁白";
+        return {
+          title,
+          start: arr[0],
+          end: arr[1],
+        };
+      });
+      this.customAudioTextTimes = list;
+      return JSON.stringify(list);
+    },
     audioText() {
       let str = "";
       this.textArr.map((item, i) => {
@@ -94,6 +125,7 @@ export default {
       }
     } catch (error) {}
     this.textArr = textArr;
+    this.customAudioText = localStorage.getItem("customAudioText") || "";
     this.isMobile =
       navigator.userAgent.match(
         /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
@@ -143,7 +175,6 @@ export default {
       canvasBarArr = _.map(canvasBarArr, (item) => (item > 0 ? 1 : 0));
       const oneBarTime = allTime / canvasBarArr.length;
       const oneSecondBar = canvasBarArr.length / allTime;
-      console.log(oneSecondBar * 2, "=============");
       let data = _.filter(
         canvasBarArr
           .join()
@@ -171,6 +202,7 @@ export default {
         preTime = timeArr[1];
         return timeArr;
       });
+      this.peopleTimeArr = peopleTimeArr;
       console.log(peopleTimeArr, "canvasBarArr=========");
     },
     getCanvasBars(wavesurfer) {

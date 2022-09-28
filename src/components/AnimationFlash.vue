@@ -235,7 +235,7 @@ const defaultChangjing = [
   },
 ];
 export default {
-  props: ["animationTime", "isMobile"],
+  props: ["animationTime", "isMobile", "customAudioTextTimes"],
   data() {
     return {
       effectOptions: [],
