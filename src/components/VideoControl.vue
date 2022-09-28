@@ -41,7 +41,10 @@
       自动文字对应的时间(行数：{{peopleTimeArr.length}})
     </div>
     <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="customAudioTextTime" placeholder="自动文字对应的时间"/>
-    <animationFlash :animationTime="animationTime" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/>
+    <div class="tools-btn">
+      生成动画脚本
+    </div>
+    <animationFlash :animationTime="animationTime1" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/>
   </div>
 </template>
 <script>
@@ -66,6 +69,7 @@ export default {
       textArr: [], // 语音转文字数组
       uploadfile: null, // 上传的文件
       animationTime: 0, // 动画时长
+      animationTime1: 0,
       wavesurfer: null,
       curPlayingTime: 0,
       audioRate: 1,
@@ -205,7 +209,9 @@ export default {
         return timeArr;
       });
       this.peopleTimeArr = peopleTimeArr;
-      console.log(data, "canvasBarArr=========");
+      if (_.last(peopleTimeArr)?.[1]) {
+        this.animationTime1 = _.last(peopleTimeArr)?.[1];
+      }
     },
     getCanvasBars(wavesurfer) {
       var nominalWidth = Math.round(
