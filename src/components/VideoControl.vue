@@ -2,8 +2,8 @@
   <div>
     <div class="file">
       <input type="file" name="file"  @change="handleChange"
-        accept=".mp3, .wav, .ogg, .acc, .mp4"
-      >上传音频文件</input>
+        accept=".mp4, .m4v, .3gp, .mpg, .flv, .f4v, .swf, .avi, .gif, .wmv, .rmvb, .mov, .mts, .m2t, .webm, .ogg, .mkv, .mp3, .wav, .wma, .amr, .mid"
+      >上传音视频文件</input>
     </div>
     <div class="tools-btn">
       <audioFormat :uploadfile="uploadfile"/>
@@ -139,6 +139,7 @@ export default {
   },
   mounted() {
     var wavesurfer = WaveSurfer.create({
+      mediaType: "video",
       backgroundColor: "rgb(105,160,174, 0.1)",
       container: "#waveform",
       waveColor: "violet",
