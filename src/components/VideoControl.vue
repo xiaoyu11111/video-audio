@@ -83,7 +83,7 @@ export default {
     customAudioTextTime() {
       localStorage.setItem("customAudioText", this.customAudioText);
       const data = this.customAudioText
-        .replaceAll("：", ":")
+        .replace(/：/gi, ":")
         .split("\n")
         .filter((item) => item);
       this.textLines = data.length;
