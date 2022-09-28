@@ -1,83 +1,219 @@
 <template>
   <div>
-    <el-form v-if="isMobile" :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="60px" class="demo-dynamic">
+    <el-form
+      v-if="isMobile"
+      :model="dynamicValidateForm"
+      ref="dynamicValidateForm"
+      label-width="60px"
+      class="demo-dynamic"
+    >
       <el-form-item
         v-for="(changjing, index) in dynamicValidateForm.changjings"
         :label="'场景' + (index + 1)"
         :key="changjing.key"
         :prop="'changjings.' + index + '.title'"
         :rules="{
-          required: true, message: '场景名不能为空', trigger: 'blur'
+          required: true,
+          message: '场景名不能为空',
+          trigger: 'blur',
         }"
       >
-      <el-row>
-        <el-col :span="5">场景:</el-col>
-        <el-col :span="19"><el-input v-model="changjing.title"></el-input></el-col>
-      </el-row>
-      <el-row v-if="index !== 0">
-        <el-col :span="5">开始时间s:</el-col>
-        <el-col :span="19"><el-input-number :precision="2" :min="0" v-model="changjing.startTime"></el-input-number></el-col>
-      </el-row>
-      <el-row>
-          <el-col :span="5">场景特效:</el-col>
-          <el-col v-for="(effect, index1) in changjing.effects" :span="8" :key="changjing + 1 + index1">
-            <el-cascader :append-to-body="false" :options="effectOptions" clearable :value="effect" @change="(value)=>changeChangjingEffect(value, index, index1)"></el-cascader>
-          </el-col>
-          <el-col :offset="5" :span="19" class="effect-num"><span>个数</span><el-input-number :min="0" v-model="changjing.effectsNum" @change="(value) => changeChangjingEffectNum(value, index)"></el-input-number></el-col>
+        <el-row>
+          <el-col :span="5">场景:</el-col>
+          <el-col :span="19"
+            ><el-input v-model="changjing.title"></el-input
+          ></el-col>
+        </el-row>
+        <el-row v-if="index !== 0">
+          <el-col :span="5">开始时间s:</el-col>
+          <el-col :span="19"
+            ><el-input-number
+              :precision="2"
+              :min="0"
+              v-model="changjing.startTime"
+            ></el-input-number
+          ></el-col>
         </el-row>
         <el-row>
-          <el-col v-for="(peopleitem, index1) in changjing.people" :span="24" :key="changjing + 2 + index1">
-            <el-col v-if="index1 == 0" :span="5">人物:</el-col>
-            <el-col :offset="index1 == 0 ? 0 : 5 " :span="8"><el-cascader :append-to-body="false" :options="peopleOptions" clearable :value="peopleitem" @change="(value)=>changeChangjingPeople(value, index, index1)"></el-cascader></el-col>
-            <el-col :offset="5" :span="19" class="effect-num"><span>出场点(s)</span><el-input-number :precision="2" :min="0" v-model="changjing.peopleTimes[index1]" @change="(value) => changeChangjingPeopleTimes(value, index, index1)"></el-input-number></el-col>
+          <el-col :span="5">场景特效:</el-col>
+          <el-col
+            v-for="(effect, index1) in changjing.effects"
+            :span="8"
+            :key="changjing + 1 + index1"
+          >
+            <el-cascader
+              :append-to-body="false"
+              :options="effectOptions"
+              clearable
+              :value="effect"
+              @change="(value) => changeChangjingEffect(value, index, index1)"
+            ></el-cascader>
           </el-col>
-          <el-col :offset="5" :span="19" class="effect-num"><span>个数</span><el-input-number :min="1" v-model="changjing.peopleNum" @change="(value) => changeChangjingPeopleNum(value, index)"></el-input-number></el-col>
+          <el-col :offset="5" :span="19" class="effect-num"
+            ><span>个数</span
+            ><el-input-number
+              :min="0"
+              v-model="changjing.effectsNum"
+              @change="(value) => changeChangjingEffectNum(value, index)"
+            ></el-input-number
+          ></el-col>
         </el-row>
-        <el-button v-if="dynamicValidateForm.changjings.length > 1" @click.prevent="removechangjing(changjing)">删除场景</el-button>
+        <el-row>
+          <el-col
+            v-for="(peopleitem, index1) in changjing.people"
+            :span="24"
+            :key="changjing + 2 + index1"
+          >
+            <el-col v-if="index1 == 0" :span="5">人物:</el-col>
+            <el-col :offset="index1 == 0 ? 0 : 5" :span="8"
+              ><el-cascader
+                :append-to-body="false"
+                :options="peopleOptions"
+                clearable
+                :value="peopleitem"
+                @change="(value) => changeChangjingPeople(value, index, index1)"
+              ></el-cascader
+            ></el-col>
+            <el-col :offset="5" :span="19" class="effect-num"
+              ><span>出场点(s)</span
+              ><el-input-number
+                :precision="2"
+                :min="0"
+                v-model="changjing.peopleTimes[index1]"
+                @change="
+                  (value) => changeChangjingPeopleTimes(value, index, index1)
+                "
+              ></el-input-number
+            ></el-col>
+          </el-col>
+          <el-col :offset="5" :span="19" class="effect-num"
+            ><span>个数</span
+            ><el-input-number
+              :min="1"
+              v-model="changjing.peopleNum"
+              @change="(value) => changeChangjingPeopleNum(value, index)"
+            ></el-input-number
+          ></el-col>
+        </el-row>
+        <el-button
+          v-if="dynamicValidateForm.changjings.length > 1"
+          @click.prevent="removechangjing(changjing)"
+          >删除场景</el-button
+        >
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="submitForm('dynamicValidateForm')">生成脚本</el-button>
+        <el-button type="primary" @click="submitForm('dynamicValidateForm')"
+          >生成脚本</el-button
+        >
         <el-button @click="addchangjing">新增场景</el-button>
         <el-button @click="resetForm()">重置</el-button>
       </el-form-item>
     </el-form>
-    <el-form v-if="!isMobile" :model="dynamicValidateForm" ref="dynamicValidateForm" label-width="60px" class="demo-dynamic">
+    <el-form
+      v-if="!isMobile"
+      :model="dynamicValidateForm"
+      ref="dynamicValidateForm"
+      label-width="60px"
+      class="demo-dynamic"
+    >
       <el-form-item
         v-for="(changjing, index) in dynamicValidateForm.changjings"
         :label="'场景' + (index + 1)"
         :key="changjing.key"
         :prop="'changjings.' + index + '.title'"
         :rules="{
-          required: true, message: '场景名不能为空', trigger: 'blur'
+          required: true,
+          message: '场景名不能为空',
+          trigger: 'blur',
         }"
       >
-      <el-row>
-        <el-col :span="3">场景:</el-col>
-        <el-col :span="21"><el-input v-model="changjing.title"></el-input></el-col>
-      </el-row>
-      <el-row v-if="index !== 0">
-        <el-col :span="3">开始时间(s):</el-col>
-        <el-col :span="21"><el-input-number :precision="2" :min="0" v-model="changjing.startTime"></el-input-number></el-col>
-      </el-row>
-      <el-row>
-          <el-col :span="3">场景特效:</el-col>
-          <el-col v-for="(effect, index1) in changjing.effects" :span="4" :key="changjing + 1 + index1">
-            <el-cascader :append-to-body="false" :options="effectOptions" clearable :value="effect" @change="(value)=>changeChangjingEffect(value, index, index1)"></el-cascader>
-          </el-col>
-          <el-col :offset="3" :span="21" class="effect-num"><span>个数</span><el-input-number :min="0" v-model="changjing.effectsNum" @change="(value) => changeChangjingEffectNum(value, index)"></el-input-number></el-col>
+        <el-row>
+          <el-col :span="3">场景:</el-col>
+          <el-col :span="21"
+            ><el-input v-model="changjing.title"></el-input
+          ></el-col>
+        </el-row>
+        <el-row v-if="index !== 0">
+          <el-col :span="3">开始时间(s):</el-col>
+          <el-col :span="21"
+            ><el-input-number
+              :precision="2"
+              :min="0"
+              v-model="changjing.startTime"
+            ></el-input-number
+          ></el-col>
         </el-row>
         <el-row>
-          <el-col v-for="(peopleitem, index1) in changjing.people" :span="24" :key="changjing + 2 + index1">
-            <el-col v-if="index1 == 0" :span="3">人物:</el-col>
-            <el-col :offset="index1 == 0 ? 0 : 3 " :span="4"><el-cascader :append-to-body="false" :options="peopleOptions" clearable :value="peopleitem" @change="(value)=>changeChangjingPeople(value, index, index1)"></el-cascader></el-col>
-            <el-col :span="10" class="effect-num"><span>出场时间(s)</span><el-input-number :precision="2" :min="0" v-model="changjing.peopleTimes[index1]" @change="(value) => changeChangjingPeopleTimes(value, index, index1)"></el-input-number></el-col>
+          <el-col :span="3">场景特效:</el-col>
+          <el-col
+            v-for="(effect, index1) in changjing.effects"
+            :span="4"
+            :key="changjing + 1 + index1"
+          >
+            <el-cascader
+              :append-to-body="false"
+              :options="effectOptions"
+              clearable
+              :value="effect"
+              @change="(value) => changeChangjingEffect(value, index, index1)"
+            ></el-cascader>
           </el-col>
-          <el-col :offset="3" :span="21" class="effect-num"><span>个数</span><el-input-number :min="1" v-model="changjing.peopleNum" @change="(value) => changeChangjingPeopleNum(value, index)"></el-input-number></el-col>
+          <el-col :offset="3" :span="21" class="effect-num"
+            ><span>个数</span
+            ><el-input-number
+              :min="0"
+              v-model="changjing.effectsNum"
+              @change="(value) => changeChangjingEffectNum(value, index)"
+            ></el-input-number
+          ></el-col>
         </el-row>
-        <el-button v-if="dynamicValidateForm.changjings.length > 1" @click.prevent="removechangjing(changjing)">删除场景</el-button>
+        <el-row>
+          <el-col
+            v-for="(peopleitem, index1) in changjing.people"
+            :span="24"
+            :key="changjing + 2 + index1"
+          >
+            <el-col v-if="index1 == 0" :span="3">人物:</el-col>
+            <el-col :offset="index1 == 0 ? 0 : 3" :span="4"
+              ><el-cascader
+                :append-to-body="false"
+                :options="peopleOptions"
+                clearable
+                :value="peopleitem"
+                @change="(value) => changeChangjingPeople(value, index, index1)"
+              ></el-cascader
+            ></el-col>
+            <el-col :span="10" class="effect-num"
+              ><span>出场时间(s)</span
+              ><el-input-number
+                :precision="2"
+                :min="0"
+                v-model="changjing.peopleTimes[index1]"
+                @change="
+                  (value) => changeChangjingPeopleTimes(value, index, index1)
+                "
+              ></el-input-number
+            ></el-col>
+          </el-col>
+          <el-col :offset="3" :span="21" class="effect-num"
+            ><span>个数</span
+            ><el-input-number
+              :min="1"
+              v-model="changjing.peopleNum"
+              @change="(value) => changeChangjingPeopleNum(value, index)"
+            ></el-input-number
+          ></el-col>
+        </el-row>
+        <el-button
+          v-if="dynamicValidateForm.changjings.length > 1"
+          @click.prevent="removechangjing(changjing)"
+          >删除场景</el-button
+        >
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="submitForm('dynamicValidateForm')">生成脚本</el-button>
+        <el-button type="primary" @click="submitForm('dynamicValidateForm')"
+          >生成脚本</el-button
+        >
         <el-button @click="addchangjing">新增场景</el-button>
         <el-button @click="resetForm()">重置</el-button>
       </el-form-item>
@@ -86,178 +222,227 @@
   </div>
 </template>
 <script>
-  import _ from 'lodash'
-  const defaultChangjing = [{
-    title: '小溪边夕阳',
+import _ from "lodash";
+const defaultChangjing = [
+  {
+    title: "小溪边夕阳",
     startTime: 0,
     effectsNum: 2,
     effects: [[], []],
     peopleNum: 2,
-    people: [[],[]],
-    peopleTimes: []
-  }]
+    people: [[], []],
+    peopleTimes: [],
+  },
+];
 export default {
-  props: ['animationTime', 'isMobile'],
+  props: ["animationTime", "isMobile"],
   data() {
-    return { 
+    return {
       effectOptions: [],
       peopleOptions: [],
       dynamicValidateForm: {
-        changjings: defaultChangjing
+        changjings: defaultChangjing,
       },
-      finalChangjings: []
+      finalChangjings: [],
     };
   },
   created() {
-    const location = [{
-          value: '全',
-          label: '全'
-        }, {
-          value: '上',
-          label: '上'
-        }, {
-          value: '中',
-          label: '中'
-        }, {
-          value: '下',
-          label: '下'
-        }]
-    const arr = ['流线(水平)','流线(水平)1','流线(水平)2','流线(垂直)','流线(垂直)1','光圈','光圈1','光圈2','光圈3','下雨','闪电','雷电']
-    this.effectOptions = arr.map(name => (
+    const location = [
       {
-        value: name,
-        label: name,
-        children: location
-      }
-    ))
-    const people = ['乌龟', '小唐','小白龙','土地','蔡文姬','大牛','男1','男2','男3','男4','男5','男6','男7','男8','男9','boy','erdan','girl','laoban','mama','meimei','女1','女2','xz','悟空']
-    this.peopleOptions = people.map(name => (
+        value: "全",
+        label: "全",
+      },
       {
-        value: name,
-        label: name
-      }
-    ))
-    let curChangjings = defaultChangjing
+        value: "上",
+        label: "上",
+      },
+      {
+        value: "中",
+        label: "中",
+      },
+      {
+        value: "下",
+        label: "下",
+      },
+    ];
+    const arr = [
+      "流线(水平)",
+      "流线(水平)1",
+      "流线(水平)2",
+      "流线(垂直)",
+      "流线(垂直)1",
+      "光圈",
+      "光圈1",
+      "光圈2",
+      "光圈3",
+      "下雨",
+      "闪电",
+      "雷电",
+    ];
+    this.effectOptions = arr.map((name) => ({
+      value: name,
+      label: name,
+      children: location,
+    }));
+    const people = [
+      "乌龟",
+      "小唐",
+      "小白龙",
+      "土地",
+      "蔡文姬",
+      "大牛",
+      "男1",
+      "男2",
+      "男3",
+      "男4",
+      "男5",
+      "男6",
+      "男7",
+      "男8",
+      "男9",
+      "boy",
+      "erdan",
+      "girl",
+      "laoban",
+      "mama",
+      "meimei",
+      "女1",
+      "女2",
+      "xz",
+      "悟空",
+    ];
+    this.peopleOptions = people.map((name) => ({
+      value: name,
+      label: name,
+    }));
+    let curChangjings = defaultChangjing;
     try {
-      let changjings = localStorage.getItem('changjings')
+      let changjings = localStorage.getItem("changjings");
       if (changjings) {
-        curChangjings = JSON.parse(changjings)
+        curChangjings = JSON.parse(changjings);
       }
-    } catch (error) {
-      
-    }
-    this.dynamicValidateForm.changjings = curChangjings
+    } catch (error) {}
+    this.dynamicValidateForm.changjings = curChangjings;
   },
   methods: {
     changeChangjingEffect(value, index, index1) {
-        const changjings = this.dynamicValidateForm.changjings
-        changjings[index].effects[index1] = value
-        this.dynamicValidateForm.changjings = [...changjings]
+      const changjings = this.dynamicValidateForm.changjings;
+      changjings[index].effects[index1] = value;
+      this.dynamicValidateForm.changjings = [...changjings];
     },
     changeChangjingPeople(value, index, index1) {
-      const changjings = this.dynamicValidateForm.changjings
-      changjings[index].people[index1] = value
-      this.dynamicValidateForm.changjings = [...changjings]
+      const changjings = this.dynamicValidateForm.changjings;
+      changjings[index].people[index1] = value;
+      this.dynamicValidateForm.changjings = [...changjings];
     },
     changeChangjingPeopleTimes(value, index, index1) {
-      const changjings = this.dynamicValidateForm.changjings
-      changjings[index].peopleTimes[index1] = value
-      this.dynamicValidateForm.changjings = [...changjings]
+      const changjings = this.dynamicValidateForm.changjings;
+      changjings[index].peopleTimes[index1] = value;
+      this.dynamicValidateForm.changjings = [...changjings];
     },
     changeChangjingPeopleNum(value, index) {
       if (index !== -1) {
-        const changjings = this.dynamicValidateForm.changjings
-        changjings[index].peopleNum = value
-        const arr = changjings[index].people
+        const changjings = this.dynamicValidateForm.changjings;
+        changjings[index].peopleNum = value;
+        const arr = changjings[index].people;
         if (arr.length >= value) {
-          changjings[index].people = arr.slice(0, value)
+          changjings[index].people = arr.slice(0, value);
         }
         if (arr.length < value) {
-          changjings[index].people = [...arr, ..._.range(value-arr.length)]
+          changjings[index].people = [...arr, ..._.range(value - arr.length)];
         }
-        this.dynamicValidateForm.changjings = [...changjings]
+        this.dynamicValidateForm.changjings = [...changjings];
       }
     },
     changeChangjingEffectNum(value, index) {
       if (index !== -1) {
-        const changjings = this.dynamicValidateForm.changjings
-        changjings[index].effectsNum = value
-        const arr = changjings[index].effects
+        const changjings = this.dynamicValidateForm.changjings;
+        changjings[index].effectsNum = value;
+        const arr = changjings[index].effects;
         if (arr.length >= value) {
-          changjings[index].effects = arr.slice(0, value)
+          changjings[index].effects = arr.slice(0, value);
         }
         if (arr.length < value) {
-          changjings[index].effects = [...arr, ..._.range(value-arr.length)]
+          changjings[index].effects = [...arr, ..._.range(value - arr.length)];
         }
-        this.dynamicValidateForm.changjings = [...changjings]
+        this.dynamicValidateForm.changjings = [...changjings];
       }
     },
     submitForm(formName) {
       this.$refs[formName].validate((valid, obj) => {
         if (valid) {
-          const changjings = this.dynamicValidateForm.changjings
-          localStorage.setItem('changjings', JSON.stringify(changjings))
+          const changjings = this.dynamicValidateForm.changjings;
+          localStorage.setItem("changjings", JSON.stringify(changjings));
           const finalChangjings = _.map(changjings, (item, i) => {
-            const start = i == 0 ? 1 : Math.ceil(item.startTime * 30)
+            const start = i == 0 ? 1 : Math.ceil(item.startTime * 30);
             return {
-              title: '场景/'+item.title,
+              title: "场景/" + item.title,
               start,
-              people: _.compact(_.map(item.people, (arr, index) => {
-                if (_.isEmpty(arr)) return null
-                return {
-                  title: arr[0], 
-                  start: _.isNil(item.peopleTimes[index]) ? start : 
-                  start > (Math.ceil(item.peopleTimes[index] * 30) || 1) ? start : (Math.ceil(item.peopleTimes[index] * 30) || 1)
-                }
-              })),
-              effects: _.compact(_.map(item.effects, arr => {
-                if (_.isEmpty(arr)) return null
-                return {
-                  title: arr[0], 
-                  location: arr[1]
-                }
-              }))
-            }
-          })
-          this.finalChangjings = [...finalChangjings]
+              people: _.compact(
+                _.map(item.people, (arr, index) => {
+                  if (_.isEmpty(arr)) return null;
+                  return {
+                    title: arr[0],
+                    start: _.isNil(item.peopleTimes[index])
+                      ? start
+                      : start > (Math.ceil(item.peopleTimes[index] * 30) || 1)
+                      ? start
+                      : Math.ceil(item.peopleTimes[index] * 30) || 1,
+                  };
+                })
+              ),
+              effects: _.compact(
+                _.map(item.effects, (arr) => {
+                  if (_.isEmpty(arr)) return null;
+                  return {
+                    title: arr[0],
+                    location: arr[1],
+                  };
+                })
+              ),
+            };
+          });
+          this.finalChangjings = [...finalChangjings];
         } else {
-          console.log('error submit!!');
+          console.log("error submit!!");
           return false;
         }
       });
     },
     resetForm() {
-      this.dynamicValidateForm.changjings = [{
-        title: '小溪边夕阳',
-        startTime: 0,
-        effectsNum: 2,
-        effects: [[], []],
-        peopleNum: 2,
-        people: [[],[]],
-        peopleTimes: []
-      }]
+      this.dynamicValidateForm.changjings = [
+        {
+          title: "小溪边夕阳",
+          startTime: 0,
+          effectsNum: 2,
+          effects: [[], []],
+          peopleNum: 2,
+          people: [[], []],
+          peopleTimes: [],
+        },
+      ];
     },
     removechangjing(item) {
-      var index = this.dynamicValidateForm.changjings.indexOf(item)
+      var index = this.dynamicValidateForm.changjings.indexOf(item);
       if (index !== -1) {
-        this.dynamicValidateForm.changjings.splice(index, 1)
+        this.dynamicValidateForm.changjings.splice(index, 1);
       }
     },
     addchangjing() {
       this.dynamicValidateForm.changjings.push({
         ...defaultChangjing[0],
-        key: Date.now()
+        key: Date.now(),
       });
-    }
+    },
   },
-  computed:{
+  computed: {
     falshText() {
-  // var time = ${this.animationTime} // 动画时长
-  // var changjing = ${JSON.stringify(this.finalChangjings)}
-  
-        return  `
+      // var time = ${this.animationTime} // 动画时长
+      // var changjing = ${JSON.stringify(this.finalChangjings)}
+
+      return `
   // C:\Users\Administrator\AppData\Local\Adobe\Animate 2022\zh_CN\Configuration\
-  
+
   // var configDir = fl.configDirectory;
   // fl.trace(fl.configDirectory)
   //an.getDocumentDOM().scaleSelection(-1, 1);水平翻转
@@ -283,16 +468,16 @@ export default {
   fl.getDocumentDOM().getTimeline().addNewLayer("场景", "normal", true);
   fl.getDocumentDOM().getTimeline().addNewLayer("场景特效", "normal", true);
   fl.getDocumentDOM().getTimeline().addNewLayer("camera", "normal", true);
-  
+
   // 总帧
-  var insertFrames = fs * time
+  var insertFrames = Math.ceil(fs * time)
   fl.getDocumentDOM().getTimeline().insertFrames(insertFrames, true, 0);
-  
+
   var NumLayer = fl.getDocumentDOM().getTimeline().layerCount
   // 选择场景层
   var bgIndex = NumLayer - 2
   fl.getDocumentDOM().getTimeline().setSelectedLayers(bgIndex);
-  
+
   // 添加场景
   for (var i = 0; i < changjing.length; i++) {
     if (i > 0) {
@@ -314,11 +499,11 @@ export default {
       curBg.height = canvasHeight
     }
   }
-  
+
   // 选择camera层
   var cameraIndex = 0
   fl.getDocumentDOM().getTimeline().setSelectedLayers(cameraIndex);
-  
+
   // 添加过渡效果
   for (var i = 0; i < changjing.length; i++) {
     if (i != 0) {
@@ -423,9 +608,9 @@ export default {
       fl.getDocumentDOM().scaleSelection(effectsLocationDict[location][0]/curBg.width, effectsLocationDict[location][1]/curBg.height);
     }
   }
-        `
-      }
-  }
+        `;
+    },
+  },
 };
 </script>
 <style lang="less">

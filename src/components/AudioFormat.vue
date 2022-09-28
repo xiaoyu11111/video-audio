@@ -35,9 +35,6 @@ export default {
     },
   },
   mounted() {
-    if (process.env.NODE_ENV !== "production") {
-      return;
-    }
     var worker;
     var sampleImageData;
     var outputElement;

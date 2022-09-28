@@ -9,7 +9,7 @@
       <audioFormat :uploadfile="uploadfile"/>
     </div>
     <div class="tools-btn">
-      <el-button @click="playWave()" class="mgx10">播放/暂停</el-button>
+      <el-button @click="playWave()" >播放/暂停</el-button>
       <span class="mgx10">总时长: {{this.animationTime}}s</span>
       <span>当前时间: {{this.curPlayingTime}}s</span>
       <el-row >
@@ -126,7 +126,10 @@ export default {
     wavesurfer.load(fileUrl);
     const _this = this;
     wavesurfer.on("ready", function () {
-      _this.animationTime = wavesurfer.getDuration().toFixed(1);
+      _this.animationTime = wavesurfer.getDuration().toFixed(2);
+      const canvasBarArr = _this.getCanvasBars(wavesurfer);
+      const allTime = wavesurfer.getDuration();
+      _this.getTextTime(canvasBarArr, allTime);
     });
     wavesurfer.on("audioprocess", function () {
       _this.curPlayingTime = wavesurfer.getCurrentTime().toFixed(2);
@@ -136,6 +139,98 @@ export default {
     });
   },
   methods: {
+    getTextTime(canvasBarArr, allTime) {
+      canvasBarArr = _.map(canvasBarArr, (item) => (item > 0 ? 1 : 0));
+      const oneBarTime = allTime / canvasBarArr.length;
+      const oneSecondBar = canvasBarArr.length / allTime;
+      console.log(oneSecondBar * 2, "=============");
+      let data = _.filter(
+        canvasBarArr
+          .join()
+          .split(
+            new Array(Math.floor(oneSecondBar * 2)).fill(0).join(",") + ","
+          ),
+        (item) => item
+      );
+      let preTime = 0;
+      const peopleTimeArr = _.map(data, (str, index) => {
+        let firstTime = false;
+        let timeArr = [];
+        if (index !== 0) {
+          preTime;
+        }
+        str.split(",").map((num, i) => {
+          if (!firstTime) {
+            firstTime = !!num;
+            if (firstTime) {
+              timeArr[0] = oneBarTime * (i + 1) + preTime;
+            }
+          }
+        });
+        timeArr[1] = oneBarTime * str.split(",").length + preTime;
+        preTime = timeArr[1];
+        return timeArr;
+      });
+      console.log(peopleTimeArr, "canvasBarArr=========");
+    },
+    getCanvasBars(wavesurfer) {
+      var nominalWidth = Math.round(
+        wavesurfer.getDuration() *
+          wavesurfer.params.minPxPerSec *
+          wavesurfer.params.pixelRatio
+      );
+      var parentWidth = wavesurfer.drawer.getWidth();
+      var width = nominalWidth; // always start at 0 after zooming for scrolling : issue redraw left part
+
+      var start = 0;
+      var end = Math.max(start + parentWidth, width); // Fill container
+      if (
+        wavesurfer.params.fillParent &&
+        (!wavesurfer.params.scrollParent || nominalWidth < parentWidth)
+      ) {
+        width = parentWidth;
+        start = 0;
+        end = width;
+      }
+      var peaks = wavesurfer.backend.getPeaks(width, start, end);
+      var absmax = 1;
+      var hasMinVals = true;
+      var halfH = 192;
+      var peakIndexScale = hasMinVals ? 2 : 1;
+      var length = peaks.length / peakIndexScale;
+      var bar = wavesurfer.params.barWidth * wavesurfer.params.pixelRatio;
+      var gap =
+        wavesurfer.params.barGap === null
+          ? Math.max(wavesurfer.params.pixelRatio, bar / 2)
+          : Math.max(
+              wavesurfer.params.pixelRatio,
+              wavesurfer.params.barGap * wavesurfer.params.pixelRatio
+            );
+      var step = bar + gap;
+      var scale = length / width;
+      var first = start;
+      var last = end;
+      var peakIndex = first;
+      var arr = [];
+      for (peakIndex; peakIndex < last; peakIndex += step) {
+        // search for the highest peak in the range wavesurfer bar falls into
+        var peak = 0;
+        var peakIndexRange = Math.floor(peakIndex * scale) * peakIndexScale; // start index
+        var peakIndexEnd =
+          Math.floor((peakIndex + step) * scale) * peakIndexScale;
+        do {
+          // do..while makes sure at least one peak is always evaluated
+          var newPeak = Math.abs(peaks[peakIndexRange]); // for arrays starting with negative values
+          if (newPeak > peak) {
+            peak = newPeak; // higher
+          }
+          peakIndexRange += peakIndexScale; // skip every other value for negatives
+        } while (peakIndexRange < peakIndexEnd); // calculate the height of wavesurfer bar according to the highest peak found
+        var h = Math.round((peak / absmax) * halfH);
+        arr.push(h);
+      }
+      return arr;
+    },
     changAudioRate(value) {
       this.wavesurfer.setPlaybackRate(value);
     },
@@ -197,7 +292,7 @@ export default {
       this.wavesurfer.loadBlob(e.target.files[0]);
       const _this = this;
       this.wavesurfer.on("ready", function () {
-        _this.animationTime = wavesurfer.getDuration().toFixed(1);
+        _this.animationTime = wavesurfer.getDuration().toFixed(2);
       });
     },
     getAudioText() {
@@ -283,7 +378,7 @@ export default {
       };
 
       recognizer.recognized = (s, e) => {
-        t += e.result.text + "\n";
+        t += (e.result.text || "") + "\n";
         loading.text = `生成文案中: ${t}`;
         textArr.push({
           offset: e.result.privOffset / 10000000,
