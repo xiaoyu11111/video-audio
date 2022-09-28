@@ -34,11 +34,11 @@
     </div>
     <el-input v-if="audioText" type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="audioText" disabled />
     <div class="tools-btn">
-      输入语音对应的文字
+      输入语音对应的文字(行数：{{textLines}})
     </div>
     <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="customAudioText" placeholder="输入语音对应的文字"/>
     <div class="tools-btn">
-      自动文字对应的时间
+      自动文字对应的时间(行数：{{peopleTimeArr.length}})
     </div>
     <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="customAudioTextTime" placeholder="自动文字对应的时间"/>
     <animationFlash :animationTime="animationTime" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/>
@@ -70,8 +70,9 @@ export default {
       curPlayingTime: 0,
       audioRate: 1,
       customAudioText: "",
-      customAudioTextTimes: [],
+      textLines: 0, // 行数
       peopleTimeArr: [],
+      customAudioTextTimes: [],
     };
   },
   computed: {
@@ -81,6 +82,7 @@ export default {
         .replaceAll("：", ":")
         .split("\n")
         .filter((item) => item);
+      this.textLines = data.length;
       const list = _.map(this.peopleTimeArr, (arr, i) => {
         const title = _.includes(data[i], ":")
           ? data[i]?.split(":")?.[0]?.trim()
@@ -203,7 +205,7 @@ export default {
         return timeArr;
       });
       this.peopleTimeArr = peopleTimeArr;
-      console.log(peopleTimeArr, "canvasBarArr=========");
+      console.log(data, "canvasBarArr=========");
     },
     getCanvasBars(wavesurfer) {
       var nominalWidth = Math.round(
