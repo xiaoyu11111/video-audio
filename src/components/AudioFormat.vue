@@ -1,5 +1,11 @@
 <template>
   <div>
+    <el-tag @click="runCommand(1)" :color="active == 1 ? '#c5d8ed' : '#d9ecff'"
+      >转码为wav</el-tag
+    >
+    <el-tag @click="runCommand(2)" :color="active == 2 ? '#c5d8ed' : '#d9ecff'"
+      >裁剪掉静音</el-tag
+    >
     <el-input v-model="commandText" placeholder="请输入命令" id="input">
       <el-button slot="append" type="primary" id="run">执行命令</el-button>
     </el-input>
@@ -17,7 +23,9 @@ export default {
   props: ["uploadfile"],
   data() {
     return {
+      active: 1,
       showDownload: false,
+      inputFileName: "/input/input.mp3",
       commandText: "-i /input/input.mp3 -ab 48k -ar 8000 -ac 1 output.wav",
     };
   },
@@ -25,6 +33,7 @@ export default {
     uploadfile(val, old) {
       const _this = this;
       if (val) {
+        this.inputFileName = `/input/${val[0].name}`;
         this.commandText = `-i /input/${val[0].name} -ab 48k -ar 8000 -ac 1 output.wav`;
         _this.sampleVideoData = val;
       }
@@ -203,6 +212,15 @@ export default {
     });
   },
   methods: {
+    runCommand(num) {
+      this.active = num;
+      if (num === 1) {
+        this.commandText = `-i ${this.inputFileName} -ab 48k -ar 8000 -ac 1 output.wav`;
+      }
+      if (num === 2) {
+        this.commandText = `-i ${this.inputFileName} -af silenceremove=stop_periods=-1:stop_duration=2:stop_threshold=-30dB output.wav`;
+      }
+    },
     fileToArrayBuffer(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
