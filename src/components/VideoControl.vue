@@ -2,7 +2,7 @@
   <div>
     <div class="file">
       <input type="file" name="file"  @change="handleChange"
-        accept=".mp4, .m4v, .3gp, .mpg, .flv, .f4v, .swf, .avi, .gif, .wmv, .rmvb, .mov, .mts, .m2t, .webm, .ogg, .mkv, .mp3, .wav, .wma, .amr, .mid"
+        accept=".mp4, .m4v, .3gp, .mpg, .flv, .f4v, .swf, .avi, .gif, .wmv, .rmvb, .mov, .mts, .m2t, .webm, .ogg, .mkv, .mp3, .mp2, .mp1, .wav, .aif, .aiff, .au, .ra, .rm, .ram, .mid, .rmi"
       >上传音视频文件</input>
     </div>
     <div class="tools-btn">
