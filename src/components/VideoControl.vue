@@ -77,7 +77,7 @@ export default {
       textLines: 0, // 行数
       peopleTimeArr: [],
       customAudioTextTimes: [],
-      sliceTimesArr: [],
+      sliceTimesArr: []
     };
   },
   computed: {
@@ -98,6 +98,7 @@ export default {
           end: arr[1].toFixed(2),
         };
       });
+      
       this.customAudioText = _.map(data, (str, i) => {
         if (list?.[i]?.start) {
           return str.split('|')[0] + '|' + list[i]?.start + '-' + list[i]?.end

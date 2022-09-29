@@ -18,6 +18,31 @@
           trigger: 'blur',
         }"
       >
+      <el-row>
+          <el-col
+            v-for="(peopleitem, index1) in changjing.peopleDictList"
+            :span="24"
+            :key="changjing + 2 + index1"
+          >
+            <el-col v-if="index1 == 0" :span="5">配音关系:</el-col>
+            <el-col :offset="index1 == 0 ? 0 : 5" :span="8"
+              ><el-cascader
+                :append-to-body="false"
+                :options="peopleDictListOptions"
+                :value="peopleitem"
+                @change="(value) => changeChangjingPeopleDictList(value, index, index1)"
+              ></el-cascader
+            ></el-col>
+          </el-col>
+          <el-col :offset="5" :span="19" class="effect-num"
+            ><span>个数</span
+            ><el-input-number
+              :min="1"
+              v-model="changjing.peopleDictListNum"
+              @change="(value) => changeChangjingPeopleDictListNum(value, index)"
+            ></el-input-number
+          ></el-col>
+        </el-row>
         <el-row>
           <el-col :span="5">场景:</el-col>
           <el-col :span="19"
@@ -232,6 +257,8 @@ const defaultChangjing = [
     peopleNum: 2,
     people: [[], []],
     peopleTimes: [],
+    peopleDictList: [[],[]],
+    peopleDictListNum: 2
   },
 ];
 export default {
@@ -240,6 +267,7 @@ export default {
     return {
       effectOptions: [],
       peopleOptions: [],
+      peopleDictListOptions: [],
       dynamicValidateForm: {
         changjings: defaultChangjing,
       },
@@ -325,6 +353,11 @@ export default {
     this.dynamicValidateForm.changjings = curChangjings;
   },
   methods: {
+    changeChangjingPeopleDictList(value, index, index1) {
+      const changjings = this.dynamicValidateForm.changjings;
+      changjings[index].peopleDictList[index1] = value;
+      this.dynamicValidateForm.changjings = [...changjings];
+    },
     changeChangjingEffect(value, index, index1) {
       const changjings = this.dynamicValidateForm.changjings;
       changjings[index].effects[index1] = value;
@@ -339,6 +372,20 @@ export default {
       const changjings = this.dynamicValidateForm.changjings;
       changjings[index].peopleTimes[index1] = value;
       this.dynamicValidateForm.changjings = [...changjings];
+    },
+    changeChangjingPeopleDictListNum(value, index) {
+      if (index !== -1) {
+        const changjings = this.dynamicValidateForm.changjings;
+        changjings[index].peopleDictListNum = value;
+        const arr = changjings[index].peopleDictList;
+        if (arr.length >= value) {
+          changjings[index].peopleDictList = arr.slice(0, value);
+        }
+        if (arr.length < value) {
+          changjings[index].peopleDictList = [...arr, ..._.range(value - arr.length)];
+        }
+        this.dynamicValidateForm.changjings = [...changjings];
+      }
     },
     changeChangjingPeopleNum(value, index) {
       if (index !== -1) {
@@ -419,6 +466,8 @@ export default {
           peopleNum: 2,
           people: [[], []],
           peopleTimes: [],
+          peopleDictList: [[], []],
+          peopleDictListNum: 2
         },
       ];
     },
@@ -611,6 +660,20 @@ export default {
         `;
     },
   },
+  watch: {
+    customAudioTextTimes(val, old) {
+      const arr = _.uniq(_.compact(_.map(val, item => item.title === '旁白' ? null : item.title)))
+      const arr1 = _.map(arr, name => ({
+          value: name,
+          label: name,
+        }))
+      this.peopleDictListOptions = this.peopleOptions.map((item) => ({
+        value: item.value,
+        label: item.value,
+        children: arr1
+      }));
+    }
+  }
 };
 </script>
 <style lang="less">
