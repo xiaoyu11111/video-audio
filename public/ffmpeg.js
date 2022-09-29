@@ -11,7 +11,7 @@ function ffmpeg_run(opts, cb) {
         }
         var outputFilePath = Module["arguments"][Module["arguments"].length - 1];
         if (Module["arguments"].length > 2 && outputFilePath && outputFilePath.indexOf(".") > -1) {
-			
+
             Module["arguments"][Module["arguments"].length - 1] = "output/" + outputFilePath
         }
         Module["preRun"] = function() {
@@ -24,13 +24,13 @@ function ffmpeg_run(opts, cb) {
                 FS.createFolder("/", Module["outputDirectory"], true, true)
             }
         }
-        
+
 
         Module["postRun"] = function() {
             var handle = FS.analyzePath(Module["outputDirectory"]);
 			console.log(handle)
             Module["return2"] = getAllBuffers(handle);
-			
+
 			console.log( getAllBuffers(handle))
 			console.log( Module["return2"])
             cb(	Module["return2"])
@@ -45,11 +45,11 @@ function ffmpeg_run(opts, cb) {
                             name: i,
                             data: new Uint8Array(result.object.contents[i].contents).buffer
                         })
-						
+
                     }
                 }
             }
-			
+
             return buffers
         }
     }
@@ -890,7 +890,13 @@ function ffmpeg_run(opts, cb) {
         }
     }
     function getBinaryPromise() {
+
         if (!Module["wasmBinary"] && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) && typeof fetch === "function") {
+            if (this.customWasmArrayBuffer) {
+              return new Promise(function(resolve, reject) {
+                  resolve(this.customWasmArrayBuffer)
+              })
+            }
             return fetch(wasmBinaryFile, {
                 credentials: "same-origin"
             }).then(function(response) {
@@ -939,9 +945,20 @@ function ffmpeg_run(opts, cb) {
         }
         function instantiateAsync() {
             if (!Module["wasmBinary"] && typeof WebAssembly.instantiateStreaming === "function" && !isDataURI(wasmBinaryFile) && typeof fetch === "function") {
+                if (this.customWasmResponse) {
+                  const response = this.customWasmResponse
+                  return WebAssembly.instantiateStreaming(response, info).then(receiveInstantiatedSource, function(reason) {
+                          err("wasm streaming compile failed: " + reason);
+                          err("falling back to ArrayBuffer instantiation");
+                          instantiateArrayBuffer(receiveInstantiatedSource)
+                      })
+                }
                 fetch(wasmBinaryFile, {
+                    cache: "force-cache",
                     credentials: "same-origin"
                 }).then(function(response) {
+                    this.customWasmResponse = response
+                    this.customWasmArrayBuffer = response["arrayBuffer"]()
                     return WebAssembly.instantiateStreaming(response, info).then(receiveInstantiatedSource, function(reason) {
                         err("wasm streaming compile failed: " + reason);
                         err("falling back to ArrayBuffer instantiation");
