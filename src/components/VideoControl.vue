@@ -6,7 +6,7 @@
       >上传音视频文件</input>
     </div>
     <div class="tools-btn">
-      <audioFormat :uploadfile="uploadfile"/>
+      <audioFormat :uploadfile="uploadfile" :sliceTimesArr="sliceTimesArr"/>
     </div>
     <div class="tools-btn">
       <el-button @click="playWave()" >播放/暂停</el-button>
@@ -77,6 +77,7 @@ export default {
       textLines: 0, // 行数
       peopleTimeArr: [],
       customAudioTextTimes: [],
+      sliceTimesArr: [],
     };
   },
   computed: {
@@ -186,17 +187,37 @@ export default {
         canvasBarArr
           .join()
           .split(
-            new Array(Math.floor(oneSecondBar * 2)).fill(0).join(",") + ","
+            "," +
+              new Array(Math.floor(oneSecondBar * 2)).fill(0).join(",") +
+              ","
           ),
         (item) => item
       );
+      let preLength = 0;
+      let sliceTimesArr = [0];
+      _.compact(
+        _.map(data, (str, i) => {
+          preLength +=
+            str.split(",").length +
+            (i === 0 ? 0 : Math.floor(oneSecondBar * 2));
+          if (i === data.length - 1) {
+            return null;
+          }
+          sliceTimesArr.push(
+            ...[
+              preLength * oneBarTime,
+              preLength * oneBarTime +
+                Math.floor(oneSecondBar * 2) * oneBarTime,
+            ]
+          );
+        })
+      );
+      sliceTimesArr.push(this.animationTime);
+      this.sliceTimesArr = _.chunk(sliceTimesArr, 2);
       let preTime = 0;
       const peopleTimeArr = _.map(data, (str, index) => {
         let firstTime = false;
         let timeArr = [];
-        if (index !== 0) {
-          preTime;
-        }
         str.split(",").map((num, i) => {
           if (!firstTime) {
             firstTime = !!num;

@@ -6,6 +6,9 @@
     <el-tag @click="runCommand(2)" :color="active == 2 ? '#c5d8ed' : '#d9ecff'"
       >裁剪掉静音</el-tag
     >
+    <el-tag @click="runCommand(3)" :color="active == 3 ? '#c5d8ed' : '#d9ecff'"
+      >智能裁剪</el-tag
+    >
     <el-input v-model="commandText" placeholder="请输入命令" id="input">
       <el-button slot="append" type="primary" id="run">执行命令</el-button>
     </el-input>
@@ -20,13 +23,13 @@
 </template>
 <script>
 export default {
-  props: ["uploadfile"],
+  props: ["uploadfile", "sliceTimesArr"],
   data() {
     return {
       active: 1,
       showDownload: false,
       inputFileName: "/input/input.mp3",
-      commandText: "-i /input/input.mp3 -ab 48k -ar 8000 -ac 1 output.wav",
+      commandText: `-i "/input/input.mp3" -ab 48k -ar 8000 -ac 1 output.wav`,
     };
   },
   watch: {
@@ -34,7 +37,7 @@ export default {
       const _this = this;
       if (val) {
         this.inputFileName = `/input/${val[0].name}`;
-        this.commandText = `-i /input/${val[0].name} -ab 48k -ar 8000 -ac 1 output.wav`;
+        this.commandText = `-i "/input/${val[0].name}" -ab 48k -ar 8000 -ac 1 output.wav`;
         _this.sampleVideoData = val;
       }
       // this.fileToArrayBuffer(val).then(arrayBuffer => {
@@ -215,11 +218,22 @@ export default {
     runCommand(num) {
       this.active = num;
       if (num === 1) {
-        this.commandText = `-i ${this.inputFileName} -ab 48k -ar 8000 -ac 1 output.wav`;
+        this.commandText = `-i "${this.inputFileName}" -ab 48k -ar 8000 -ac 1 output.wav`;
       }
       if (num === 2) {
-        this.commandText = `-i ${this.inputFileName} -af silenceremove=stop_periods=-1:stop_duration=2:stop_threshold=-30dB output.wav`;
+        this.commandText = `-i "${this.inputFileName}" -af silenceremove=stop_periods=-1:stop_duration=2:stop_threshold=-90dB output.wav`;
       }
+      if (num === 3) {
+        let command = "";
+        console.log(this.sliceTimesArr);
+        this.sliceTimesArr.map((arr, i) => {
+          command += `between(t,${arr[0]},${arr[1]})${
+            i !== this.sliceTimesArr.length - 1 ? "+" : ""
+          }`;
+        });
+        this.commandText = `-i "${this.inputFileName}" -vf "select='${command}',setpts=N/FRAME_RATE/TB" -af "aselect='${command}',asetpts=N/SR/TB" output.wav`;
+      }
+      // -vf "select='between(t,1,2)',setpts=N/FRAME_RATE/TB" -af "aselect='between(t,1,2)',asetpts=N/SR/TB" out.mp4
     },
     fileToArrayBuffer(file) {
       return new Promise((resolve, reject) => {
