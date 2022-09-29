@@ -1,6 +1,5 @@
 <template>
   <div>
-    <el-input type="textarea" autosize v-model="noteText" disabled />
     <el-form
       v-if="isMobile"
       :model="dynamicValidateForm"
@@ -244,9 +243,7 @@ export default {
       dynamicValidateForm: {
         changjings: defaultChangjing,
       },
-      finalChangjings: [],
-      noteText:
-        " 动画四要素：/n选择场景、设置适当的灯光、展示独特的创意视角、添加特殊效果和音效/n制作动画脚本，需要加以考虑",
+      finalChangjings: []
     };
   },
   created() {

@@ -7,12 +7,15 @@
       >裁剪掉静音</el-tag
     >
     <el-tag @click="runCommand(3)" :color="active == 3 ? '#c5d8ed' : '#d9ecff'"
+      >普通裁剪</el-tag
+    >
+    <el-tag @click="runCommand(4)" :color="active == 4 ? '#c5d8ed' : '#d9ecff'"
       >智能裁剪</el-tag
     >
     <el-input v-model="commandText" placeholder="请输入命令" id="input">
       <el-button slot="append" type="primary" id="run">执行命令</el-button>
     </el-input>
-    <el-input type="textarea" :rows="2" placeholder="请输入内容" id="output">
+    <el-input type="textarea" :rows="2" placeholder="命令执行详情" disabled id="output">
     </el-input>
     <el-button
       id="files"
@@ -54,12 +57,13 @@ export default {
     var running = false;
     var isWorkerLoaded = false;
     const _this = this;
-    var loading = _this.$loading({
-      lock: true,
-      text: "准备中",
-      spinner: "el-icon-loading",
-      background: "rgba(0, 0, 0, 0.7)",
-    });
+    var loading = null
+    // var loading = _this.$loading({
+    //   lock: true,
+    //   text: "准备中",
+    //   spinner: "el-icon-loading",
+    //   background: "rgba(0, 0, 0, 0.7)",
+    // });
     function isReady() {
       return !running && isWorkerLoaded && _this.sampleVideoData;
     }
@@ -161,10 +165,10 @@ export default {
         var message = event.data;
         if (message.type == "ready") {
           isWorkerLoaded = true;
-          worker.postMessage({
-            type: "command",
-            arguments: ["-help"],
-          });
+          // worker.postMessage({
+          //   type: "command",
+          //   arguments: ["-help"],
+          // });
         } else if (message.type == "stdout") {
           outputElement.textContent += message.data + "\n";
         } else if (message.type == "start") {
@@ -223,9 +227,8 @@ export default {
       if (num === 2) {
         this.commandText = `-i "${this.inputFileName}" -af silenceremove=stop_periods=-1:stop_duration=2:stop_threshold=-90dB output.wav`;
       }
-      if (num === 3) {
+      if (num === 4) {
         let command = "";
-        console.log(this.sliceTimesArr);
         this.sliceTimesArr.map((arr, i) => {
           command += `between(t,${arr[0]},${arr[1]})${
             i !== this.sliceTimesArr.length - 1 ? "+" : ""
@@ -233,7 +236,9 @@ export default {
         });
         this.commandText = `-i "${this.inputFileName}" -vf "select='${command}',setpts=N/FRAME_RATE/TB" -af "aselect='${command}',asetpts=N/SR/TB" output.wav`;
       }
-      // -vf "select='between(t,1,2)',setpts=N/FRAME_RATE/TB" -af "aselect='between(t,1,2)',asetpts=N/SR/TB" out.mp4
+      if (num === 3) {
+        this.commandText = `-i "${this.inputFileName}" -vf "select='between(t,1,2)',setpts=N/FRAME_RATE/TB" -af "aselect='between(t,1,2)',asetpts=N/SR/TB" output.wav`;
+      }
     },
     fileToArrayBuffer(file) {
       return new Promise((resolve, reject) => {

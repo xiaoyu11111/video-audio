@@ -36,11 +36,11 @@
     <div class="tools-btn">
       输入语音对应的文字(行数：{{textLines}})
     </div>
-    <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="customAudioText" placeholder="输入语音对应的文字"/>
+    <el-input type="textarea" :autosize="{ minRows: 6}" v-model="customAudioText" placeholder="输入语音对应的文字"/>
     <div class="tools-btn">
       自动文字对应的时间(行数：{{peopleTimeArr.length}})
     </div>
-    <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="customAudioTextTime" placeholder="自动文字对应的时间"/>
+    <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 2}" disabled v-model="customAudioTextTime" placeholder="自动文字对应的时间"/>
     <div class="tools-btn">
       生成动画脚本
     </div>
@@ -94,12 +94,18 @@ export default {
           : "旁白";
         return {
           title,
-          start: arr[0],
-          end: arr[1],
+          start: arr[0].toFixed(2),
+          end: arr[1].toFixed(2),
         };
       });
+      this.customAudioText = _.map(data, (str, i) => {
+        if (list?.[i]?.start) {
+          return str.split('|')[0] + '|' + list[i]?.start + '-' + list[i]?.end
+        }
+        return str
+      }).join('\n')
       this.customAudioTextTimes = list;
-      return JSON.stringify(list);
+      return JSON.stringify(list)
     },
     audioText() {
       let str = "";
