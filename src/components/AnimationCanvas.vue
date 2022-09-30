@@ -17,11 +17,21 @@
           {{ sayList[0].title }}
         </div>
         <div
+          class="sign-box"
+          v-if="index === 0"
+          :style="{ left: blueBgFlagLeft + 'px' }"
+          @mousedown="blueBgDown"
+          @mousemove="blueBgMove"
+          @mouseup="blueBgUp"
+        >
+          <div class="sign-box-content" />
+        </div>
+        <div
           class="calibration"
           v-for="num in animationTimeArr"
           :key="num + 'calibration'"
           :style="{
-            left: num * 10 + 'px',
+            left: num * 20 + 'px',
             height: num % 5 === 0 && num !== 0 ? '8px' : '5px',
           }"
         >
@@ -32,8 +42,8 @@
           :class="obj.action === 'other' ? 'green-box' : 'red-box'"
           :key="obj.end + 'box'"
           :style="{
-            width: (obj.end - obj.start) * 10 + 'px',
-            left: obj.start * 10 + 'px',
+            width: (obj.end - obj.start) * 20 + 'px',
+            left: obj.start * 20 + 'px',
           }"
         />
       </div>
@@ -60,6 +70,8 @@ export default {
         animationTime: 0,
         changjings: [],
       },
+      blueBgFlag: false,
+      blueBgFlagLeft: 0,
     };
   },
   computed: {
@@ -75,13 +87,12 @@ export default {
     try {
       let canvasSetting = JSON.parse(localStorage.getItem("canvasSetting"));
       this.canvasSetting = canvasSetting;
-      this.timeLinesWidth = 10 * canvasSetting.animationTime + "px";
-      console.log(this.changjings, "changjings====");
+      this.timeLinesWidth = 20 * canvasSetting.animationTime + "px";
     } catch (error) {}
   },
   methods: {
     resetCanvasSetting() {
-      this.timeLinesWidth = 10 * this.animationTime + "px";
+      this.timeLinesWidth = 20 * this.animationTime + "px";
       const peopleList = _.map(
         this.audioSettings[0]?.peopleDictList || [],
         (arr) => {
@@ -91,7 +102,7 @@ export default {
               sayList.push({
                 ...item,
                 action: "say",
-                title: arr[1],
+                title: arr[0] + "(" + arr[1] + ")",
               });
             }
           });
@@ -105,7 +116,7 @@ export default {
                       ? item.startTime
                       : item.peopleTimes[index],
                   end: this.changjings[i + 1]?.startTime || this.animationTime,
-                  title: arr[1],
+                  title: arr[0],
                 });
               }
             });
@@ -113,8 +124,6 @@ export default {
           return sayList;
         }
       );
-      console.log(peopleList, "peopleList============");
-
       const canvasSetting = {
         peopleList,
         animationTime: this.animationTime,
@@ -122,6 +131,23 @@ export default {
       };
       this.canvasSetting = canvasSetting;
       localStorage.setItem("canvasSetting", JSON.stringify(canvasSetting));
+    },
+    //时间进度条移动
+    blueBgDown(e) {
+      console.log(e);
+      this.blueBgFlag = true;
+      this.clientX = e.clientX;
+    },
+    blueBgMove(e) {
+      console.log(this.blueBgFlag);
+      if (!this.blueBgFlag) {
+        return;
+      }
+      this.blueBgFlagLeft = e.pageX - this.clientX - 10;
+    },
+    blueBgUp() {
+      console.log("=====");
+      this.blueBgFlag = false;
     },
   },
 };
@@ -147,6 +173,7 @@ export default {
 }
 .time-lines {
   overflow: auto;
+  padding: 40px 0 0 10px;
 }
 .canvas-lines {
   position: relative;
@@ -170,6 +197,22 @@ export default {
     font-size: 12px;
     line-height: 29px;
     background-color: black;
+  }
+  .sign-box {
+    position: absolute;
+    left: 0;
+    top: -30px;
+    width: 40px;
+    height: 25px;
+    background-color: #8aa6f1;
+    cursor: pointer;
+    border-radius: 5px;
+    z-index: 100;
+    .sign-box-content {
+      border-left: 1px dashed red;
+      height: 70px;
+      width: 0px;
+    }
   }
   .red-box,
   .green-box {

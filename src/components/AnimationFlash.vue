@@ -756,7 +756,7 @@ export default {
     customAudioTextTimes(val, old) {
       const arr = _.uniq(
         _.compact(
-          _.map(val, (item) => (item.title === "旁白" ? null : item.title))
+          _.map(val, (item) => (item.title === "旁白" ? "无配音" : item.title))
         )
       );
       const arr1 = _.map(arr, (name) => ({
