@@ -5,18 +5,31 @@
     </div>
     <div class="canvas-container" id="canvas-container" :style="{ height }">
       <div class="canvas" id="canvas" :style="{ height: canvasHeight }"></div>
+      <div class="people" 
+        v-for="(sayList, index) in audioSettings[0].peopleDictList"
+        :key="index +'sayList'"
+      ></div>
     </div>
     <div class="time-lines" id="canvas">
+      <div
+        class="canvas-lines-btn"
+        v-for="(sayList, index) in canvasSetting.peopleList"
+        :key="index+'lines-btn'"
+        :style="{ top: 58 * index + 40 +'px' }"
+        @click="selectPeople(sayList[0].title)"
+      >
+      {{ sayList[0].formatTitle }}
+      </div>
       <div
         class="canvas-lines"
         :style="{ width: timeLinesWidth }"
         v-for="(sayList, index) in canvasSetting.peopleList"
-        :key="index"
+        :key="index+'canvas-lines'"
         @mousedown="goToLocation"
       >
-        <div class="name-box">
+        <!-- <div class="name-box">
           {{ sayList[0].title }}
-        </div>
+        </div> -->
         <div
           class="sign-box"
           v-if="index === 0"
@@ -105,7 +118,8 @@ export default {
               sayList.push({
                 ...item,
                 action: "say",
-                title: arr[0] + "(" + arr[1] + ")",
+                formatTitle: arr[0] + "(" + arr[1] + ")",
+                title: arr[0],
               });
             }
           });
@@ -119,7 +133,8 @@ export default {
                       ? item.startTime
                       : (item.peopleTimes[index] || 0),
                   end: this.changjings[i + 1]?.startTime || this.animationTime,
-                  title: arr[0],
+                  formatTitle: arr[0],
+                  title: arr[0]
                 });
               }
             });
@@ -162,11 +177,14 @@ export default {
       e.stopPropagation()
       e.preventDefault();
       const dom = document.getElementsByClassName("time-lines")[0]
-      let nX = dom.scrollLeft + e.clientX-15
+      let nX = dom.scrollLeft + e.clientX-15-70
       if (nX <= 0) {
         nX = 0
       }
       this.blueBgFlagLeft = nX;
+    },
+    selectPeople() {
+
     }
   },
 };
@@ -189,12 +207,21 @@ export default {
     border: 1px solid #8aa6f1;
     border-radius: 2px;
   }
+  .people {
+    position: absolute;
+    width: 20px;
+    height: 40px;
+    border: 1px solid rgb(138, 166, 241);
+    box-shadow: inset 1px 2px 12px rgb(138, 166, 241);
+  }
 }
 .time-lines {
+  position: relative;
   user-select: none;
   overflow: auto;
-  padding: 40px 0 0 0px;
+  padding: 40px 0 0 70px;
 }
+.canvas-lines-btn, 
 .canvas-lines {
   position: relative;
   line-height: 40px;
@@ -261,5 +288,13 @@ export default {
     border: 2px solid rgb(101, 240, 147);
     box-shadow: inset 1px 2px 12px rgb(101, 240, 147);
   }
+}
+.canvas-lines-btn {
+  position: absolute;
+  left: 0;
+  width: 60px;
+  line-height: 20px;
+  font-size: 12px;
+  text-align: center;
 }
 </style>
