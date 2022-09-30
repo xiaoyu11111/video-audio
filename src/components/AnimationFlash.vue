@@ -8,22 +8,15 @@
       class="demo-dynamic"
     >
       <el-form-item
-        v-for="(changjing, index) in dynamicValidateForm.changjings"
-        :label="'场景' + (index + 1)"
-        :key="changjing.key"
-        :prop="'changjings.' + index + '.title'"
-        :rules="{
-          required: true,
-          message: '场景名不能为空',
-          trigger: 'blur',
-        }"
+        v-for="(setting, index) in dynamicValidateForm.audioSettings"
+        :label="'配音关系'"
+        :key="setting.key"
       >
         <el-row>
-          <el-col :span="5">配音关系:</el-col>
           <el-col
-            v-for="(peopleitem, index1) in changjing.peopleDictList"
+            v-for="(peopleitem, index1) in setting.peopleDictList"
             :span="9"
-            :key="changjing + 2 + index1"
+            :key="setting + 2 + index1"
           >
             <el-cascader
               :append-to-body="false"
@@ -35,17 +28,29 @@
               "
             ></el-cascader>
           </el-col>
-          <el-col :offset="5" :span="19" class="effect-num"
+          <el-col :span="19" class="effect-num"
             ><span>个数</span
             ><el-input-number
               :min="1"
-              v-model="changjing.peopleDictListNum"
+              v-model="setting.peopleDictListNum"
               @change="
                 (value) => changeChangjingPeopleDictListNum(value, index)
               "
             ></el-input-number
           ></el-col>
         </el-row>
+      </el-form-item>
+      <el-form-item
+        v-for="(changjing, index) in dynamicValidateForm.changjings"
+        :label="'场景' + (index + 1)"
+        :key="changjing.key"
+        :prop="'changjings.' + index + '.title'"
+        :rules="{
+          required: true,
+          message: '场景名不能为空',
+          trigger: 'blur',
+        }"
+      >
         <el-row>
           <el-col :span="5">场景:</el-col>
           <el-col :span="19"
@@ -151,22 +156,15 @@
       class="demo-dynamic"
     >
       <el-form-item
-        v-for="(changjing, index) in dynamicValidateForm.changjings"
-        :label="'场景' + (index + 1)"
-        :key="changjing.key"
-        :prop="'changjings.' + index + '.title'"
-        :rules="{
-          required: true,
-          message: '场景名不能为空',
-          trigger: 'blur',
-        }"
+        v-for="(setting, index) in dynamicValidateForm.audioSettings"
+        :label="'配音关系'"
+        :key="setting.key"
       >
         <el-row>
-          <el-col :span="3">配音关系:</el-col>
           <el-col
-            v-for="(peopleitem, index1) in changjing.peopleDictList"
-            :span="4"
-            :key="changjing + 2 + index1"
+            v-for="(peopleitem, index1) in setting.peopleDictList"
+            :span="6"
+            :key="setting + 2 + index1"
           >
             <el-cascader
               :append-to-body="false"
@@ -178,17 +176,29 @@
               "
             ></el-cascader>
           </el-col>
-          <el-col :offset="3" :span="19" class="effect-num"
+          <el-col :span="21" class="effect-num"
             ><span>个数</span
             ><el-input-number
               :min="1"
-              v-model="changjing.peopleDictListNum"
+              v-model="setting.peopleDictListNum"
               @change="
                 (value) => changeChangjingPeopleDictListNum(value, index)
               "
             ></el-input-number
           ></el-col>
         </el-row>
+      </el-form-item>
+      <el-form-item
+        v-for="(changjing, index) in dynamicValidateForm.changjings"
+        :label="'场景' + (index + 1)"
+        :key="changjing.key"
+        :prop="'changjings.' + index + '.title'"
+        :rules="{
+          required: true,
+          message: '场景名不能为空',
+          trigger: 'blur',
+        }"
+      >
         <el-row>
           <el-col :span="3">场景:</el-col>
           <el-col :span="21"
@@ -286,10 +296,19 @@
         <el-button @click="resetForm()">重置</el-button>
       </el-form-item>
     </el-form>
+    <animationCanvas
+      :animationTime="animationTime"
+      :isMobile="isMobile"
+      :customAudioTextTimes="customAudioTextTimes"
+      :changjings="dynamicValidateForm.changjings"
+      :audioSettings="dynamicValidateForm.audioSettings"
+    />
+    <div class="common-title">脚本</div>
     <el-input type="textarea" autosize v-model="falshText" />
   </div>
 </template>
 <script>
+import animationCanvas from "./AnimationCanvas";
 import _ from "lodash";
 const defaultChangjing = [
   {
@@ -300,18 +319,27 @@ const defaultChangjing = [
     peopleNum: 2,
     people: [[], []],
     peopleTimes: [],
+  },
+];
+const defaultAudioSettings = [
+  {
     peopleDictList: [[], []],
     peopleDictListNum: 2,
   },
 ];
+
 export default {
   props: ["animationTime", "isMobile", "customAudioTextTimes"],
+  components: {
+    animationCanvas,
+  },
   data() {
     return {
       effectOptions: [],
       peopleOptions: [],
       peopleDictListOptions: [],
       dynamicValidateForm: {
+        audioSettings: defaultAudioSettings,
         changjings: defaultChangjing,
       },
       finalChangjings: [],
@@ -387,19 +415,44 @@ export default {
       label: name,
     }));
     let curChangjings = defaultChangjing;
+    let curAudioSettings = defaultAudioSettings;
     try {
       let changjings = localStorage.getItem("changjings");
+      let audioSettings = localStorage.getItem("audioSettings");
+      if (audioSettings) {
+        curAudioSettings = JSON.parse(audioSettings);
+      }
       if (changjings) {
         curChangjings = JSON.parse(changjings);
       }
     } catch (error) {}
-    this.dynamicValidateForm.changjings = curChangjings;
+    this.dynamicValidateForm = {
+      audioSettings: curAudioSettings,
+      changjings: curChangjings,
+    };
   },
   methods: {
     changeChangjingPeopleDictList(value, index, index1) {
-      const changjings = this.dynamicValidateForm.changjings;
-      changjings[index].peopleDictList[index1] = value;
-      this.dynamicValidateForm.changjings = [...changjings];
+      const audioSettings = this.dynamicValidateForm.audioSettings;
+      audioSettings[index].peopleDictList[index1] = value;
+      this.dynamicValidateForm.audioSettings = [...audioSettings];
+    },
+    changeChangjingPeopleDictListNum(value, index) {
+      if (index !== -1) {
+        const audioSettings = this.dynamicValidateForm.audioSettings;
+        audioSettings[index].peopleDictListNum = value;
+        const arr = audioSettings[index].peopleDictList;
+        if (arr.length >= value) {
+          audioSettings[index].peopleDictList = arr.slice(0, value);
+        }
+        if (arr.length < value) {
+          audioSettings[index].peopleDictList = [
+            ...arr,
+            ..._.range(value - arr.length),
+          ];
+        }
+        this.dynamicValidateForm.audioSettings = [...audioSettings];
+      }
     },
     changeChangjingEffect(value, index, index1) {
       const changjings = this.dynamicValidateForm.changjings;
@@ -415,23 +468,6 @@ export default {
       const changjings = this.dynamicValidateForm.changjings;
       changjings[index].peopleTimes[index1] = value;
       this.dynamicValidateForm.changjings = [...changjings];
-    },
-    changeChangjingPeopleDictListNum(value, index) {
-      if (index !== -1) {
-        const changjings = this.dynamicValidateForm.changjings;
-        changjings[index].peopleDictListNum = value;
-        const arr = changjings[index].peopleDictList;
-        if (arr.length >= value) {
-          changjings[index].peopleDictList = arr.slice(0, value);
-        }
-        if (arr.length < value) {
-          changjings[index].peopleDictList = [
-            ...arr,
-            ..._.range(value - arr.length),
-          ];
-        }
-        this.dynamicValidateForm.changjings = [...changjings];
-      }
     },
     changeChangjingPeopleNum(value, index) {
       if (index !== -1) {
@@ -465,7 +501,9 @@ export default {
       this.$refs[formName].validate((valid, obj) => {
         if (valid) {
           const changjings = this.dynamicValidateForm.changjings;
+          const audioSettings = this.dynamicValidateForm.audioSettings;
           localStorage.setItem("changjings", JSON.stringify(changjings));
+          localStorage.setItem("audioSettings", JSON.stringify(audioSettings));
           const finalChangjings = _.map(changjings, (item, i) => {
             const start = i == 0 ? 1 : Math.ceil(item.startTime * 30);
             return {
@@ -503,19 +541,27 @@ export default {
       });
     },
     resetForm() {
-      this.dynamicValidateForm.changjings = [
-        {
-          title: "小溪边夕阳",
-          startTime: 0,
-          effectsNum: 2,
-          effects: [[], []],
-          peopleNum: 2,
-          people: [[], []],
-          peopleTimes: [],
-          peopleDictList: [[], []],
-          peopleDictListNum: 2,
-        },
-      ];
+      this.dynamicValidateForm = {
+        audioSettings: [
+          {
+            peopleDictList: [[], []],
+            peopleDictListNum: 2,
+          },
+        ],
+        changjings: [
+          {
+            title: "小溪边夕阳",
+            startTime: 0,
+            effectsNum: 2,
+            effects: [[], []],
+            peopleNum: 2,
+            people: [[], []],
+            peopleTimes: [],
+            peopleDictList: [[], []],
+            peopleDictListNum: 2,
+          },
+        ],
+      };
     },
     removechangjing(item) {
       var index = this.dynamicValidateForm.changjings.indexOf(item);

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Document</title>
+    <style>
+        #e{
+            width: 100px;
+            height: 100px;
+            background: red;
+            position: absolute;
+            left: 0;
+            top: 0;
+            zoom: 1;
+        }
+    </style>
+</head>
+<body>
+<div id="e"></div>
+<script>
+var e = document.getElementById("e");
+var left = 0;
+var rafId = null
+
+
+function render() {
+  e.style.left = ` ${left++}px`
+}
+var fps = 30;
+var now;
+var then = Date.now();
+var allTime = 60; // 秒数
+var interval = 1000/fps;
+var delta;
+
+function tick() {
+　　rafId = requestAnimationFrame(tick);
+    if(left == fps * allTime){
+      cancelAnimationFrame(rafId)
+    }
+　　now = Date.now();
+　　delta = now - then;
+　　if (delta > interval) {
+　　　　// 这里不能简单then=now，否则还会出现上边简单做法的细微时间差问题。例如fps=10，每帧100ms，而现在每16ms（60fps）执行一次draw。16*7=112>100，需要7次才实际绘制一次。这个情况下，实际10帧需要112*10=1120ms>1000ms才绘制完成。
+　　　then = now - (delta % interval);
+     render();
+　　}
+}
+tick();
+
+</script>
+</body>
+</html>

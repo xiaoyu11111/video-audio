@@ -5,10 +5,10 @@
         accept=".mp4, .m4v, .3gp, .mpg, .flv, .f4v, .swf, .avi, .gif, .wmv, .rmvb, .mov, .mts, .m2t, .webm, .ogg, .mkv, .mp3, .mp2, .mp1, .wav, .aif, .aiff, .au, .ra, .rm, .ram, .mid, .rmi"
       >上传音视频文件</input>
     </div>
-    <div class="tools-btn">
+    <div class="common-title">
       <audioFormat :uploadfile="uploadfile" :sliceTimesArr="sliceTimesArr"/>
     </div>
-    <div class="tools-btn">
+    <div class="common-title">
       <el-button @click="playWave()" >播放/暂停</el-button>
       <span class="mgx10">总时长: {{this.animationTime}}s</span>
       <span>当前时间: {{this.curPlayingTime}}s</span>
@@ -29,19 +29,19 @@
     </div>
     <div id="waveform"></div>
     <div id="wave-timeline"></div>
-    <div class="tools-btn">
+    <div class="common-title">
       <el-button @click="getAudioText()">语音转文字</el-button>
     </div>
     <el-input v-if="audioText" type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="audioText" disabled />
-    <div class="tools-btn">
+    <div class="common-title">
       输入语音对应的文字(行数：{{textLines}})
     </div>
     <el-input type="textarea" :autosize="{ minRows: 6}" v-model="customAudioText" placeholder="输入语音对应的文字"/>
-    <div class="tools-btn">
+    <div class="common-title">
       自动文字对应的时间(行数：{{peopleTimeArr.length}})
     </div>
     <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 2}" disabled v-model="customAudioTextTime" placeholder="自动文字对应的时间"/>
-    <div class="tools-btn">
+    <div class="common-title">
       生成动画脚本
     </div>
     <animationFlash :animationTime="animationTime1" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/>
@@ -77,7 +77,7 @@ export default {
       textLines: 0, // 行数
       peopleTimeArr: [],
       customAudioTextTimes: [],
-      sliceTimesArr: []
+      sliceTimesArr: [],
     };
   },
   computed: {
@@ -98,15 +98,15 @@ export default {
           end: arr[1].toFixed(2),
         };
       });
-      
+
       this.customAudioText = _.map(data, (str, i) => {
         if (list?.[i]?.start) {
-          return str.split('|')[0] + '|' + list[i]?.start + '-' + list[i]?.end
+          return str.split("|")[0] + "|" + list[i]?.start + "-" + list[i]?.end;
         }
-        return str
-      }).join('\n')
+        return str;
+      }).join("\n");
       this.customAudioTextTimes = list;
-      return JSON.stringify(list)
+      return JSON.stringify(list);
     },
     audioText() {
       let str = "";

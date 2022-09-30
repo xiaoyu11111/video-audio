@@ -90,4 +90,9 @@ textarea {
   font-feature-settings: "tnum";
   border-top: 1px dashed rgba(0, 0, 0, 0.06);
 }
+
+.common-title {
+  margin: 5px 0;
+  font-weight: 800;
+}
 </style>
