@@ -78,5 +78,16 @@ textarea {
 .el-message-box {
   width: 100% !important;
 }
-
+.divider {
+  box-sizing: border-box;
+  margin: 10px 0;
+  padding: 0;
+  color: #000000d9;
+  font-size: 14px;
+  font-variant: tabular-nums;
+  line-height: 1.5715;
+  list-style: none;
+  font-feature-settings: "tnum";
+  border-top: 1px dashed rgba(0, 0, 0, 0.06);
+}
 </style>

@@ -18,28 +18,31 @@
           trigger: 'blur',
         }"
       >
-      <el-row>
+        <el-row>
+          <el-col :span="5">配音关系:</el-col>
           <el-col
             v-for="(peopleitem, index1) in changjing.peopleDictList"
-            :span="24"
+            :span="9"
             :key="changjing + 2 + index1"
           >
-            <el-col v-if="index1 == 0" :span="5">配音关系:</el-col>
-            <el-col :offset="index1 == 0 ? 0 : 5" :span="8"
-              ><el-cascader
-                :append-to-body="false"
-                :options="peopleDictListOptions"
-                :value="peopleitem"
-                @change="(value) => changeChangjingPeopleDictList(value, index, index1)"
-              ></el-cascader
-            ></el-col>
+            <el-cascader
+              :append-to-body="false"
+              :options="peopleDictListOptions"
+              clearable
+              :value="peopleitem"
+              @change="
+                (value) => changeChangjingPeopleDictList(value, index, index1)
+              "
+            ></el-cascader>
           </el-col>
           <el-col :offset="5" :span="19" class="effect-num"
             ><span>个数</span
             ><el-input-number
               :min="1"
               v-model="changjing.peopleDictListNum"
-              @change="(value) => changeChangjingPeopleDictListNum(value, index)"
+              @change="
+                (value) => changeChangjingPeopleDictListNum(value, index)
+              "
             ></el-input-number
           ></el-col>
         </el-row>
@@ -63,7 +66,7 @@
           <el-col :span="5">场景特效:</el-col>
           <el-col
             v-for="(effect, index1) in changjing.effects"
-            :span="8"
+            :span="9"
             :key="changjing + 1 + index1"
           >
             <el-cascader
@@ -110,6 +113,12 @@
                 "
               ></el-input-number
             ></el-col>
+            <el-col
+              :offset="5"
+              :span="19"
+              v-if="changjing.people.length - 1 !== index1"
+              ><div class="divider"
+            /></el-col>
           </el-col>
           <el-col :offset="5" :span="19" class="effect-num"
             ><span>个数</span
@@ -152,6 +161,34 @@
           trigger: 'blur',
         }"
       >
+        <el-row>
+          <el-col :span="3">配音关系:</el-col>
+          <el-col
+            v-for="(peopleitem, index1) in changjing.peopleDictList"
+            :span="4"
+            :key="changjing + 2 + index1"
+          >
+            <el-cascader
+              :append-to-body="false"
+              :options="peopleDictListOptions"
+              clearable
+              :value="peopleitem"
+              @change="
+                (value) => changeChangjingPeopleDictList(value, index, index1)
+              "
+            ></el-cascader>
+          </el-col>
+          <el-col :offset="3" :span="19" class="effect-num"
+            ><span>个数</span
+            ><el-input-number
+              :min="1"
+              v-model="changjing.peopleDictListNum"
+              @change="
+                (value) => changeChangjingPeopleDictListNum(value, index)
+              "
+            ></el-input-number
+          ></el-col>
+        </el-row>
         <el-row>
           <el-col :span="3">场景:</el-col>
           <el-col :span="21"
@@ -219,6 +256,12 @@
                 "
               ></el-input-number
             ></el-col>
+            <el-col
+              :offset="3"
+              :span="21"
+              v-if="changjing.people.length - 1 !== index1"
+              ><div class="divider"
+            /></el-col>
           </el-col>
           <el-col :offset="3" :span="21" class="effect-num"
             ><span>个数</span
@@ -257,8 +300,8 @@ const defaultChangjing = [
     peopleNum: 2,
     people: [[], []],
     peopleTimes: [],
-    peopleDictList: [[],[]],
-    peopleDictListNum: 2
+    peopleDictList: [[], []],
+    peopleDictListNum: 2,
   },
 ];
 export default {
@@ -271,7 +314,7 @@ export default {
       dynamicValidateForm: {
         changjings: defaultChangjing,
       },
-      finalChangjings: []
+      finalChangjings: [],
     };
   },
   created() {
@@ -382,7 +425,10 @@ export default {
           changjings[index].peopleDictList = arr.slice(0, value);
         }
         if (arr.length < value) {
-          changjings[index].peopleDictList = [...arr, ..._.range(value - arr.length)];
+          changjings[index].peopleDictList = [
+            ...arr,
+            ..._.range(value - arr.length),
+          ];
         }
         this.dynamicValidateForm.changjings = [...changjings];
       }
@@ -467,7 +513,7 @@ export default {
           people: [[], []],
           peopleTimes: [],
           peopleDictList: [[], []],
-          peopleDictListNum: 2
+          peopleDictListNum: 2,
         },
       ];
     },
@@ -662,18 +708,22 @@ export default {
   },
   watch: {
     customAudioTextTimes(val, old) {
-      const arr = _.uniq(_.compact(_.map(val, item => item.title === '旁白' ? null : item.title)))
-      const arr1 = _.map(arr, name => ({
-          value: name,
-          label: name,
-        }))
+      const arr = _.uniq(
+        _.compact(
+          _.map(val, (item) => (item.title === "旁白" ? null : item.title))
+        )
+      );
+      const arr1 = _.map(arr, (name) => ({
+        value: name,
+        label: name,
+      }));
       this.peopleDictListOptions = this.peopleOptions.map((item) => ({
         value: item.value,
         label: item.value,
-        children: arr1
+        children: arr1,
       }));
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="less">
