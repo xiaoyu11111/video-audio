@@ -12,6 +12,7 @@
         :style="{ width: timeLinesWidth }"
         v-for="(sayList, index) in canvasSetting.peopleList"
         :key="index"
+        @mousedown="goToLocation"
       >
         <div class="name-box">
           {{ sayList[0].title }}
@@ -21,9 +22,12 @@
           v-if="index === 0"
           :style="{ left: blueBgFlagLeft + 'px' }"
           @mousedown="blueBgDown"
+          @touchstart="blueBgDown"
           @mousemove="blueBgMove"
+          @touchmove="blueBgMove"
           @mouseup="blueBgUp"
         >
+          {{(blueBgFlagLeft/20).toFixed(2)}}
           <div class="sign-box-content" />
         </div>
         <div
@@ -70,7 +74,6 @@ export default {
         animationTime: 0,
         changjings: [],
       },
-      blueBgFlag: false,
       blueBgFlagLeft: 0,
     };
   },
@@ -112,9 +115,9 @@ export default {
                 sayList.push({
                   action: "other",
                   start:
-                    item.startTime > item.peopleTimes[index]
+                    item.startTime > (item.peopleTimes[index] || 0)
                       ? item.startTime
-                      : item.peopleTimes[index],
+                      : (item.peopleTimes[index] || 0),
                   end: this.changjings[i + 1]?.startTime || this.animationTime,
                   title: arr[0],
                 });
@@ -134,21 +137,37 @@ export default {
     },
     //时间进度条移动
     blueBgDown(e) {
-      console.log(e);
+      e.stopPropagation()
       this.blueBgFlag = true;
-      this.clientX = e.clientX;
+      this.nInitX = e.clientX || e.targetTouches[0].clientX
+      this.nInitLeft = e.target.offsetLeft;
     },
     blueBgMove(e) {
-      console.log(this.blueBgFlag);
+      e.stopPropagation()
+      e.preventDefault();
       if (!this.blueBgFlag) {
         return;
       }
-      this.blueBgFlagLeft = e.pageX - this.clientX - 10;
+      let nX = (e.clientX || e.targetTouches[0].clientX) - this.nInitX + this.nInitLeft;
+      if (nX <= 0) {
+        nX = 0
+      }
+      this.blueBgFlagLeft = nX;
     },
-    blueBgUp() {
-      console.log("=====");
+    blueBgUp(e) {
+      e.stopPropagation()
       this.blueBgFlag = false;
     },
+    goToLocation(e) {
+      e.stopPropagation()
+      e.preventDefault();
+      const dom = document.getElementsByClassName("time-lines")[0]
+      let nX = dom.scrollLeft + e.clientX-15
+      if (nX <= 0) {
+        nX = 0
+      }
+      this.blueBgFlagLeft = nX;
+    }
   },
 };
 </script>
@@ -172,8 +191,9 @@ export default {
   }
 }
 .time-lines {
+  user-select: none;
   overflow: auto;
-  padding: 40px 0 0 10px;
+  padding: 40px 0 0 0px;
 }
 .canvas-lines {
   position: relative;
@@ -202,16 +222,20 @@ export default {
     position: absolute;
     left: 0;
     top: -30px;
-    width: 40px;
-    height: 25px;
+    width: 80px;
+    height: 30px;
     background-color: #8aa6f1;
     cursor: pointer;
     border-radius: 5px;
     z-index: 100;
+    text-align: center;
+    line-height: 30px;
     .sign-box-content {
       border-left: 1px dashed red;
       height: 70px;
       width: 0px;
+      position: absolute;
+      top: 4px;
     }
   }
   .red-box,
