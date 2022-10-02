@@ -142,7 +142,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('dynamicValidateForm')"
-          >生成脚本</el-button
+          >1、生成脚本</el-button
         >
         <el-button @click="addchangjing">新增场景</el-button>
         <el-button @click="resetForm()">重置</el-button>
@@ -290,7 +290,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('dynamicValidateForm')"
-          >生成脚本</el-button
+          >1、生成脚本</el-button
         >
         <el-button @click="addchangjing">新增场景</el-button>
         <el-button @click="resetForm()">重置</el-button>
