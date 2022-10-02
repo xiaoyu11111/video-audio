@@ -430,6 +430,58 @@ export default {
       audioSettings: curAudioSettings,
       changjings: curChangjings,
     };
+    this.Event.$on('getPeopleList', (canvasSetting) => {
+      this.submitForm('dynamicValidateForm')
+      const offsetWidth = document.getElementById("canvas-container").offsetWidth
+      const offsetHeight = document.getElementById("canvas-container").offsetHeight
+      this.finalChangjings = _.map(this.finalChangjings, (changjing, index) => {
+        const people = _.map(changjing.people, p => {
+          const peopleList = _.filter(canvasSetting.peopleList, obj => obj[0].title === p.title)
+          if (!peopleList.length) return p
+          const changjings = _.filter(peopleList[0], item => item.action == 'other')
+          const curChangjing = _.find(changjings, {changjingIndex: index})
+          const sayList = _.map(_.slice(peopleList[0], changjings.length) || [], keyObj => {
+            return {
+              ...keyObj,
+              start: Math.ceil(keyObj.start * 30) || 1,
+              end: Math.ceil(keyObj.end * 30),
+            }
+          }) 
+          const frameKeys = _.map(curChangjing.frameKeys || [], keyObj => {
+            return {
+              start: Math.ceil(keyObj.start * 30) || 1,
+              location: [1920/offsetWidth * (keyObj.location[0] + 20), 1080/offsetHeight * (keyObj.location[1] + 40)]
+            }
+          }) 
+          const newFrameKeys = []
+          if (sayList.length === 0) {
+            newFrameKeys[0] = frameKeys
+          } else if (sayList.length >= 1) {
+            _.map(sayList, (say, i) => {
+              if (i === 0) {
+                newFrameKeys[i] = _.filter(frameKeys, item => item.start < say.start)
+              } else {
+                newFrameKeys[i] = _.filter(frameKeys, item => sayList[i-1].end * 30 < item.start && item.start < say.start)
+              }
+              if (i === sayList.length - 1) {
+                newFrameKeys[i+1] = _.filter(frameKeys, item => item.start > say.end * 30)
+              }
+            })
+          }
+          const location = [1920/offsetWidth * (curChangjing.location[0] + 20), 1080/offsetHeight * (curChangjing.location[1] + 40)]
+          return {
+            ...p,
+            location: frameKeys.length ? frameKeys[0].location : location,
+            frameKeys: newFrameKeys,
+            sayKeys: sayList
+          }
+        })
+        return {
+          ...changjing,
+          people
+        }
+      })
+    })
   },
   methods: {
     changeChangjingPeopleDictList(value, index, index1) {
@@ -582,8 +634,6 @@ export default {
       // var changjing = ${JSON.stringify(this.finalChangjings)}
 
       return `
-  // C:\Users\Administrator\AppData\Local\Adobe\Animate 2022\zh_CN\Configuration\
-
   // var configDir = fl.configDirectory;
   // fl.trace(fl.configDirectory)
   //an.getDocumentDOM().scaleSelection(-1, 1);水平翻转
@@ -710,15 +760,14 @@ export default {
     for (var j = 0; j < changjing[i].people.length; j++) {
       var name = changjing[i].people[j].title
       var start = changjing[i].people[j].start
+      var location = changjing[i].people[j].location
       fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
       if (start && start !== changjing[i].start) {
         fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1)
       }
       fl.getDocumentDOM().getTimeline().setSelectedFrames(start || changjing[i].start-1, start || changjing[i].start-1);
       fl.getDocumentDOM().library.selectItem(name + '动作/' + name + '正面站姿');
-      var addItemX = parseInt(Math.random()*(1920 -130 - 130 + 1)+130,10)
-      var addItemY = parseInt(Math.random()*(1080 -302 - 302 + 1)+302,10)
-      fl.getDocumentDOM().library.addItemToDocument({x: addItemX, y: addItemY});
+      fl.getDocumentDOM().library.addItemToDocument({x: location[0], y: location[1]});
       // 修改元件名
       var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
       fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start || changjing[i].start-1].elements[0]]
@@ -734,6 +783,42 @@ export default {
       fl.getDocumentDOM().swapElement(newName)
       fl.getDocumentDOM().library.selectItem(newName);
       fl.getDocumentDOM().library.moveToFolder('待删除');
+
+      // 添加帧
+      var frameKeys = changjing[i].people[j].frameKeys
+      for (var f = 0; f < frameKeys.length; f++) {
+        for (var fi = 0; fi < frameKeys[f].length; fi++) {
+          var name = changjing[i].people[j].title
+          var start = frameKeys[f][fi].start
+          var location = frameKeys[f][fi].location
+          fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
+          if (start && start !== changjing[i].start) {
+            fl.getDocumentDOM().getTimeline().convertToBlankKeyframes(start-1);
+          }
+          if (fi >= 1) {
+            fl.getDocumentDOM().getTimeline().setSelectedFrames(start-2, start-2);
+            fl.getDocumentDOM().getTimeline().createMotionTween();
+          }
+          fl.getDocumentDOM().getTimeline().setSelectedFrames(start, start);
+          fl.getDocumentDOM().library.selectItem(name + '动作/' + name + '正面站姿');
+          fl.getDocumentDOM().library.addItemToDocument({x: location[0], y: location[1]});
+          // 修改元件名
+          var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+          fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start].elements[0]]
+          var name = fl.getDocumentDOM().selection[0].libraryItem.name
+          fl.getDocumentDOM().library.duplicateItem(name)
+          var nameArr = name.split(' 复制')
+          var newName = ''
+          if (name.indexOf(' 复制') == -1) {
+              newName = name+' 复制'
+          } else {
+              newName  = nameArr[0] + ' 复制 ' + (nameArr[1] ? (+nameArr[1] + 1) : 2)
+          }
+          fl.getDocumentDOM().swapElement(newName)
+          fl.getDocumentDOM().library.selectItem(newName);
+          fl.getDocumentDOM().library.moveToFolder('待删除');
+        }
+      }
     }
     // 添加场景特效
     fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict['场景特效']);

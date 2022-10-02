@@ -20,7 +20,7 @@
           @touchmove="(e) => peopleMove(e, index, i)"
           @mouseup="peopleUp"
           :style="{
-            display: sayItem.action === 'other' && blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= sayItem.end * 20 ? 'block' : 'none',
+            display: sayItem.action === 'other' && (!sayItem.frameKeys || sayItem.frameKeys.length === 0) && blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= sayItem.end * 20 ? 'block' : 'none',
             'box-shadow': selectPeople === sayItem.title ? 'inset 1px 2px 12px #f45' : 'none',
             zIndex: selectPeople === sayItem.title ? 1000 : 1,
             left: sayItem.location[0] + 'px',
@@ -28,6 +28,32 @@
           }"
         >
           {{ sayList[0].title}}
+        </div>
+        <div
+          v-for="(item, i) in sayList"
+          :key="i +'sayItem11'"
+          :style="{
+            display: item.action === 'other' && blueBgFlagLeft >= item.start * 20 && blueBgFlagLeft <= item.end * 20 ? 'block' : 'none'
+          }"
+        >
+          <div class="people" 
+            v-for="(sayItem, frameIndex) in item.frameKeys"
+            :key="frameIndex +'frameKeys'"
+            @mousedown="(e) => peopleDown(e, item.title, index)"
+            @touchstart="(e) => peopleDown(e, item.title, index)"
+            @mousemove="(e) => peopleMove(e, index, i, frameIndex)"
+            @touchmove="(e) => peopleMove(e, index, i, frameIndex)"
+            @mouseup="peopleUp"
+            :style="{
+              display: (frameIndex === 0 && blueBgFlagLeft <= sayItem.start * 20)|| (blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= (item.frameKeys && item.frameKeys[frameIndex + 1] ? (item.frameKeys[frameIndex + 1].start) : item.end) * 20)  ? 'block' : 'none',
+              'box-shadow': selectPeople === item.title ? 'inset 1px 2px 12px #f45' : 'none',
+              zIndex: selectPeople === item.title ? 1000 : 1,
+              left: sayItem.location[0] + 'px',
+              top: sayItem.location[1] + 'px',
+            }"
+          >
+            {{ item.title}}
+          </div>
         </div>
       </div>
     </div>
@@ -171,7 +197,7 @@ export default {
   },
   methods: {
     setTextFlash() {
-
+      this.Event.$emit("getPeopleList", this.canvasSetting);
     },
     saveCanvasSetting() {
       localStorage.setItem("canvasSetting", JSON.stringify(this.canvasSetting));
@@ -185,14 +211,17 @@ export default {
           this.changjings.map((item, i) => {
             _.map(item.people, (p, index) => {
               if (p[0] === arr[0]) {
-                const width = document.getElementById("canvas-container").offsetWidth - 20
-                const heigth = document.getElementById("canvas-container").offsetHeight - 40
+                const offsetWidth = document.getElementById("canvas-container").offsetWidth
+                const offsetHeight = document.getElementById("canvas-container").offsetHeight
+                const width = offsetWidth - 20
+                const heigth = offsetHeight - 40
                 const x = Math.random() * (width - 20 + 1) + 20 - 20
                 const y = Math.random() * (heigth - 40 + 1) + 40 - 40
                 // location 左上角, 生成flash脚本要变成中间位置
                 sayList.push({
                   id: Math.random().toFixed(10),
                   action: "other",
+                  changjingIndex: i,
                   location: [x, y],
                   start:
                     item.startTime > (item.peopleTimes[index] || 0)
@@ -299,7 +328,7 @@ export default {
       this.nPeopleInitLeft = e.target.offsetLeft;
       this.nPeopleInitTop = e.target.offsetTop;
     },
-    peopleMove(e, parentIndex, index) {
+    peopleMove(e, parentIndex, index, frameIndex) {
       e.stopPropagation()
       e.preventDefault();
       if (!this.peopleFlag) {
@@ -321,7 +350,11 @@ export default {
       if (nY >= heigth) {
         nY = heigth
       }
-      this.canvasSetting.peopleList[parentIndex][index].location = [nX, nY]
+      if (_.isNil(frameIndex)) {
+        this.canvasSetting.peopleList[parentIndex][index].location = [nX, nY]
+      } else {
+        this.canvasSetting.peopleList[parentIndex][index].frameKeys[frameIndex].location = [nX, nY]
+      }
       e.target.style.left = nX + 'px'
       e.target.style.top = nY + 'px'
     },
@@ -368,6 +401,17 @@ export default {
       this.blueBgFlagLeft = nX;
     },
     setSelectPeople(val, index) {
+      this.selectFrame = ''
+      _.map(this.canvasSetting.peopleList[index], (obj, i) => {
+        if (obj.action === 'other' && index === i && obj.start <= (this.blueBgFlagLeft/20).toFixed(2) && (this.blueBgFlagLeft/20).toFixed(2) < obj.end) {
+            _.map(obj.frameKeys, frame => {
+              if (Math.abs((this.blueBgFlagLeft/20).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((this.blueBgFlagLeft/20).toFixed(2)) - 0.25) {
+                this.selectFrame = frame
+              }
+            })
+            return
+          }
+      })
       this.selectPeople = val
       this.selectIndex = index
     }
