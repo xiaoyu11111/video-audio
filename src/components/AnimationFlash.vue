@@ -432,8 +432,10 @@ export default {
     };
     this.Event.$on('getPeopleList', (canvasSetting) => {
       this.submitForm('dynamicValidateForm')
-      const offsetWidth = document.getElementById("canvas-container").offsetWidth
-      const offsetHeight = document.getElementById("canvas-container").offsetHeight
+      const offsetWidth = document.getElementById("canvas").offsetWidth
+      const offsetLeft = document.getElementById("canvas").offsetLeft
+      const offsetHeight = document.getElementById("canvas").offsetHeight
+      const offsetTop = document.getElementById("canvas").offsetTop
       this.finalChangjings = _.map(this.finalChangjings, (changjing, index) => {
         const people = _.map(changjing.people, p => {
           const peopleList = _.filter(canvasSetting.peopleList, obj => obj[0].title === p.title)
@@ -450,7 +452,7 @@ export default {
           const frameKeys = _.map(curChangjing.frameKeys || [], keyObj => {
             return {
               start: Math.ceil(keyObj.start * 30) || 1,
-              location: [1920/offsetWidth * (keyObj.location[0] + 20), 1080/offsetHeight * (keyObj.location[1] + 40)]
+              location: [1920/offsetWidth * (keyObj.location[0]-offsetLeft + 20), 1080/offsetHeight * (keyObj.location[1]-offsetTop + 40)]
             }
           }) 
           const newFrameKeys = []
@@ -468,7 +470,7 @@ export default {
               }
             })
           }
-          const location = [1920/offsetWidth * (curChangjing.location[0] + 20), 1080/offsetHeight * (curChangjing.location[1] + 40)]
+          const location = [1920/offsetWidth * (curChangjing.location[0]-offsetLeft + 20), 1080/offsetHeight * (curChangjing.location[1]-offsetTop + 40)]
           return {
             ...p,
             location: frameKeys.length ? frameKeys[0].location : location,
@@ -792,7 +794,7 @@ export default {
           var start = frameKeys[f][fi].start
           var location = frameKeys[f][fi].location
           fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
-          if (start && start !== changjing[i].start) {
+          if (start && start !== changjing[i].people[j].start) {
             fl.getDocumentDOM().getTimeline().convertToBlankKeyframes(start-1);
           }
           if (fi >= 1) {
