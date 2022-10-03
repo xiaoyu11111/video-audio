@@ -823,6 +823,7 @@ export default {
       }
       // 说话帧
       var frameKeys = changjing[i].people[j].sayKeys
+      var newName = ''
       for (var fi = 0; fi < frameKeys.length; fi++) {
         // 复制帧
         if (fi >= 1) {
@@ -840,6 +841,7 @@ export default {
           // 修改元件名
           var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
           fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start].elements[0]]
+          fl.getDocumentDOM().swapElement(newName)
           var name1 = fl.getDocumentDOM().selection[0].libraryItem.name
           fl.getDocumentDOM().library.duplicateItem(name1)
           var nameArr = name1.split(' 复制')
@@ -870,7 +872,7 @@ export default {
           var name1 = fl.getDocumentDOM().selection[0].libraryItem.name
           fl.getDocumentDOM().library.duplicateItem(name1)
           var nameArr = name1.split(' 复制')
-          var newName = ''
+             newName = ''
           if (name1.indexOf(' 复制') == -1) {
               newName = name1+' 复制'
           } else {
@@ -911,7 +913,7 @@ export default {
       fl.getDocumentDOM().scaleSelection(effectsLocationDict[location][0]/curBg.width, effectsLocationDict[location][1]/curBg.height);
     }
   }
-         `;
+        `;
     },
   },
   watch: {
