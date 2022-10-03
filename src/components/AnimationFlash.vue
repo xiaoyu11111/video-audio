@@ -826,7 +826,6 @@ export default {
       for (var fi = 0; fi < frameKeys.length; fi++) {
         // 复制帧
         if (fi >= 1) {
-          fl.trace('111')
           var start = frameKeys[fi].start
           var end = frameKeys[fi].end
           var name = changjing[i].people[j].title
