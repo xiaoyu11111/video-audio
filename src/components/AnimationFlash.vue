@@ -821,6 +821,82 @@ export default {
           fl.getDocumentDOM().library.moveToFolder('待删除');
         }
       }
+      // 说话帧
+      var frameKeys = changjing[i].people[j].sayKeys
+      for (var fi = 0; fi < frameKeys.length; fi++) {
+        // 复制帧
+        if (fi >= 1) {
+          fl.trace('111')
+          var start = frameKeys[fi].start
+          var end = frameKeys[fi].end
+          var name = changjing[i].people[j].title
+          fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
+          if (start && start !== changjing[i].people[j].start) {
+            fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1);
+          }
+          if (end && end !== changjing[i].people[j].end) {
+            fl.getDocumentDOM().getTimeline().convertToKeyframes(end-1);
+          }
+          fl.getDocumentDOM().getTimeline().setSelectedFrames(start, start);
+          // 修改元件名
+          var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+          fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start].elements[0]]
+          var name1 = fl.getDocumentDOM().selection[0].libraryItem.name
+          fl.getDocumentDOM().library.duplicateItem(name1)
+          var nameArr = name1.split(' 复制')
+          var newName = ''
+          if (name1.indexOf(' 复制') == -1) {
+              newName = name1+' 复制'
+          } else {
+              newName  = nameArr[0] + ' 复制 ' + (nameArr[1] ? (+nameArr[1] + 1) : 2)
+          }
+          fl.getDocumentDOM().swapElement(newName)
+          fl.getDocumentDOM().library.selectItem(newName);
+          fl.getDocumentDOM().library.moveToFolder('待删除');
+        } else {
+          var start = frameKeys[fi].start
+          var end = frameKeys[fi].end
+          var name = changjing[i].people[j].title
+          fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
+          if (start && start !== changjing[i].people[j].start) {
+            fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1);
+          }
+          if (end && end !== changjing[i].people[j].end) {
+            fl.getDocumentDOM().getTimeline().convertToKeyframes(end-1);
+          }
+          fl.getDocumentDOM().getTimeline().setSelectedFrames(start, start);
+          // 修改元件名
+          var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+          fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start].elements[0]]
+          var name1 = fl.getDocumentDOM().selection[0].libraryItem.name
+          fl.getDocumentDOM().library.duplicateItem(name1)
+          var nameArr = name1.split(' 复制')
+          var newName = ''
+          if (name1.indexOf(' 复制') == -1) {
+              newName = name1+' 复制'
+          } else {
+              newName  = nameArr[0] + ' 复制 ' + (nameArr[1] ? (+nameArr[1] + 1) : 2)
+          }
+          fl.getDocumentDOM().swapElement(newName)
+          fl.getDocumentDOM().library.selectItem(newName);
+          fl.getDocumentDOM().library.moveToFolder('待删除');
+          // 说话
+          fl.getDocumentDOM().enterEditMode('inPlace');
+          var peopleLayers = fl.getDocumentDOM().getTimeline().layers
+          var peoplelayersDict = {}
+          for (var i1 = 0; i1 < peopleLayers.length - 1; i1++) {
+            peoplelayersDict[peopleLayers[i1].name] = i1
+          }
+          fl.getDocumentDOM().getTimeline().setSelectedLayers(peoplelayersDict['xz头']);
+          fl.getDocumentDOM().getTimeline().convertToKeyframes(5);
+          var firstFrame = fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[0].elements[0].firstFrame
+          fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[5].elements[0].firstFrame = firstFrame+1
+          fl.getDocumentDOM().getTimeline().setSelectedFrames(5+1,5+1);
+          fl.getDocumentDOM().moveSelectionBy({x:0, y:-7.5});
+          fl.getDocumentDOM().selectNone();
+          fl.getDocumentDOM().exitEditMode();
+        }
+      }
     }
     // 添加场景特效
     fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict['场景特效']);
@@ -836,7 +912,7 @@ export default {
       fl.getDocumentDOM().scaleSelection(effectsLocationDict[location][0]/curBg.width, effectsLocationDict[location][1]/curBg.height);
     }
   }
-        `;
+         `;
     },
   },
   watch: {

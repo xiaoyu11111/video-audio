@@ -66,6 +66,7 @@ html {
   overflow: auto;
 }
 body {
+  user-select: none;
   overflow: auto;
   background-color: aliceblue;
   padding: 15px 15px;
