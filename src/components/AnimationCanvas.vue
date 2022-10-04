@@ -5,6 +5,9 @@
       <el-button @click="saveCanvasSetting">保存</el-button>
       <el-button @click="setTextFlash">2、生成脚本</el-button>
     </div>
+    <div class="common-title" v-if="selectPeople">
+      <el-button @click="setPeopleRotate">水平翻转</el-button>
+    </div>
     <div class="canvas-container" id="canvas-container" :style="{ height }">
       <div class="canvas" id="canvas" :style="{ height: canvasHeight }"></div>
       <div 
@@ -23,11 +26,12 @@
             display: sayItem.action === 'other' && (!sayItem.frameKeys || sayItem.frameKeys.length === 0) && blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= sayItem.end * 20 ? 'block' : 'none',
             'box-shadow': selectPeople === sayItem.title ? 'inset 1px 2px 12px #f45' : 'none',
             zIndex: selectPeople === sayItem.title ? 1000 : 1,
+            transform: `scale(${sayItem.rotate || '1, 1'})`,
             left: sayItem.location[0] + 'px',
             top: sayItem.location[1] + 'px',
           }"
         >
-          {{ sayList[0].title}}
+          {{ sayList[0].title }}
         </div>
         <div
           v-for="(item, i) in sayList"
@@ -48,6 +52,7 @@
               display: (frameIndex === 0 && blueBgFlagLeft <= sayItem.start * 20)|| (blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= (item.frameKeys && item.frameKeys[frameIndex + 1] ? (item.frameKeys[frameIndex + 1].start) : item.end) * 20)  ? 'block' : 'none',
               'box-shadow': selectPeople === item.title ? 'inset 1px 2px 12px #f45' : 'none',
               zIndex: selectPeople === item.title ? 1000 : 1,
+              transform: `scale(${sayItem.rotate || '1, 1'})`,
               left: sayItem.location[0] + 'px',
               top: sayItem.location[1] + 'px',
             }"
@@ -77,7 +82,7 @@
         :style="{ width: timeLinesWidth }"
         v-for="(sayList, index) in canvasSetting.peopleList"
         :key="index+'canvas-lines'"
-        @mousedown="goToLocation"
+        @mousedown="(e) => goToLocation(e, sayList[0].title, index)"
       >
         <!-- <div class="name-box">
           {{ sayList[0].title }}
@@ -98,7 +103,10 @@
           @mouseup="blueBgUp"
         >
           {{(blueBgFlagLeft/20).toFixed(2)}}
-          <div class="sign-box-content" />
+          <div 
+            class="sign-box-content" 
+            :style="{ height: 40 + 56 * canvasSetting.peopleList.length + 'px' }"
+          />
         </div>
         <div 
           class="sign-del-btn"
@@ -129,7 +137,7 @@
           :style="{
             width: (obj.end - obj.start) * 20 + 'px',
             left: obj.start * 20 + 'px',
-            border: obj.action === 'other' && selectIndex === index && obj.start <= (blueBgFlagLeft/20).toFixed(2) && (blueBgFlagLeft/20).toFixed(2) < obj.end ? '2px solid yellow' : 'none'
+            border: obj.action === 'other' && selectIndex === index && obj.start <= (blueBgFlagLeft/20).toFixed(2) && (blueBgFlagLeft/20).toFixed(2) < obj.end ? '1.4px solid yellow' : 'none'
           }"
         />
         <div
@@ -143,7 +151,7 @@
             :style="{
               left: frame.start * 20-5 + 'px',
             }"
-            @mousedown="(e) => setSelectFrame(e,{...frame,changjingIndex: index})"
+            @mousedown="(e) => setSelectFrame(e,{...frame, changjingIndex: index})"
           >
           </div>
         </div>
@@ -185,8 +193,8 @@ export default {
     },
   },
   mounted() {
-    this.height =
-      (document.getElementById("canvas-container").offsetWidth * 9) / 16 + "px";
+    this.height = '400px'
+       //(document.getElementById("canvas-container").offsetWidth * 9) / 16 + "px";
     this.canvasHeight =
       (document.getElementById("canvas").offsetWidth * 9) / 16 + "px";
     try {
@@ -221,7 +229,6 @@ export default {
                 sayList.push({
                   id: Math.random().toFixed(10),
                   action: "other",
-                  changjingIndex: i,
                   location: [x, y],
                   start:
                     item.startTime > (item.peopleTimes[index] || 0)
@@ -257,6 +264,54 @@ export default {
       this.canvasSetting = canvasSetting;
       localStorage.setItem("canvasSetting", JSON.stringify(canvasSetting));
     },
+    setPeopleRotate() {
+      if (!this.selectPeople) return
+      let data = []
+      if (!this.selectFrame) {
+        data = _.map(this.canvasSetting.peopleList[this.selectIndex], (obj, index) => {
+          if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/20).toFixed(2) && (this.blueBgFlagLeft/20).toFixed(2) < obj.end) {
+            const frameKeys = obj.frameKeys || []
+            let id = ''
+            _.map(frameKeys || [], (item, i) => {
+              if (i === 0 && (this.blueBgFlagLeft/20).toFixed(2) <= item.start) {
+                id = item.id
+              }
+              if (obj.start <= (this.blueBgFlagLeft/20).toFixed(2)) {
+                id = item.id
+              }
+              return item
+            })
+            if (id) {
+              return {
+                ...obj,
+                frameKeys: _.map(frameKeys, item => item.id === id ? {...item, rotate: (item?.rotate || '1, 1') === '1, 1' ? '-1, 1' : '1, 1'} : item)
+              }
+            }
+            if (!id) {
+              return {
+                ...obj,
+                rotate: (obj?.rotate || '1, 1') === '1, 1' ? '-1, 1' : '1, 1'
+              }
+            }
+          }
+          return obj
+        })
+      } else {
+        data = _.map(this.canvasSetting.peopleList[this.selectIndex], (item, index) => {
+          if (this.selectFrame.changjingIndex === index) {
+            let frameKeys = item.frameKeys
+            return {
+              ...item,
+              frameKeys: _.map(frameKeys, item => item.id === this.selectFrame.id ? {...item, rotate: (item?.rotate || '1, 1') === '1, 1' ? '-1, 1' : '1, 1'} : item)
+            }
+          }
+          return item
+        })
+      }
+      const peopleList = this.canvasSetting.peopleList
+      peopleList[this.selectIndex] = [...data]
+      this.canvasSetting.peopleList = [...peopleList]
+    },
     delFrameKey(e) {
       e.stopPropagation()
       if (!this.selectFrame) return
@@ -284,25 +339,24 @@ export default {
         if (item.action == 'other' && time >= item.start && time <= item.end) {
           let frameKeys = item.frameKeys
           if (_.isEmpty(frameKeys)) {
-            frameKeys=[{start: time, location: item.location, id}]
+            frameKeys=[{start: time, location: item.location, rotate: item.rotate, id}]
             this.selectFrame = {...frameKeys[0], changjingIndex}
           } else {
             if (time > frameKeys[frameKeys.length -1].start) {
-              frameKeys=[...frameKeys, {start: time, location: frameKeys[frameKeys.length -1].location, id}]
+              frameKeys=[...frameKeys, {start: time, location: frameKeys[frameKeys.length -1].location, rotate: frameKeys[frameKeys.length -1].rotate, id}]
               this.selectFrame = {...frameKeys[frameKeys.length -1],changjingIndex}
             } else if(time < frameKeys[0].start) {
-              frameKeys=[{start: time, location: frameKeys[0].location, id}, ...frameKeys]
+              frameKeys=[{start: time, location: frameKeys[0].location, rotate: frameKeys[0].rotate,  id}, ...frameKeys]
               this.selectFrame = {...frameKeys[0],changjingIndex}
             } else {
               const index = _.sortedIndexBy(frameKeys, { 'start': time }, 'start');
-              this.selectFrame = {start: time, location: frameKeys[index-1].location, id, changjingIndex}
+              const selectFrame = {start: time, location: frameKeys[index-1].location, rotate: frameKeys[index-1].rotate, id, changjingIndex}
               frameKeys = [
                 ...frameKeys.slice(0, index),
-                {
-                    start: time, location: frameKeys[index-1].location, id
-                },
+                selectFrame,
                 ...frameKeys.slice(index)
               ]
+              this.selectFrame = selectFrame
             }
           }
           return {
@@ -384,29 +438,48 @@ export default {
     blueBgUp(e) {
       e.stopPropagation()
       this.blueBgFlag = false;
+      this.selectFrame = ''
+      _.map(this.canvasSetting.peopleList[this.selectIndex], (obj, i) => {
+        if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/20).toFixed(2) && (this.blueBgFlagLeft/20).toFixed(2) < obj.end) {
+            _.map(obj.frameKeys, frame => {
+              if (Math.abs((this.blueBgFlagLeft/20).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((this.blueBgFlagLeft/20).toFixed(2)) - 0.25) {
+                this.selectFrame = {...frame, changjingIndex: i}
+              }
+            })
+            return
+          }
+      })
     },
-    goToLocation(e) {
+    goToLocation(e, title, index) {
       e.stopPropagation()
       e.preventDefault();
+      this.selectPeople = title
+      this.selectIndex = index
       const dom = document.getElementsByClassName("time-lines")[0]
       let nX = dom.scrollLeft + e.clientX-15-70
       if (nX <= 0) {
         nX = 0
       }
-      if (this.selectFrame && Math.abs((nX/20).toFixed(2)) + 0.25 >= Math.abs(this.selectFrame.start) && Math.abs(this.selectFrame.start) >= Math.abs((nX/20).toFixed(2)) - 0.25) {
-        this.selectFrame = this.selectFrame
-      } else {
-        this.selectFrame = ''
-      }
+      this.selectFrame = ''
+      _.map(this.canvasSetting.peopleList[this.selectIndex], (obj, i) => {
+        if (obj.action === 'other' && obj.start <= (nX/20).toFixed(2) && (nX/20).toFixed(2) < obj.end) {
+            _.map(obj.frameKeys, frame => {
+              if (Math.abs((nX/20).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((nX/20).toFixed(2)) - 0.25) {
+                this.selectFrame = {...frame, changjingIndex: i}
+              }
+            })
+            return
+          }
+      })
       this.blueBgFlagLeft = nX;
     },
     setSelectPeople(val, index) {
       this.selectFrame = ''
       _.map(this.canvasSetting.peopleList[index], (obj, i) => {
-        if (obj.action === 'other' && index === i && obj.start <= (this.blueBgFlagLeft/20).toFixed(2) && (this.blueBgFlagLeft/20).toFixed(2) < obj.end) {
+        if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/20).toFixed(2) && (this.blueBgFlagLeft/20).toFixed(2) < obj.end) {
             _.map(obj.frameKeys, frame => {
               if (Math.abs((this.blueBgFlagLeft/20).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((this.blueBgFlagLeft/20).toFixed(2)) - 0.25) {
-                this.selectFrame = frame
+                this.selectFrame = {...frame, changjingIndex: i}
               }
             })
             return
@@ -491,15 +564,15 @@ export default {
   .sign-box {
     position: absolute;
     left: 0;
-    top: -30px;
+    top: -42px;
     width: 80px;
-    height: 30px;
+    height: 40px;
     background-color: #8aa6f1;
     cursor: pointer;
     border-radius: 5px;
     z-index: 100;
     text-align: center;
-    line-height: 30px;
+    line-height: 40px;
     .sign-box-content {
       border-left: 1px dashed red;
       height: 70px;

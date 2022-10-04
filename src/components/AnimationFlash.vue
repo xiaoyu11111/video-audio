@@ -451,6 +451,7 @@ export default {
           }) 
           const frameKeys = _.map(curChangjing.frameKeys || [], keyObj => {
             return {
+              ...keyObj,
               start: Math.ceil(keyObj.start * 30) || 1,
               location: [1920/offsetWidth * (keyObj.location[0]-offsetLeft + 20), 1080/offsetHeight * (keyObj.location[1]-offsetTop + 40)]
             }
@@ -474,6 +475,7 @@ export default {
           return {
             ...p,
             location: frameKeys.length ? frameKeys[0].location : location,
+            rotate: frameKeys.length ? frameKeys[0].rotate : curChangjing.rotate,
             frameKeys: newFrameKeys,
             sayKeys: sayList
           }
@@ -638,7 +640,7 @@ export default {
       return `
   // var configDir = fl.configDirectory;
   // fl.trace(fl.configDirectory)
-  //an.getDocumentDOM().scaleSelection(-1, 1);水平翻转
+  //fl.getDocumentDOM().scaleSelection(-1, 1);水平翻转
   var time = ${this.animationTime} // 动画时长
   var changjing = ${JSON.stringify(this.finalChangjings)}
   var canvasWidth = 1920 // 画布宽度
@@ -763,6 +765,7 @@ export default {
       var name = changjing[i].people[j].title
       var start = changjing[i].people[j].start
       var location = changjing[i].people[j].location
+      var rotate = changjing[i].people[j].rotate || '1, 1'
       fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
       if (start && start !== changjing[i].start) {
         fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1)
@@ -773,6 +776,7 @@ export default {
       // 修改元件名
       var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
       fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start || changjing[i].start-1].elements[0]]
+      fl.getDocumentDOM().scaleSelection(+rotate.split(',')[0], +rotate.split(',')[1])
       var name = fl.getDocumentDOM().selection[0].libraryItem.name
       fl.getDocumentDOM().library.duplicateItem(name)
       var nameArr = name.split(' 复制')
@@ -785,7 +789,6 @@ export default {
       fl.getDocumentDOM().swapElement(newName)
       fl.getDocumentDOM().library.selectItem(newName);
       fl.getDocumentDOM().library.moveToFolder('待删除');
-
       // 添加帧
       var frameKeys = changjing[i].people[j].frameKeys
       for (var f = 0; f < frameKeys.length; f++) {
@@ -793,6 +796,8 @@ export default {
           var name = changjing[i].people[j].title
           var start = frameKeys[f][fi].start
           var location = frameKeys[f][fi].location
+          var rotate = frameKeys[f][fi].rotate || '1, 1'
+
           fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
           if (start && start !== changjing[i].people[j].start) {
             fl.getDocumentDOM().getTimeline().convertToBlankKeyframes(start-1);
@@ -807,6 +812,7 @@ export default {
           // 修改元件名
           var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
           fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start].elements[0]]
+          fl.getDocumentDOM().scaleSelection(+rotate.split(',')[0], +rotate.split(',')[1])
           var name = fl.getDocumentDOM().selection[0].libraryItem.name
           fl.getDocumentDOM().library.duplicateItem(name)
           var nameArr = name.split(' 复制')
