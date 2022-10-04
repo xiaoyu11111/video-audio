@@ -6,7 +6,7 @@
       <el-button @click="setTextFlash">2、生成脚本</el-button>
     </div>
     <div class="common-title" v-if="selectPeople">
-      <el-button @click="setPeopleRotate">水平翻转</el-button>
+      <el-button @click="() => setPeopleRotate('rotate')">水平翻转</el-button>
     </div>
     <div class="canvas-container" id="canvas-container" :style="{ height }">
         <div class="canvas canvas-1" :style="{ height: canvasHeight, margin: `${parseFloat(canvasHeight)}px 0` }"></div>
@@ -34,6 +34,14 @@
             }"
           >
             {{ sayList[0].title }}
+            <div :class="sayList[0].title === selectPeople ? 'nw-resize select-resize':'nw-resize'"
+             v-if="sayList[0].title === selectPeople"
+              @mousedown="(e) => peopleNwResize(e)"
+              @touchstart="(e) => peopleNwResize(e)"
+              @mousemove="(e) => peopleNwResizeMove(e)"
+              @touchmove="(e) => peopleNwResizeMove(e)"
+              @mouseup="peopleNwResizeUp"
+            ></div>
           </div>
           <div
             v-for="(item, i) in sayList"
@@ -60,6 +68,7 @@
               }"
             >
               {{ item.title}}
+              <div class="nw-resize"></div>
             </div>
           </div>
         </div>
@@ -270,7 +279,7 @@ export default {
       this.canvasSetting = canvasSetting;
       localStorage.setItem("canvasSetting", JSON.stringify(canvasSetting));
     },
-    setPeopleRotate() {
+    setPeopleRotate(type='rotate', xRate=1,yRate=1) {
       if (!this.selectPeople) return
       let data = []
       if (!this.selectFrame) {
@@ -288,15 +297,43 @@ export default {
               return item
             })
             if (id) {
-              return {
-                ...obj,
-                frameKeys: _.map(frameKeys, item => item.id === id ? {...item, rotate: (item?.rotate || '1, 1') === '1, 1' ? '-1, 1' : '1, 1'} : item)
+              if (type === 'rotate') {
+                return {
+                  ...obj,
+                  frameKeys: _.map(frameKeys, item => {
+                    const curRotates = (item?.rotate || '1, 1').split(', ')
+                    if (item.id === id) {
+                      return {...item, rotate: `${curRotates[0] * -1}, ${curRotates[1]}`}
+                    }
+                    return item
+                  })
+                }
+              }
+              if (type === 'scale') {
+                return {
+                  ...obj,
+                  frameKeys: _.map(frameKeys, item => {
+                    const curRotates = (item?.rotate || '1, 1').split(', ')
+                    if (item.id === id) {
+                      return {...item, rotate: `${(+curRotates[0] > 0 ? 1 : -1) * xRate}, ${(+curRotates[1] > 0 ? 1 : -1) * yRate}`}
+                    }
+                    return item
+                  })
+                }
               }
             }
-            if (!id) {
+            if (type === 'rotate') {
+              const curRotates = (obj?.rotate || '1, 1').split(', ')
               return {
                 ...obj,
-                rotate: (obj?.rotate || '1, 1') === '1, 1' ? '-1, 1' : '1, 1'
+                rotate: `${curRotates[0] * -1}, ${curRotates[1]}`
+              }
+            }
+            if (type === 'scale') {
+              const curRotates = (obj?.rotate || '1, 1').split(', ')
+              return {
+                ...obj,
+                rotate: `${(+curRotates[0] > 0 ? 1 : -1) * xRate}, ${(+curRotates[1] > 0 ? 1 : -1) * yRate}`
               }
             }
           }
@@ -306,10 +343,31 @@ export default {
         data = _.map(this.canvasSetting.peopleList[this.selectIndex], (item, index) => {
           if (this.selectFrame.changjingIndex === index) {
             let frameKeys = item.frameKeys
-            return {
-              ...item,
-              frameKeys: _.map(frameKeys, item => item.id === this.selectFrame.id ? {...item, rotate: (item?.rotate || '1, 1') === '1, 1' ? '-1, 1' : '1, 1'} : item)
+            if (type === 'rotate') {
+              return {
+                ...item,
+                frameKeys: _.map(frameKeys, item => {
+                  const curRotates = (item?.rotate || '1, 1').split(', ')
+                  if (item.id === this.selectFrame.id) {
+                    return {...item, rotate: `${curRotates[0] * -1}, ${curRotates[1]}`}
+                  }
+                  return item
+                })
+              }
             }
+            if (type === 'scale') {
+              return {
+                ...item,
+                frameKeys: _.map(frameKeys, item => {
+                  const curRotates = (item?.rotate || '1, 1').split(',')
+                  if (item.id === this.selectFrame.id) {
+                    return {...item, rotate: `${(+curRotates[0] > 0 ? 1 : -1) * xRate}, ${(+curRotates[1] > 0 ? 1 : -1) * yRate}`}
+                  }
+                  return item
+                })
+              }
+            }
+            return item
           }
           return item
         })
@@ -423,6 +481,34 @@ export default {
       e.stopPropagation()
       this.peopleFlag = false;
     },
+    peopleNwResize(e){
+      e.stopPropagation()
+      this.peopleFlag1 = true;
+      this.nPeopleInitX = e.clientX || e.targetTouches[0].clientX
+      this.nPeopleInitY = e.clientY || e.targetTouches[0].clientY
+      this.nPeopleInitWidth = e.target.parentNode.offsetWidth;
+      this.nPeopleInitHeight = e.target.parentNode.offsetHeight;
+    },
+    peopleNwResizeMove(e) {
+      e.stopPropagation()
+      e.preventDefault();
+      if (!this.peopleFlag1) {
+        return;
+      }
+      let nX = (e.clientX || e.targetTouches[0].clientX) - this.nPeopleInitX + this.nPeopleInitWidth;
+      let nY = (e.clientY || e.targetTouches[0].clientY) - this.nPeopleInitY + this.nPeopleInitHeight;
+      if (nX <= 0) {
+        nX = 0
+      }
+      if (nY <= 0) {
+        nY = 0
+      }
+      this.setPeopleRotate('scale', nX/40, nY/80)
+    },
+    peopleNwResizeUp(e) {
+      e.stopPropagation()
+      this.peopleFlag1 = false;
+    },
     //时间进度条移动
     blueBgDown(e) {
       e.stopPropagation()
@@ -532,6 +618,15 @@ export default {
     height: 80px;
     background: url('../assets/girl.png') no-repeat;
     background-size: cover;
+  }
+  .nw-resize {
+    cursor: nw-resize;
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background: red;
   }
 }
 
