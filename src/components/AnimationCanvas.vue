@@ -230,6 +230,7 @@ export default {
                   id: Math.random().toFixed(10),
                   action: "other",
                   location: [x, y],
+                  changjingIndex: i,
                   start:
                     item.startTime > (item.peopleTimes[index] || 0)
                       ? item.startTime
