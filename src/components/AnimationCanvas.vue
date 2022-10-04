@@ -9,60 +9,62 @@
       <el-button @click="setPeopleRotate">水平翻转</el-button>
     </div>
     <div class="canvas-container" id="canvas-container" :style="{ height }">
-      <div class="canvas" id="canvas" :style="{ height: canvasHeight }"></div>
-      <div 
-        v-for="(sayList, index) in canvasSetting.peopleList"
-        :key="index +'people'"
-      >
-        <div class="people" 
-          v-for="(sayItem, i) in sayList"
-          :key="i +'sayItem'"
-          @mousedown="(e) => peopleDown(e, sayItem.title, index)"
-          @touchstart="(e) => peopleDown(e, sayItem.title, index)"
-          @mousemove="(e) => peopleMove(e, index, i)"
-          @touchmove="(e) => peopleMove(e, index, i)"
-          @mouseup="peopleUp"
-          :style="{
-            display: sayItem.action === 'other' && (!sayItem.frameKeys || sayItem.frameKeys.length === 0) && blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= sayItem.end * 20 ? 'block' : 'none',
-            'box-shadow': selectPeople === sayItem.title ? 'inset 1px 2px 12px #f45' : 'none',
-            zIndex: selectPeople === sayItem.title ? 1000 : 1,
-            transform: `scale(${sayItem.rotate || '1, 1'})`,
-            left: sayItem.location[0] + 'px',
-            top: sayItem.location[1] + 'px',
-          }"
-        >
-          {{ sayList[0].title }}
-        </div>
-        <div
-          v-for="(item, i) in sayList"
-          :key="i +'sayItem11'"
-          :style="{
-            display: item.action === 'other' && blueBgFlagLeft >= item.start * 20 && blueBgFlagLeft <= item.end * 20 ? 'block' : 'none'
-          }"
+        <div class="canvas canvas-1" :style="{ height: canvasHeight, margin: `${parseFloat(canvasHeight)}px 0` }"></div>
+        <div class="canvas"  id="canvas" :style="{ height: canvasHeight, margin: `${parseFloat(canvasHeight)}px 0` }"></div>
+        <div class="canvas canvas-1" :style="{ height: canvasHeight, margin: `${parseFloat(canvasHeight)}px 0` }"></div>
+        <div 
+          v-for="(sayList, index) in canvasSetting.peopleList"
+          :key="index +'people'"
         >
           <div class="people" 
-            v-for="(sayItem, frameIndex) in item.frameKeys"
-            :key="frameIndex +'frameKeys'"
-            @mousedown="(e) => peopleDown(e, item.title, index)"
-            @touchstart="(e) => peopleDown(e, item.title, index)"
-            @mousemove="(e) => peopleMove(e, index, i, frameIndex)"
-            @touchmove="(e) => peopleMove(e, index, i, frameIndex)"
+            v-for="(sayItem, i) in sayList"
+            :key="i +'sayItem'"
+            @mousedown="(e) => peopleDown(e, sayItem.title, index)"
+            @touchstart="(e) => peopleDown(e, sayItem.title, index)"
+            @mousemove="(e) => peopleMove(e, index, i)"
+            @touchmove="(e) => peopleMove(e, index, i)"
             @mouseup="peopleUp"
             :style="{
-              display: (frameIndex === 0 && blueBgFlagLeft <= sayItem.start * 20)|| (blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= (item.frameKeys && item.frameKeys[frameIndex + 1] ? (item.frameKeys[frameIndex + 1].start) : item.end) * 20)  ? 'block' : 'none',
-              'box-shadow': selectPeople === item.title ? 'inset 1px 2px 12px #f45' : 'none',
-              zIndex: selectPeople === item.title ? 1000 : 1,
+              display: sayItem.action === 'other' && (!sayItem.frameKeys || sayItem.frameKeys.length === 0) && blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= sayItem.end * 20 ? 'block' : 'none',
+              'box-shadow': selectPeople === sayItem.title ? 'inset 1px 2px 12px #f45' : 'none',
+              zIndex: selectPeople === sayItem.title ? 1000 : 1,
               transform: `scale(${sayItem.rotate || '1, 1'})`,
               left: sayItem.location[0] + 'px',
               top: sayItem.location[1] + 'px',
             }"
           >
-            {{ item.title}}
+            {{ sayList[0].title }}
+          </div>
+          <div
+            v-for="(item, i) in sayList"
+            :key="i +'sayItem11'"
+            :style="{
+              display: item.action === 'other' && blueBgFlagLeft >= item.start * 20 && blueBgFlagLeft <= item.end * 20 ? 'block' : 'none'
+            }"
+          >
+            <div class="people" 
+              v-for="(sayItem, frameIndex) in item.frameKeys"
+              :key="frameIndex +'frameKeys'"
+              @mousedown="(e) => peopleDown(e, item.title, index)"
+              @touchstart="(e) => peopleDown(e, item.title, index)"
+              @mousemove="(e) => peopleMove(e, index, i, frameIndex)"
+              @touchmove="(e) => peopleMove(e, index, i, frameIndex)"
+              @mouseup="peopleUp"
+              :style="{
+                display: (frameIndex === 0 && blueBgFlagLeft <= sayItem.start * 20)|| (blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= (item.frameKeys && item.frameKeys[frameIndex + 1] ? (item.frameKeys[frameIndex + 1].start) : item.end) * 20)  ? 'block' : 'none',
+                'box-shadow': selectPeople === item.title ? 'inset 1px 2px 12px #f45' : 'none',
+                zIndex: selectPeople === item.title ? 1000 : 1,
+                transform: `scale(${sayItem.rotate || '1, 1'})`,
+                left: sayItem.location[0] + 'px',
+                top: sayItem.location[1] + 'px',
+              }"
+            >
+              {{ item.title}}
+            </div>
           </div>
         </div>
-      </div>
     </div>
-    <div class="canvas-time-lines" id="canvas">
+    <div class="canvas-time-lines" >
       <div class="time-lines-btn">
         <div
         class="canvas-lines-btn"
@@ -195,8 +197,13 @@ export default {
   mounted() {
     this.height = '400px'
        //(document.getElementById("canvas-container").offsetWidth * 9) / 16 + "px";
-    this.canvasHeight =
-      (document.getElementById("canvas").offsetWidth * 9) / 16 + "px";
+    const canvasHeight =
+      (document.getElementById("canvas").offsetWidth * 9) / 16 ;
+      this.canvasHeight = canvasHeight + "px"
+    setTimeout(( )=> {
+      const offsetWidth = document.getElementById("canvas").offsetWidth
+      document.getElementById("canvas-container").scrollTo(offsetWidth * 0.75+10, (400 - canvasHeight)/2+10)
+    }, 300)
     try {
       let canvasSetting = JSON.parse(localStorage.getItem("canvasSetting"));
       this.canvasSetting = canvasSetting;
@@ -219,12 +226,10 @@ export default {
           this.changjings.map((item, i) => {
             _.map(item.people, (p, index) => {
               if (p[0] === arr[0]) {
-                const offsetWidth = document.getElementById("canvas-container").offsetWidth
-                const offsetHeight = document.getElementById("canvas-container").offsetHeight
-                const width = offsetWidth - 20
-                const heigth = offsetHeight - 40
-                const x = Math.random() * (width - 20 + 1) + 20 - 20
-                const y = Math.random() * (heigth - 40 + 1) + 40 - 40
+                const offsetWidth = document.getElementById("canvas").offsetWidth
+                const offsetHeight = document.getElementById("canvas").offsetHeight
+                const x = Math.random() * (offsetWidth - 20 + 1) + 20 + offsetWidth
+                const y = Math.random() * (offsetHeight - 40 + 1) + 40 + offsetHeight
                 // location 左上角, 生成flash脚本要变成中间位置
                 sayList.push({
                   id: Math.random().toFixed(10),
@@ -392,18 +397,19 @@ export default {
       let nX = (e.clientX || e.targetTouches[0].clientX) - this.nPeopleInitX + this.nPeopleInitLeft;
       let nY = (e.clientY || e.targetTouches[0].clientY) - this.nPeopleInitY + this.nPeopleInitTop;
       const width = document.getElementById("canvas-container").offsetWidth - 40
+      const canvasWidth = document.getElementById("canvas").offsetWidth
       const heigth = document.getElementById("canvas-container").offsetHeight - 80
       if (nX <= 0) {
         nX = 0
       }
-      if (nX >= width) {
-        nX = width
+      if (nX >= parseFloat(canvasWidth) * 3) {
+        nX = parseFloat(canvasWidth) * 3
       }
       if (nY <= 0) {
         nY = 0
       }
-      if (nY >= heigth) {
-        nY = heigth
+      if (nY >= parseFloat(this.canvasHeight) * 3) {
+        nY = parseFloat(this.canvasHeight) * 3
       }
       if (_.isNil(frameIndex)) {
         this.canvasSetting.peopleList[parentIndex][index].location = [nX, nY]
@@ -498,19 +504,27 @@ export default {
   max-width: 500px;
   margin: 10px 0;
   border: 1px solid #ccc;
-  display: flex;
+  // display: flex;
+  overflow: auto;
+  display: -webkit-box;
   align-items: center;
   justify-content: center;
   background-color: #d5e4d785;
   border: 1px solid #8aa6f1;
   border-radius: 2px;
   user-select: none;
+
+  .canvas-1,
   .canvas {
     width: 70%;
     border: 1px solid #ccc;
     background-color: #d5e4d785;
     border: 1px solid #8aa6f1;
     border-radius: 2px;
+  }
+  .canvas-1 {
+    border: none;
+    background-color: rgba(0,0,0,0);
   }
   .people {
     position: absolute;
