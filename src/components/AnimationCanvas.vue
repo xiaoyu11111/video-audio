@@ -41,7 +41,6 @@
               @touchstart="(e) => peopleNwResize(e)"
               @mousemove="(e) => peopleNwResizeMove(e)"
               @touchmove="(e) => peopleNwResizeMove(e)"
-              @mouseup="peopleNwResizeUp"
             ></div>
           </div>
           <div
@@ -542,8 +541,10 @@ export default {
       this.peopleFlag1 = true;
       this.nPeopleInitX = e.clientX || e.targetTouches[0].clientX
       this.nPeopleInitY = e.clientY || e.targetTouches[0].clientY
-      this.nPeopleInitWidth = e.target.parentNode.offsetWidth;
-      this.nPeopleInitHeight = e.target.parentNode.offsetHeight;
+      console.log(e.target.parentNode.style.transform.replace(/scale\(|\)/gi, '').split(', '))
+      const scales = e.target.parentNode.style.transform.replace(/scale\(|\)/gi, '').split(', ')
+      this.nPeopleInitWidth = e.target.parentNode.offsetWidth * scales[0];
+      this.nPeopleInitHeight = e.target.parentNode.offsetHeight * scales[1];
     },
     peopleNwResizeMove(e) {
       e.stopPropagation()
@@ -559,7 +560,9 @@ export default {
       if (nY <= 0) {
         nY = 0
       }
+      e.target.parentNode.style.transform = `scale(${nX/40}, ${nY/80})`
       this.setPeopleRotate('scale', nX/40, nY/80)
+      document.onmouseup = this.peopleNwResizeUp
     },
     peopleNwResizeUp(e) {
       e.stopPropagation()
@@ -603,7 +606,7 @@ export default {
     goToLocation(e, title, index) {
       e.stopPropagation()
       e.preventDefault();
-      this.wavesurfer.pause()
+      this.wavesurfer?.pause?.()
       this.selectPeople = title
       this.selectIndex = index
       const dom = document.getElementsByClassName("time-lines")[0]
