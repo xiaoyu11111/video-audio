@@ -476,6 +476,7 @@ export default {
             ...p,
             location: frameKeys.length ? frameKeys[0].location : location,
             rotate: frameKeys.length ? frameKeys[0].rotate : curChangjing.rotate,
+            opacity: frameKeys.length ? frameKeys[0].opacity : curChangjing.opacity,
             frameKeys: newFrameKeys,
             sayKeys: sayList
           }
@@ -766,6 +767,7 @@ export default {
       var start = changjing[i].people[j].start
       var location = changjing[i].people[j].location
       var rotate = changjing[i].people[j].rotate || '1, 1'
+      var opacity = changjing[i].people[j].opacity || '100'
       fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
       if (start && start !== changjing[i].start) {
         fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1)
@@ -777,6 +779,7 @@ export default {
       var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
       fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start || changjing[i].start-1].elements[0]]
       fl.getDocumentDOM().scaleSelection(+rotate.split(',')[0], +rotate.split(',')[1])
+      fl.getDocumentDOM().setInstanceAlpha(+opacity)
       var name = fl.getDocumentDOM().selection[0].libraryItem.name
       fl.getDocumentDOM().library.duplicateItem(name)
       var nameArr = name.split(' 复制')
@@ -797,7 +800,7 @@ export default {
           var start = frameKeys[f][fi].start
           var location = frameKeys[f][fi].location
           var rotate = frameKeys[f][fi].rotate || '1, 1'
-
+          var opacity = frameKeys[f][fi].opacity || '100'
           fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
           if (start && start !== changjing[i].people[j].start) {
             fl.getDocumentDOM().getTimeline().convertToBlankKeyframes(start-1);
@@ -813,6 +816,7 @@ export default {
           var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
           fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start].elements[0]]
           fl.getDocumentDOM().scaleSelection(+rotate.split(',')[0], +rotate.split(',')[1])
+          fl.getDocumentDOM().setInstanceAlpha(+opacity)
           var name = fl.getDocumentDOM().selection[0].libraryItem.name
           fl.getDocumentDOM().library.duplicateItem(name)
           var nameArr = name.split(' 复制')

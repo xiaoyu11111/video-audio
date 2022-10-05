@@ -8,6 +8,13 @@
     </div>
     <div class="common-title" v-if="selectPeople">
       <el-button @click="() => setPeopleRotate('rotate')">水平翻转</el-button>
+      透明度:
+      <el-input-number
+        :min="0"
+        :max="100"
+        :value="100"
+        @change="(value) => setPeopleRotate('opacity', value)"
+      ></el-input-number>
     </div>
     <div class="canvas-container" id="canvas-container" :style="{ height }">
         <div class="canvas canvas-1" :style="{ height: canvasHeight, margin: `${parseFloat(canvasHeight)}px 0` }"></div>
@@ -30,6 +37,7 @@
               'box-shadow': selectPeople === sayItem.title ? 'inset 1px 2px 12px #f45' : 'none',
               zIndex: selectPeople === sayItem.title ? 1000 : 1,
               transform: `scale(${sayItem.rotate || '1, 1'})`,
+              opacity: (sayItem.opacity || 100)/100,
               left: sayItem.location[0] + 'px',
               top: sayItem.location[1] + 'px',
             }"
@@ -41,7 +49,7 @@
               @touchstart="(e) => peopleNwResize(e)"
               @mousemove="(e) => peopleNwResizeMove(e)"
               @touchmove="(e) => peopleNwResizeMove(e)"
-            ></div>
+            >放大</div>
           </div>
           <div
             v-for="(item, i) in sayList"
@@ -63,12 +71,19 @@
                 'box-shadow': selectPeople === item.title ? 'inset 1px 2px 12px #f45' : 'none',
                 zIndex: selectPeople === item.title ? 1000 : 1,
                 transform: `scale(${sayItem.rotate || '1, 1'})`,
+                opacity: (sayItem.opacity || 100)/100,
                 left: sayItem.location[0] + 'px',
                 top: sayItem.location[1] + 'px',
               }"
             >
               {{ item.title}}
-              <div class="nw-resize"></div>
+              <div :class="sayList[0].title === selectPeople ? 'nw-resize select-resize':'nw-resize'"
+              v-if="sayList[0].title === selectPeople"
+                @mousedown="(e) => peopleNwResize(e)"
+                @touchstart="(e) => peopleNwResize(e)"
+                @mousemove="(e) => peopleNwResizeMove(e)"
+                @touchmove="(e) => peopleNwResizeMove(e)"
+              >放大</div>
             </div>
           </div>
         </div>
@@ -376,6 +391,17 @@ export default {
                   })
                 }
               }
+              if (type === 'opacity') {
+                return {
+                  ...obj,
+                  frameKeys: _.map(frameKeys, item => {
+                    if (item.id === id) {
+                      return {...item, opacity: xRate}
+                    }
+                    return item
+                  })
+                }
+              }
             }
             if (type === 'rotate') {
               const curRotates = (obj?.rotate || '1, 1').split(', ')
@@ -389,6 +415,12 @@ export default {
               return {
                 ...obj,
                 rotate: `${(+curRotates[0] > 0 ? 1 : -1) * xRate}, ${(+curRotates[1] > 0 ? 1 : -1) * yRate}`
+              }
+            }
+            if (type === 'opacity') {
+              return {
+                ...obj,
+                opacity: xRate
               }
             }
           }
@@ -417,6 +449,18 @@ export default {
                   const curRotates = (item?.rotate || '1, 1').split(',')
                   if (item.id === this.selectFrame.id) {
                     return {...item, rotate: `${(+curRotates[0] > 0 ? 1 : -1) * xRate}, ${(+curRotates[1] > 0 ? 1 : -1) * yRate}`}
+                  }
+                  return item
+                })
+              }
+            }
+            if (type === 'opacity') {
+              return {
+                ...item,
+                frameKeys: _.map(frameKeys, item => {
+                  const curRotates = (item?.rotate || '1, 1').split(',')
+                  if (item.id === this.selectFrame.id) {
+                    return {...item, opacity: xRate}
                   }
                   return item
                 })
@@ -682,12 +726,16 @@ export default {
   }
   .nw-resize {
     cursor: nw-resize;
-    width: 10px;
-    height: 10px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 10px;
     position: absolute;
     bottom: 0px;
     right: 0px;
-    background: red;
+    background: #4ea4bfa1;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 }
 
