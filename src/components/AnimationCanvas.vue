@@ -1,9 +1,10 @@
 <template>
   <div>
     <div class="common-title">
-      画布<el-button @click="resetCanvasSetting">重新生成</el-button>
-      <el-button @click="saveCanvasSetting">保存</el-button>
-      <el-button @click="setTextFlash">2、生成脚本</el-button>
+      画布
+      <el-button @click="setTextFlash">保存并生成脚本</el-button>
+      <el-button @click="resetCanvasSetting">重新生成</el-button>
+      <el-button @click="addAudio">添加语音</el-button>
     </div>
     <div class="common-title" v-if="selectPeople">
       <el-button @click="() => setPeopleRotate('rotate')">水平翻转</el-button>
@@ -74,7 +75,9 @@
         </div>
     </div>
     <div class="canvas-time-lines" >
+      <div id="waveform1"></div>
       <div class="time-lines-btn">
+        <div  class="canvas-lines-btn canvas-lines-play" @click="playWave()" >播放/暂停</div>
         <div
         class="canvas-lines-btn"
         v-for="(sayList, index) in canvasSetting.peopleList"
@@ -174,6 +177,8 @@
 </template>
 <script>
 import _ from "lodash";
+import WaveSurfer from "wavesurfer.js";
+
 export default {
   props: [
     "animationTime",
@@ -196,6 +201,7 @@ export default {
       selectPeople: '',
       selectIndex: '',
       selectFrame: '',
+      wavesurfer: null
     };
   },
   computed: {
@@ -220,7 +226,57 @@ export default {
     } catch (error) {}
   },
   methods: {
+    playWave() {
+      var wavesurfer = this.wavesurfer
+      if (!wavesurfer) {
+        return this.$message.error("请先添加语音");
+      }
+      wavesurfer.seekAndCenter((this.blueBgFlagLeft/20).toFixed(2)/this.animationTime);
+      wavesurfer.playPause();
+    },
+    addAudio() {
+      if (this.wavesurfer) {
+        this.wavesurfer.load(url.href);
+        const _this = this;
+        this.wavesurfer.on("ready", function () {
+          _this.$message({
+            message: '添加语音成功',
+            type: 'success'
+          });
+        });
+        return
+      }
+      var wavesurfer = WaveSurfer.create({
+        mediaType: "video",
+        backgroundColor: "rgb(105,160,174, 0.1)",
+        container: "#waveform1",
+        waveColor: "violet",
+        barWidth: 2,
+        responsive: true,
+        scrollParent: true,
+        progressColor: "purple"
+      });
+      this.wavesurfer = wavesurfer;
+      const url = document.getElementById("download-url");
+      if (!url || !url.href) {
+        this.$message.error("请先执行智能裁剪命令, 生成wav文件");
+        return;
+      }
+      wavesurfer.load(url.href);
+      const _this = this;
+      wavesurfer.on("ready", function () {
+        _this.$message({
+          message: '添加语音成功',
+          type: 'success'
+        });
+      });
+      wavesurfer.on("audioprocess", function () {
+        console.log(wavesurfer.getCurrentTime().toFixed(2),'===')
+        _this.blueBgFlagLeft = wavesurfer.getCurrentTime().toFixed(2) * 20;
+      });
+    },
     setTextFlash() {
+      localStorage.setItem("canvasSetting", JSON.stringify(this.canvasSetting));
       this.Event.$emit("getPeopleList", this.canvasSetting);
     },
     saveCanvasSetting() {
@@ -512,6 +568,7 @@ export default {
     //时间进度条移动
     blueBgDown(e) {
       e.stopPropagation()
+      this.wavesurfer.pause()
       this.blueBgFlag = true;
       this.nInitX = e.clientX || e.targetTouches[0].clientX
       this.nInitLeft = e.target.offsetLeft;
@@ -546,6 +603,7 @@ export default {
     goToLocation(e, title, index) {
       e.stopPropagation()
       e.preventDefault();
+      this.wavesurfer.pause()
       this.selectPeople = title
       this.selectIndex = index
       const dom = document.getElementsByClassName("time-lines")[0]
@@ -738,6 +796,10 @@ export default {
   width: 60px;
   font-size: 12px;
   line-height: 20px;
+}
+.canvas-lines-play{
+  position: absolute;
+  top: 0px;
 }
 
 </style>

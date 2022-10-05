@@ -200,6 +200,7 @@ export default {
           ),
         (item) => item
       );
+
       let preLength = 0;
       let sliceTimesArr = [0];
       _.compact(
