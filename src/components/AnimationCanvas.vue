@@ -4,10 +4,9 @@
       画布
       <el-button @click="setTextFlash">保存并生成脚本</el-button>
       <el-button @click="resetCanvasSetting">重新生成</el-button>
-      <el-button @click="addAudio">添加语音</el-button>
     </div>
     <div class="common-title" v-if="selectPeople">
-      <el-button @click="() => setPeopleRotate('rotate')">水平翻转</el-button>
+      人物设置:
       透明度:
       <el-input-number
         :min="0"
@@ -15,6 +14,7 @@
         :value="100"
         @change="(value) => setPeopleRotate('opacity', value)"
       ></el-input-number>
+      <el-button @click="() => setPeopleRotate('rotate')">水平翻转</el-button>
     </div>
     <div class="canvas-container" id="canvas-container" :style="{ height }">
         <div class="canvas canvas-1" :style="{ height: canvasHeight, margin: `${parseFloat(canvasHeight)}px 0` }"></div>
@@ -33,7 +33,7 @@
             @touchmove="(e) => peopleMove(e, index, i)"
             @mouseup="peopleUp"
             :style="{
-              display: sayItem.action === 'other' && (!sayItem.frameKeys || sayItem.frameKeys.length === 0) && blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= sayItem.end * 20 ? 'block' : 'none',
+              display: sayItem.action === 'other' && (!sayItem.frameKeys || sayItem.frameKeys.length === 0) && blueBgFlagLeft >= sayItem.start * secondRate && blueBgFlagLeft <= sayItem.end * secondRate ? 'block' : 'none',
               'box-shadow': selectPeople === sayItem.title ? 'inset 1px 2px 12px #f45' : 'none',
               zIndex: selectPeople === sayItem.title ? 1000 : 1,
               transform: `scale(${sayItem.rotate || '1, 1'})`,
@@ -55,7 +55,7 @@
             v-for="(item, i) in sayList"
             :key="i +'sayItem11'"
             :style="{
-              display: item.action === 'other' && blueBgFlagLeft >= item.start * 20 && blueBgFlagLeft <= item.end * 20 ? 'block' : 'none'
+              display: item.action === 'other' && blueBgFlagLeft >= item.start * secondRate && blueBgFlagLeft <= item.end * secondRate ? 'block' : 'none'
             }"
           >
             <div class="people" 
@@ -67,7 +67,7 @@
               @touchmove="(e) => peopleMove(e, index, i, frameIndex)"
               @mouseup="peopleUp"
               :style="{
-                display: (frameIndex === 0 && blueBgFlagLeft <= sayItem.start * 20)|| (blueBgFlagLeft >= sayItem.start * 20 && blueBgFlagLeft <= (item.frameKeys && item.frameKeys[frameIndex + 1] ? (item.frameKeys[frameIndex + 1].start) : item.end) * 20)  ? 'block' : 'none',
+                display: (frameIndex === 0 && blueBgFlagLeft <= sayItem.start * secondRate)|| (blueBgFlagLeft >= sayItem.start * secondRate && blueBgFlagLeft <= (item.frameKeys && item.frameKeys[frameIndex + 1] ? (item.frameKeys[frameIndex + 1].start) : item.end) * secondRate)  ? 'block' : 'none',
                 'box-shadow': selectPeople === item.title ? 'inset 1px 2px 12px #f45' : 'none',
                 zIndex: selectPeople === item.title ? 1000 : 1,
                 transform: `scale(${sayItem.rotate || '1, 1'})`,
@@ -87,6 +87,21 @@
             </div>
           </div>
         </div>
+    </div>
+    <div class="common-title">
+      <el-row >
+        <el-col :span="6">
+          <el-button @click="addAudio">添加语音</el-button>
+        </el-col>
+        <el-col :span="isMobile ? 6 : 3" class="second-rate-title">时间间隙</el-col>
+        <el-col :span="10">
+          <el-slider
+            v-model="secondRate"
+            :step="1"
+            @change="stepChange"
+          ></el-slider>
+        </el-col>
+      </el-row>
     </div>
     <div class="canvas-time-lines" >
       <div id="waveform1"></div>
@@ -130,7 +145,7 @@
           @touchmove="blueBgMove"
           @mouseup="blueBgUp"
         >
-          {{(blueBgFlagLeft/20).toFixed(2)}}
+          {{(blueBgFlagLeft/secondRate).toFixed(2)}}
           <div 
             class="sign-box-content" 
             :style="{ height: 40 + 56 * canvasSetting.peopleList.length + 'px' }"
@@ -152,7 +167,7 @@
           v-for="num in animationTimeArr"
           :key="num + 'calibration'"
           :style="{
-            left: num * 20 + 'px',
+            left: num * secondRate + 'px',
             height: num % 5 === 0 && num !== 0 ? '8px' : '5px',
           }"
         >
@@ -163,9 +178,9 @@
           :class="obj.action === 'other' ? 'green-box' : 'red-box'"
           :key="obj.end + 'box'"
           :style="{
-            width: (obj.end - obj.start) * 20 + 'px',
-            left: obj.start * 20 + 'px',
-            border: obj.action === 'other' && selectIndex === index && obj.start <= (blueBgFlagLeft/20).toFixed(2) && (blueBgFlagLeft/20).toFixed(2) < obj.end ? '1.4px solid yellow' : 'none'
+            width: (obj.end - obj.start) * secondRate + 'px',
+            left: obj.start * secondRate + 'px',
+            border: obj.action === 'other' && selectIndex === index && obj.start <= (blueBgFlagLeft/secondRate).toFixed(2) && (blueBgFlagLeft/secondRate).toFixed(2) < obj.end ? '1.4px solid yellow' : 'none'
           }"
         />
         <div
@@ -177,7 +192,7 @@
             :class="selectFrame.id === frame.id ? 'frame-select' : 'frame'"
             :key="frame.start + 'box'"
             :style="{
-              left: frame.start * 20-5 + 'px',
+              left: frame.start * secondRate-5 + 'px',
             }"
             @mousedown="(e) => setSelectFrame(e,{...frame, changjingIndex: index})"
           >
@@ -215,7 +230,8 @@ export default {
       selectPeople: '',
       selectIndex: '',
       selectFrame: '',
-      wavesurfer: null
+      wavesurfer: null,
+      secondRate: 50
     };
   },
   computed: {
@@ -236,16 +252,19 @@ export default {
     try {
       let canvasSetting = JSON.parse(localStorage.getItem("canvasSetting"));
       this.canvasSetting = canvasSetting;
-      this.timeLinesWidth = 20 * canvasSetting.animationTime + "px";
+      this.timeLinesWidth = this.secondRate * canvasSetting.animationTime + "px";
     } catch (error) {}
   },
   methods: {
+    stepChange(value) {
+      this.secondRate = value
+    },
     playWave() {
       var wavesurfer = this.wavesurfer
       if (!wavesurfer) {
         return this.$message.error("请先添加语音");
       }
-      wavesurfer.seekAndCenter((this.blueBgFlagLeft/20).toFixed(2)/this.animationTime);
+      wavesurfer.seekAndCenter((this.blueBgFlagLeft/this.secondRate).toFixed(2)/this.animationTime);
       wavesurfer.playPause();
     },
     addAudio() {
@@ -286,7 +305,7 @@ export default {
       });
       wavesurfer.on("audioprocess", function () {
         console.log(wavesurfer.getCurrentTime().toFixed(2),'===')
-        _this.blueBgFlagLeft = wavesurfer.getCurrentTime().toFixed(2) * 20;
+        _this.blueBgFlagLeft = wavesurfer.getCurrentTime().toFixed(2) * _this.secondRate;
       });
     },
     setTextFlash() {
@@ -297,7 +316,7 @@ export default {
       localStorage.setItem("canvasSetting", JSON.stringify(this.canvasSetting));
     },
     resetCanvasSetting() {
-      this.timeLinesWidth = 20 * this.animationTime + "px";
+      this.timeLinesWidth = this.secondRate * this.animationTime + "px";
       const peopleList = _.map(
         this.audioSettings[0]?.peopleDictList || [],
         (arr) => {
@@ -354,14 +373,14 @@ export default {
       let data = []
       if (!this.selectFrame) {
         data = _.map(this.canvasSetting.peopleList[this.selectIndex], (obj, index) => {
-          if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/20).toFixed(2) && (this.blueBgFlagLeft/20).toFixed(2) < obj.end) {
+          if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/this.secondRate).toFixed(2) && (this.blueBgFlagLeft/this.secondRate).toFixed(2) < obj.end) {
             const frameKeys = obj.frameKeys || []
             let id = ''
             _.map(frameKeys || [], (item, i) => {
-              if (i === 0 && (this.blueBgFlagLeft/20).toFixed(2) <= item.start) {
+              if (i === 0 && (this.blueBgFlagLeft/this.secondRate).toFixed(2) <= item.start) {
                 id = item.id
               }
-              if (obj.start <= (this.blueBgFlagLeft/20).toFixed(2)) {
+              if (obj.start <= (this.blueBgFlagLeft/this.secondRate).toFixed(2)) {
                 id = item.id
               }
               return item
@@ -496,7 +515,7 @@ export default {
     insertFrameKey(e) {
       e.stopPropagation()
       if (!this.selectPeople) return this.$message.error("请先选择人物");
-      const time = (this.blueBgFlagLeft/20).toFixed(2)
+      const time = (this.blueBgFlagLeft/this.secondRate).toFixed(2)
       const id = Math.random().toFixed(10)
       const data = _.map(this.canvasSetting.peopleList[this.selectIndex], (item, changjingIndex) => {
         if (item.action == 'other' && time >= item.start && time <= item.end) {
@@ -615,10 +634,10 @@ export default {
     //时间进度条移动
     blueBgDown(e) {
       e.stopPropagation()
-      this.wavesurfer.pause()
       this.blueBgFlag = true;
       this.nInitX = e.clientX || e.targetTouches[0].clientX
       this.nInitLeft = e.target.offsetLeft;
+      this.wavesurfer?.pause?.()
     },
     blueBgMove(e) {
       e.stopPropagation()
@@ -637,9 +656,9 @@ export default {
       this.blueBgFlag = false;
       this.selectFrame = ''
       _.map(this.canvasSetting.peopleList[this.selectIndex], (obj, i) => {
-        if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/20).toFixed(2) && (this.blueBgFlagLeft/20).toFixed(2) < obj.end) {
+        if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/this.secondRate).toFixed(2) && (this.blueBgFlagLeft/this.secondRate).toFixed(2) < obj.end) {
             _.map(obj.frameKeys, frame => {
-              if (Math.abs((this.blueBgFlagLeft/20).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((this.blueBgFlagLeft/20).toFixed(2)) - 0.25) {
+              if (Math.abs((this.blueBgFlagLeft/this.secondRate).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((this.blueBgFlagLeft/this.secondRate).toFixed(2)) - 0.25) {
                 this.selectFrame = {...frame, changjingIndex: i}
               }
             })
@@ -650,7 +669,6 @@ export default {
     goToLocation(e, title, index) {
       e.stopPropagation()
       e.preventDefault();
-      this.wavesurfer?.pause?.()
       this.selectPeople = title
       this.selectIndex = index
       const dom = document.getElementsByClassName("time-lines")[0]
@@ -660,9 +678,9 @@ export default {
       }
       this.selectFrame = ''
       _.map(this.canvasSetting.peopleList[this.selectIndex], (obj, i) => {
-        if (obj.action === 'other' && obj.start <= (nX/20).toFixed(2) && (nX/20).toFixed(2) < obj.end) {
+        if (obj.action === 'other' && obj.start <= (nX/this.secondRate).toFixed(2) && (nX/this.secondRate).toFixed(2) < obj.end) {
             _.map(obj.frameKeys, frame => {
-              if (Math.abs((nX/20).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((nX/20).toFixed(2)) - 0.25) {
+              if (Math.abs((nX/this.secondRate).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((nX/this.secondRate).toFixed(2)) - 0.25) {
                 this.selectFrame = {...frame, changjingIndex: i}
               }
             })
@@ -670,13 +688,16 @@ export default {
           }
       })
       this.blueBgFlagLeft = nX;
+      if (this.wavesurfer) {
+        this.wavesurfer.pause()
+      }
     },
     setSelectPeople(val, index) {
       this.selectFrame = ''
       _.map(this.canvasSetting.peopleList[index], (obj, i) => {
-        if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/20).toFixed(2) && (this.blueBgFlagLeft/20).toFixed(2) < obj.end) {
+        if (obj.action === 'other' && obj.start <= (this.blueBgFlagLeft/this.secondRate).toFixed(2) && (this.blueBgFlagLeft/this.secondRate).toFixed(2) < obj.end) {
             _.map(obj.frameKeys, frame => {
-              if (Math.abs((this.blueBgFlagLeft/20).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((this.blueBgFlagLeft/20).toFixed(2)) - 0.25) {
+              if (Math.abs((this.blueBgFlagLeft/this.secondRate).toFixed(2)) + 0.25 >= Math.abs(frame.start) && Math.abs(frame.start) >= Math.abs((this.blueBgFlagLeft/this.secondRate).toFixed(2)) - 0.25) {
                 this.selectFrame = {...frame, changjingIndex: i}
               }
             })
@@ -851,6 +872,10 @@ export default {
 .canvas-lines-play{
   position: absolute;
   top: 0px;
+}
+.second-rate-title {
+  padding-left: 5px;
+  line-height: 38px;
 }
 
 </style>
