@@ -134,7 +134,7 @@
           v-if="selectPeople && !selectFrame && index === 0 && blueBgFlagLeft >= 60"
           :style="{ left: blueBgFlagLeft - 60 + 'px' }"
           @mousedown="insertFrameKey"
-        >插入帧</div>
+        >插入帧(传统补间)</div>
         <div
           class="sign-box"
           v-if="index === 0"
@@ -156,7 +156,7 @@
           v-if="selectPeople && !selectFrame && index === 0 && blueBgFlagLeft < 60"
           :style="{ left: 90 + blueBgFlagLeft + 'px' }"
           @mousedown="insertFrameKey"
-        >插入帧</div>
+        >插入帧(传统补间)</div>
         <div class="sign-del-btn"
           v-if="selectFrame && index === 0"
           :style="{ left: (blueBgFlagLeft < 60 && !selectFrame ? 80 + 70 : 90) + blueBgFlagLeft + 'px' }"
@@ -822,7 +822,12 @@ export default {
     }
   }
   .sign-del-btn {
-    width: 50px
+    width: 50px;
+    font-size: 10px;
+    line-height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   .red-box,
   .green-box {
@@ -868,6 +873,9 @@ export default {
   width: 60px;
   font-size: 12px;
   line-height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .canvas-lines-play{
   position: absolute;

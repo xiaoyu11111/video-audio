@@ -464,10 +464,10 @@ export default {
               if (i === 0) {
                 newFrameKeys[i] = _.filter(frameKeys, item => item.start < say.start)
               } else {
-                newFrameKeys[i] = _.filter(frameKeys, item => sayList[i-1].end * 30 < item.start && item.start < say.start)
+                newFrameKeys[i] = _.filter(frameKeys, item => sayList[i-1].end < item.start && item.start < say.start)
               }
               if (i === sayList.length - 1) {
-                newFrameKeys[i+1] = _.filter(frameKeys, item => item.start > say.end * 30)
+                newFrameKeys[i+1] = _.filter(frameKeys, item => item.start > say.end)
               }
             })
           }
