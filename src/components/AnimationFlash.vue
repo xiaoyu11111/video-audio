@@ -639,7 +639,8 @@ export default {
       // var changjing = ${JSON.stringify(this.finalChangjings)}
 
       return `
-  // var configDir = fl.configDirectory;
+  
+      // var configDir = fl.configDirectory;
   // fl.trace(fl.configDirectory)
   //fl.getDocumentDOM().scaleSelection(-1, 1);水平翻转
   var time = ${this.animationTime} // 动画时长
@@ -846,6 +847,23 @@ export default {
           }
           if (end && end !== changjing[i].people[j].end) {
             fl.getDocumentDOM().getTimeline().convertToKeyframes(end-1);
+            fl.getDocumentDOM().getTimeline().setSelectedFrames(end, end);
+            // 修改元件名
+            var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+            fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[end].elements[0]]
+            var name1 = fl.getDocumentDOM().selection[0].libraryItem.name
+            fl.getDocumentDOM().library.duplicateItem(name1)
+            var nameArr = name1.split(' 复制')
+            var newName = ''
+            if (name1.indexOf(' 复制') == -1) {
+                newName = name1+' 复制'
+            } else {
+                newName  = nameArr[0] + ' 复制 ' + (nameArr[1] ? (+nameArr[1] + 1) : 2)
+            }
+            fl.getDocumentDOM().swapElement(newName)
+            fl.getDocumentDOM().library.selectItem(newName);
+            fl.getDocumentDOM().library.moveToFolder('待删除');
+            fl.getDocumentDOM().library.renameItem(name1+Math.random().toFixed(4))
           }
           fl.getDocumentDOM().getTimeline().setSelectedFrames(start, start);
           // 修改元件名
