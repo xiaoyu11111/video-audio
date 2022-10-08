@@ -981,7 +981,7 @@ export default {
             }
             fl.getDocumentDOM().getTimeline().setSelectedLayers(peoplelayersDict['xz头']);
             fl.getDocumentDOM().getTimeline().clearKeyframes(1,10);
-            fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[1].elements[0].firstFrame = expression
+            fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[1].elements[0].firstFrame = expression-1
             fl.getDocumentDOM().selectNone();
             fl.getDocumentDOM().exitEditMode();
           }
