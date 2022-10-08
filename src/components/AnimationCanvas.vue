@@ -10,7 +10,7 @@
       <el-input-number
         :min="0"
         :max="100"
-        :value="100"
+        :value="selectFrame.opacity"
         @change="(value) => setPeopleRotate('opacity', value)"
       ></el-input-number>
       <el-button @click="() => setPeopleRotate('rotate')">水平翻转</el-button>
@@ -18,6 +18,7 @@
         :append-to-body="false"
         :options="peopleOptions"
         clearable
+        :value="selectFrame.expression"
         @change="(value) => changeFramePeople(value)"
       ></el-cascader>
     </div>
@@ -358,7 +359,7 @@ export default {
   },
   mounted() {
     const people = [
-      { title: "普通" },
+      { title: "普通", value: 1 },
       { title: "害怕", value: 49 },
       { title: "生气", value: 149 },
       { title: "流泪", value: 189 },
@@ -366,7 +367,7 @@ export default {
       { title: "悲伤", value: 169 },
     ];
     this.peopleOptions = people.map((item) => ({
-      value: _.isNil(item.value) ? -1 : item.value,
+      value: item.value,
       label: item.title,
     }));
     this.height = "400px";
@@ -389,8 +390,8 @@ export default {
   },
   methods: {
     changeFramePeople(value) {
-      if (!value) return;
-      this.setPeopleRotate("expression", value);
+      if (!value?.length) return;
+      this.setPeopleRotate("expression", value?.[0]);
     },
     stepChange(value) {
       this.secondRate = value;
