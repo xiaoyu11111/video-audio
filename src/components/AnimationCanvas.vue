@@ -359,11 +359,11 @@ export default {
   mounted() {
     const people = [
       { title: "普通" },
-      { title: "害怕" },
-      { title: "生气" },
-      { title: "流泪" },
-      { title: "高兴" },
-      { title: "悲伤" },
+      { title: "害怕", value: 49 },
+      { title: "生气", value: 149 },
+      { title: "流泪", value: 189 },
+      { title: "高兴", value: 81 },
+      { title: "悲伤", value: 169 },
     ];
     this.peopleOptions = people.map((item) => ({
       value: _.isNil(item.value) ? -1 : item.value,
