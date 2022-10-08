@@ -430,63 +430,134 @@ export default {
       audioSettings: curAudioSettings,
       changjings: curChangjings,
     };
-    this.Event.$on('getPeopleList', (canvasSetting) => {
-      this.submitForm('dynamicValidateForm')
-      const offsetWidth = document.getElementById("canvas").offsetWidth
-      const offsetLeft = document.getElementById("canvas").offsetLeft
-      const offsetHeight = document.getElementById("canvas").offsetHeight
-      const offsetTop = document.getElementById("canvas").offsetTop
+    this.Event.$on("getPeopleList", (canvasSetting) => {
+      this.submitForm("dynamicValidateForm");
+      const offsetWidth = document.getElementById("canvas").offsetWidth;
+      const offsetLeft = document.getElementById("canvas").offsetLeft;
+      const offsetHeight = document.getElementById("canvas").offsetHeight;
+      const offsetTop = document.getElementById("canvas").offsetTop;
       this.finalChangjings = _.map(this.finalChangjings, (changjing, index) => {
-        const people = _.map(changjing.people, p => {
-          const peopleList = _.filter(canvasSetting.peopleList, obj => obj[0].title === p.title)
-          if (!peopleList.length) return p
-          const changjings = _.filter(peopleList[0], item => item.action == 'other')
-          const curChangjing = _.find(changjings, {changjingIndex: index})
-          const sayList = _.map(_.slice(peopleList[0], changjings.length) || [], keyObj => {
+        const people = _.map(changjing.people, (p) => {
+          const peopleList = _.filter(
+            canvasSetting.peopleList,
+            (obj) => obj[0].title === p.title
+          );
+          if (!peopleList.length) return p;
+          const changjings = _.filter(
+            peopleList[0],
+            (item) => item.action == "other"
+          );
+          const curChangjing = _.find(changjings, { changjingIndex: index });
+          const sayList = _.map(
+            _.slice(peopleList[0], changjings.length) || [],
+            (keyObj) => {
+              return {
+                ...keyObj,
+                start: Math.ceil(keyObj.start * 30) || 1,
+                end: Math.ceil(keyObj.end * 30),
+              };
+            }
+          );
+          const frameKeys = _.map(curChangjing.frameKeys || [], (keyObj) => {
             return {
               ...keyObj,
               start: Math.ceil(keyObj.start * 30) || 1,
-              end: Math.ceil(keyObj.end * 30),
-            }
-          }) 
-          const frameKeys = _.map(curChangjing.frameKeys || [], keyObj => {
-            return {
-              ...keyObj,
-              start: Math.ceil(keyObj.start * 30) || 1,
-              location: [1920/offsetWidth * (keyObj.location[0]-offsetLeft + 20), 1080/offsetHeight * (keyObj.location[1]-offsetTop + 40)]
-            }
-          }) 
-          const newFrameKeys = []
+              location: [
+                (1920 / offsetWidth) * (keyObj.location[0] - offsetLeft + 20),
+                (1080 / offsetHeight) * (keyObj.location[1] - offsetTop + 40),
+              ],
+            };
+          });
+          const newFrameKeys = []; // 说话外的关键帧
+          let ordinaryFrameKeys = []; // 说话外的关键帧(普通)
+          let sayOrdinaryFrameKeys = []; // 说话间的关键帧(普通)
           if (sayList.length === 0) {
-            newFrameKeys[0] = frameKeys
+            newFrameKeys[0] = frameKeys;
+            ordinaryFrameKeys = _.filter(frameKeys, (item) => item.isOrdinary);
           } else if (sayList.length >= 1) {
             _.map(sayList, (say, i) => {
+              sayOrdinaryFrameKeys = [
+                ...sayOrdinaryFrameKeys,
+                ..._.filter(
+                  frameKeys,
+                  (item) =>
+                    say.start <= item.start &&
+                    item.start <= say.end &&
+                    item.isOrdinary
+                ),
+              ];
               if (i === 0) {
-                newFrameKeys[i] = _.filter(frameKeys, item => item.start < say.start)
+                newFrameKeys[i] = _.filter(
+                  frameKeys,
+                  (item) => item.start < say.start && !item.isOrdinary
+                );
+                ordinaryFrameKeys = [
+                  ...ordinaryFrameKeys,
+                  ..._.filter(
+                    frameKeys,
+                    (item) => item.start < say.start && item.isOrdinary
+                  ),
+                ];
               } else {
-                newFrameKeys[i] = _.filter(frameKeys, item => sayList[i-1].end < item.start && item.start < say.start)
+                newFrameKeys[i] = _.filter(
+                  frameKeys,
+                  (item) =>
+                    sayList[i - 1].end < item.start &&
+                    item.start < say.start &&
+                    !item.isOrdinary
+                );
+                ordinaryFrameKeys = [
+                  ...ordinaryFrameKeys,
+                  ..._.filter(
+                    frameKeys,
+                    (item) =>
+                      sayList[i - 1].end < item.start &&
+                      item.start < say.start &&
+                      item.isOrdinary
+                  ),
+                ];
               }
               if (i === sayList.length - 1) {
-                newFrameKeys[i+1] = _.filter(frameKeys, item => item.start > say.end)
+                newFrameKeys[i + 1] = _.filter(
+                  frameKeys,
+                  (item) => item.start > say.end && !item.isOrdinary
+                );
+                ordinaryFrameKeys = [
+                  ...ordinaryFrameKeys,
+                  ..._.filter(
+                    frameKeys,
+                    (item) => item.start > say.end && item.isOrdinary
+                  ),
+                ];
               }
-            })
+            });
           }
-          const location = [1920/offsetWidth * (curChangjing.location[0]-offsetLeft + 20), 1080/offsetHeight * (curChangjing.location[1]-offsetTop + 40)]
+
+          const location = [
+            (1920 / offsetWidth) * (curChangjing.location[0] - offsetLeft + 20),
+            (1080 / offsetHeight) * (curChangjing.location[1] - offsetTop + 40),
+          ];
           return {
             ...p,
             location: frameKeys.length ? frameKeys[0].location : location,
-            rotate: frameKeys.length ? frameKeys[0].rotate : curChangjing.rotate,
-            opacity: frameKeys.length ? frameKeys[0].opacity : curChangjing.opacity,
+            rotate: frameKeys.length
+              ? frameKeys[0].rotate
+              : curChangjing.rotate,
+            opacity: frameKeys.length
+              ? frameKeys[0].opacity
+              : curChangjing.opacity,
             frameKeys: newFrameKeys,
-            sayKeys: sayList
-          }
-        })
+            ordinaryFrameKeys,
+            sayOrdinaryFrameKeys,
+            sayKeys: sayList,
+          };
+        });
         return {
           ...changjing,
-          people
-        }
-      })
-    })
+          people,
+        };
+      });
+    });
   },
   methods: {
     changeChangjingPeopleDictList(value, index, index1) {
@@ -639,8 +710,7 @@ export default {
       // var changjing = ${JSON.stringify(this.finalChangjings)}
 
       return `
-  
-      // var configDir = fl.configDirectory;
+// var configDir = fl.configDirectory;
   // fl.trace(fl.configDirectory)
   //fl.getDocumentDOM().scaleSelection(-1, 1);水平翻转
   var time = ${this.animationTime} // 动画时长
@@ -794,7 +864,7 @@ export default {
       fl.getDocumentDOM().library.selectItem(newName);
       fl.getDocumentDOM().library.moveToFolder('待删除');
       fl.getDocumentDOM().library.renameItem(name+Math.random().toFixed(4))
-      // 添加帧
+      // 添加帧(传统补间)
       var frameKeys = changjing[i].people[j].frameKeys
       for (var f = 0; f < frameKeys.length; f++) {
         for (var fi = 0; fi < frameKeys[f].length; fi++) {
@@ -834,10 +904,42 @@ export default {
           fl.getDocumentDOM().library.renameItem(name+Math.random().toFixed(4))
         }
       }
+      // 添加帧(普通)
+      var frameKeys = changjing[i].people[j].ordinaryFrameKeys
+      for (var fi = 0; fi < frameKeys.length; fi++) {
+          var name = changjing[i].people[j].title
+          var start = frameKeys[fi].start
+          var location = frameKeys[fi].location
+          var rotate = frameKeys[fi].rotate || '1, 1'
+          var opacity = frameKeys[fi].opacity || '100'
+          fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
+          if (start && start !== changjing[i].people[j].start) {
+            fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1);
+          }
+          fl.getDocumentDOM().getTimeline().setSelectedFrames(start-1, start-1);
+          fl.getDocumentDOM().swapElement(name + '动作/' + name + '正面站姿')
+          // 修改元件名
+          var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+          fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start].elements[0]]
+          fl.getDocumentDOM().scaleSelection(+rotate.split(',')[0], +rotate.split(',')[1])
+          fl.getDocumentDOM().setInstanceAlpha(+opacity)
+          var name = fl.getDocumentDOM().selection[0].libraryItem.name
+          fl.getDocumentDOM().library.duplicateItem(name)
+          var nameArr = name.split(' 复制')
+          var newName = ''
+          if (name.indexOf(' 复制') == -1) {
+              newName = name+' 复制'
+          } else {
+              newName  = nameArr[0] + ' 复制 ' + (nameArr[1] ? (+nameArr[1] + 1) : 2)
+          }
+          fl.getDocumentDOM().swapElement(newName)
+          fl.getDocumentDOM().library.selectItem(newName);
+          fl.getDocumentDOM().library.moveToFolder('待删除');
+          fl.getDocumentDOM().library.renameItem(name+Math.random().toFixed(4))
+        }
       // 说话帧
       var frameKeys = changjing[i].people[j].sayKeys
       for (var fi = 0; fi < frameKeys.length; fi++) {
-        
           var start = frameKeys[fi].start
           var end = frameKeys[fi].end
           var name = changjing[i].people[j].title
@@ -899,6 +1001,38 @@ export default {
           fl.getDocumentDOM().selectNone();
           fl.getDocumentDOM().exitEditMode();
       }
+      // 说话间添加帧(普通)
+      var frameKeys = changjing[i].people[j].sayOrdinaryFrameKeys
+      for (var fi = 0; fi < frameKeys.length; fi++) {
+          var name = changjing[i].people[j].title
+          var start = frameKeys[fi].start
+          var location = frameKeys[fi].location
+          var rotate = frameKeys[fi].rotate || '1, 1'
+          var opacity = frameKeys[fi].opacity || '100'
+          fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
+          if (start && start !== changjing[i].people[j].start) {
+            fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1);
+          }
+          fl.getDocumentDOM().getTimeline().setSelectedFrames(start-1, start-1);
+          // 修改元件名
+          var currentLayer = fl.getDocumentDOM().getTimeline().currentLayer
+          fl.getDocumentDOM().selection = [fl.getDocumentDOM().getTimeline().layers[currentLayer].frames[start].elements[0]]
+          fl.getDocumentDOM().scaleSelection(+rotate.split(',')[0], +rotate.split(',')[1])
+          fl.getDocumentDOM().setInstanceAlpha(+opacity)
+          var name = fl.getDocumentDOM().selection[0].libraryItem.name
+          fl.getDocumentDOM().library.duplicateItem(name)
+          var nameArr = name.split(' 复制')
+          var newName = ''
+          if (name.indexOf(' 复制') == -1) {
+              newName = name+' 复制'
+          } else {
+              newName  = nameArr[0] + ' 复制 ' + (nameArr[1] ? (+nameArr[1] + 1) : 2)
+          }
+          fl.getDocumentDOM().swapElement(newName)
+          fl.getDocumentDOM().library.selectItem(newName);
+          fl.getDocumentDOM().library.moveToFolder('待删除');
+          fl.getDocumentDOM().library.renameItem(name+Math.random().toFixed(4))
+        }
     }
     // 添加场景特效
     fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict['场景特效']);
@@ -914,7 +1048,7 @@ export default {
       fl.getDocumentDOM().scaleSelection(effectsLocationDict[location][0]/curBg.width, effectsLocationDict[location][1]/curBg.height);
     }
   }
-        `;
+`;
     },
   },
   watch: {
