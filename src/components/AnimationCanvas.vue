@@ -14,6 +14,12 @@
         @change="(value) => setPeopleRotate('opacity', value)"
       ></el-input-number>
       <el-button @click="() => setPeopleRotate('rotate')">水平翻转</el-button>
+      表情<el-cascader
+        :append-to-body="false"
+        :options="peopleOptions"
+        clearable
+        @change="(value) => changeFramePeople(value)"
+      ></el-cascader>
     </div>
     <div class="canvas-container" id="canvas-container" :style="{ height }">
       <div
@@ -342,6 +348,7 @@ export default {
       selectFrame: "",
       wavesurfer: null,
       secondRate: 50,
+      peopleOptions: [],
     };
   },
   computed: {
@@ -350,6 +357,18 @@ export default {
     },
   },
   mounted() {
+    const people = [
+      { title: "普通" },
+      { title: "害怕" },
+      { title: "生气" },
+      { title: "流泪" },
+      { title: "高兴" },
+      { title: "悲伤" },
+    ];
+    this.peopleOptions = people.map((item) => ({
+      value: _.isNil(item.value) ? -1 : item.value,
+      label: item.title,
+    }));
     this.height = "400px";
     //(document.getElementById("canvas-container").offsetWidth * 9) / 16 + "px";
     const canvasHeight =
@@ -369,6 +388,10 @@ export default {
     } catch (error) {}
   },
   methods: {
+    changeFramePeople(value) {
+      if (!value) return;
+      this.setPeopleRotate("expression", value);
+    },
     stepChange(value) {
       this.secondRate = value;
     },
@@ -551,12 +574,12 @@ export default {
                     }),
                   };
                 }
-                if (type === "opacity") {
+                if (type === "opacity" || type === "expression") {
                   return {
                     ...obj,
                     frameKeys: _.map(frameKeys, (item) => {
                       if (item.id === id) {
-                        return { ...item, opacity: xRate };
+                        return { ...item, [type]: xRate };
                       }
                       return item;
                     }),
@@ -579,10 +602,10 @@ export default {
                   }`,
                 };
               }
-              if (type === "opacity") {
+              if (type === "opacity" || type === "expression") {
                 return {
                   ...obj,
-                  opacity: xRate,
+                  [type]: xRate,
                 };
               }
             }
@@ -627,13 +650,12 @@ export default {
                   }),
                 };
               }
-              if (type === "opacity") {
+              if (type === "opacity" || type === "expression") {
                 return {
                   ...item,
                   frameKeys: _.map(frameKeys, (item) => {
-                    const curRotates = (item?.rotate || "1, 1").split(",");
                     if (item.id === this.selectFrame.id) {
-                      return { ...item, opacity: xRate };
+                      return { ...item, [type]: xRate };
                     }
                     return item;
                   }),
