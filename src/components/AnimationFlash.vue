@@ -546,6 +546,9 @@ export default {
             opacity: frameKeys.length
               ? frameKeys[0].opacity
               : curChangjing.opacity,
+            expression: frameKeys.length
+              ? frameKeys[0].expression
+              : curChangjing.expression,
             frameKeys: newFrameKeys,
             ordinaryFrameKeys,
             sayOrdinaryFrameKeys,
