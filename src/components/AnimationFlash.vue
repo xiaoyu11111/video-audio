@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-form
-      v-if="isMobile"
+      v-if="show && isMobile"
       :model="dynamicValidateForm"
       ref="dynamicValidateForm"
       label-width="60px"
@@ -149,7 +149,7 @@
       </el-form-item>
     </el-form>
     <el-form
-      v-if="!isMobile"
+      v-if="show && !isMobile"
       :model="dynamicValidateForm"
       ref="dynamicValidateForm"
       label-width="60px"
@@ -329,7 +329,7 @@ const defaultAudioSettings = [
 ];
 
 export default {
-  props: ["animationTime", "isMobile", "customAudioTextTimes"],
+  props: ["animationTime", "isMobile", "customAudioTextTimes", "show"],
   components: {
     animationCanvas,
   },
@@ -562,6 +562,7 @@ export default {
       }
     },
     changeChangjingEffect(value, index, index1) {
+      console.log(index1, 'index1=====')
       const changjings = this.dynamicValidateForm.changjings;
       changjings[index].effects[index1] = value;
       this.dynamicValidateForm.changjings = [...changjings];

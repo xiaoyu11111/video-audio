@@ -42,9 +42,9 @@
     </div>
     <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 2}" disabled v-model="customAudioTextTime" placeholder="自动文字对应的时间"/>
     <div class="common-title">
-      生成动画脚本
+      生成动画脚本 <el-button @click="setShowScript">收起/展开</el-button>
     </div>
-    <animationFlash :animationTime="animationTime1" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/>
+    <animationFlash :show="show" :animationTime="animationTime1" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/>
   </div>
 </template>
 <script>
@@ -78,6 +78,7 @@ export default {
       peopleTimeArr: [],
       customAudioTextTimes: [],
       sliceTimesArr: [],
+      show: true,
     };
   },
   computed: {
@@ -186,6 +187,9 @@ export default {
     });
   },
   methods: {
+    setShowScript() {
+      this.show = !this.show
+    },
     getTextTime(canvasBarArr, allTime) {
       canvasBarArr = _.map(canvasBarArr, (item) => (item > 0 ? 1 : 0));
       const oneBarTime = allTime / canvasBarArr.length;
