@@ -528,7 +528,13 @@ export default {
             frameKeys: newFrameKeys,
             ordinaryFrameKeys,
             sayOrdinaryFrameKeys,
-            sayKeys: sayList,
+            sayKeys: _.filter(sayList, (item) => {
+              if (index === this.finalChangjings.length -1) {
+                return changjing.start <= item.start
+              } else {
+                return changjing.start <= item.start && item.start <= this.finalChangjings[index + 1].start 
+              }
+            }),
           };
         });
         return {
@@ -562,7 +568,6 @@ export default {
       }
     },
     changeChangjingEffect(value, index, index1) {
-      console.log(index1, 'index1=====')
       const changjings = this.dynamicValidateForm.changjings;
       changjings[index].effects[index1] = value;
       this.dynamicValidateForm.changjings = [...changjings];
