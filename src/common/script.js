@@ -39,6 +39,19 @@ changePersons = ['女普通10','女普通9']
    }
 }
 
+//批量切换帧
+var layers = fl.getDocumentDOM().getTimeline().layers
+var layersDict = {}
+for (var i = 0; i < layers.length - 1; i++) {
+   layersDict[layers[i].name] = i
+}
+var frames = fl.getDocumentDOM().getTimeline().layers[layersDict["胸部"]].frames
+for (var i = 0; i < frames.length - 1; i++) {
+   if (frames[i].elements[0]) {
+      frames[i].elements[0].firstFrame = 0
+   }
+}
+
 
 
 
