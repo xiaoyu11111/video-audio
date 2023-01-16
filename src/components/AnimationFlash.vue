@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-form
-      v-if="isMobile"
+      v-if="show && isMobile"
       :model="dynamicValidateForm"
       ref="dynamicValidateForm"
       label-width="60px"
@@ -149,7 +149,7 @@
       </el-form-item>
     </el-form>
     <el-form
-      v-if="!isMobile"
+      v-if="show && !isMobile"
       :model="dynamicValidateForm"
       ref="dynamicValidateForm"
       label-width="60px"
@@ -329,7 +329,7 @@ const defaultAudioSettings = [
 ];
 
 export default {
-  props: ["animationTime", "isMobile", "customAudioTextTimes"],
+  props: ["animationTime", "isMobile", "customAudioTextTimes", "show"],
   components: {
     animationCanvas,
   },
@@ -384,31 +384,7 @@ export default {
       children: location,
     }));
     const people = [
-      "乌龟",
-      "小唐",
-      "小白龙",
-      "土地",
-      "蔡文姬",
-      "大牛",
-      "男1",
-      "男2",
-      "男3",
-      "男4",
-      "男5",
-      "男6",
-      "男7",
-      "男8",
-      "男9",
-      "boy",
-      "erdan",
-      "girl",
-      "laoban",
-      "mama",
-      "meimei",
-      "女1",
-      "女2",
-      "xz",
-      "悟空",
+    '男普通1' ,'男普通2','男普通3','男普通4','男普通5','男普通6','男普通7','男普通8','男中级1','男中级2','男中级3','男中级4','男中级5','男中级6','男高级1','男高级2','男高级3','男高级4','男高级5','男高级6','女普通1','女普通2','女普通3','女普通4','女普通5','女普通6','女普通7','女普通8','女普通9','女普通10','乌龟'
     ];
     this.peopleOptions = people.map((name) => ({
       value: name,
@@ -552,7 +528,13 @@ export default {
             frameKeys: newFrameKeys,
             ordinaryFrameKeys,
             sayOrdinaryFrameKeys,
-            sayKeys: sayList,
+            sayKeys: _.filter(sayList, (item) => {
+              if (index === this.finalChangjings.length -1) {
+                return changjing.start <= item.start
+              } else {
+                return changjing.start <= item.start && item.start <= this.finalChangjings[index + 1].start 
+              }
+            }),
           };
         });
         return {
@@ -713,7 +695,8 @@ export default {
       // var changjing = ${JSON.stringify(this.finalChangjings)}
 
       return `
-// var configDir = fl.configDirectory;
+
+      // var configDir = fl.configDirectory;
   // fl.trace(fl.configDirectory)
   //fl.getDocumentDOM().scaleSelection(-1, 1);水平翻转
   var time = ${this.animationTime} // 动画时长
@@ -842,6 +825,7 @@ export default {
       var location = changjing[i].people[j].location
       var rotate = changjing[i].people[j].rotate || '1, 1'
       var opacity = changjing[i].people[j].opacity || '100'
+      var expression = changjing[i].people[j].expression
       fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
       if (start && start !== changjing[i].start) {
         fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1)
@@ -867,6 +851,20 @@ export default {
       fl.getDocumentDOM().library.selectItem(newName);
       fl.getDocumentDOM().library.moveToFolder('待删除');
       fl.getDocumentDOM().library.renameItem(name+Math.random().toFixed(4))
+      // 换表情
+      if (expression) {
+        fl.getDocumentDOM().enterEditMode('inPlace');
+        var peopleLayers = fl.getDocumentDOM().getTimeline().layers
+        var peoplelayersDict = {}
+        for (var i1 = 0; i1 < peopleLayers.length - 1; i1++) {
+          peoplelayersDict[peopleLayers[i1].name] = i1
+        }
+        fl.getDocumentDOM().getTimeline().setSelectedLayers(peoplelayersDict['xz头']);
+        fl.getDocumentDOM().getTimeline().clearKeyframes(1,10);
+        fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[1].elements[0].firstFrame = expression-1
+        fl.getDocumentDOM().selectNone();
+        fl.getDocumentDOM().exitEditMode();
+      }
       // 添加帧(传统补间)
       var frameKeys = changjing[i].people[j].frameKeys
       for (var f = 0; f < frameKeys.length; f++) {
@@ -876,6 +874,7 @@ export default {
           var location = frameKeys[f][fi].location
           var rotate = frameKeys[f][fi].rotate || '1, 1'
           var opacity = frameKeys[f][fi].opacity || '100'
+          var expression = frameKeys[f][fi].expression
           fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
           if (start && start !== changjing[i].people[j].start) {
             fl.getDocumentDOM().getTimeline().convertToBlankKeyframes(start-1);
@@ -905,6 +904,20 @@ export default {
           fl.getDocumentDOM().library.selectItem(newName);
           fl.getDocumentDOM().library.moveToFolder('待删除');
           fl.getDocumentDOM().library.renameItem(name+Math.random().toFixed(4))
+          // 换表情
+          if (expression) {
+            fl.getDocumentDOM().enterEditMode('inPlace');
+            var peopleLayers = fl.getDocumentDOM().getTimeline().layers
+            var peoplelayersDict = {}
+            for (var i1 = 0; i1 < peopleLayers.length - 1; i1++) {
+              peoplelayersDict[peopleLayers[i1].name] = i1
+            }
+            fl.getDocumentDOM().getTimeline().setSelectedLayers(peoplelayersDict['xz头']);
+            fl.getDocumentDOM().getTimeline().clearKeyframes(1,10);
+            fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[1].elements[0].firstFrame = expression-1
+            fl.getDocumentDOM().selectNone();
+            fl.getDocumentDOM().exitEditMode();
+          }
         }
       }
       // 添加帧(普通)
@@ -915,6 +928,7 @@ export default {
           var location = frameKeys[fi].location
           var rotate = frameKeys[fi].rotate || '1, 1'
           var opacity = frameKeys[fi].opacity || '100'
+          var expression = frameKeys[fi].expression
           fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
           if (start && start !== changjing[i].people[j].start) {
             fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1);
@@ -939,6 +953,20 @@ export default {
           fl.getDocumentDOM().library.selectItem(newName);
           fl.getDocumentDOM().library.moveToFolder('待删除');
           fl.getDocumentDOM().library.renameItem(name+Math.random().toFixed(4))
+          // 换表情
+          if (expression) {
+            fl.getDocumentDOM().enterEditMode('inPlace');
+            var peopleLayers = fl.getDocumentDOM().getTimeline().layers
+            var peoplelayersDict = {}
+            for (var i1 = 0; i1 < peopleLayers.length - 1; i1++) {
+              peoplelayersDict[peopleLayers[i1].name] = i1
+            }
+            fl.getDocumentDOM().getTimeline().setSelectedLayers(peoplelayersDict['xz头']);
+            fl.getDocumentDOM().getTimeline().clearKeyframes(1,10);
+            fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[1].elements[0].firstFrame = expression-1
+            fl.getDocumentDOM().selectNone();
+            fl.getDocumentDOM().exitEditMode();
+          }
         }
       // 说话帧
       var frameKeys = changjing[i].people[j].sayKeys
@@ -1012,6 +1040,8 @@ export default {
           var location = frameKeys[fi].location
           var rotate = frameKeys[fi].rotate || '1, 1'
           var opacity = frameKeys[fi].opacity || '100'
+          var expression = frameKeys[fi].expression
+          
           fl.getDocumentDOM().getTimeline().setSelectedLayers(layersDict[name +"人物"]);
           if (start && start !== changjing[i].people[j].start) {
             fl.getDocumentDOM().getTimeline().convertToKeyframes(start-1);
@@ -1035,6 +1065,22 @@ export default {
           fl.getDocumentDOM().library.selectItem(newName);
           fl.getDocumentDOM().library.moveToFolder('待删除');
           fl.getDocumentDOM().library.renameItem(name+Math.random().toFixed(4))
+          // 换表情
+          if (expression) {
+            fl.getDocumentDOM().enterEditMode('inPlace');
+            var peopleLayers = fl.getDocumentDOM().getTimeline().layers
+            var peoplelayersDict = {}
+            for (var i1 = 0; i1 < peopleLayers.length - 1; i1++) {
+              peoplelayersDict[peopleLayers[i1].name] = i1
+            }
+            fl.getDocumentDOM().getTimeline().setSelectedLayers(peoplelayersDict['xz头']);
+            fl.getDocumentDOM().getTimeline().clearKeyframes(1,10);
+            fl.getDocumentDOM().getTimeline().convertToKeyframes(5);
+            fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[1].elements[0].firstFrame = expression-1
+            fl.getDocumentDOM().getTimeline().layers[peoplelayersDict['xz头']].frames[5].elements[0].firstFrame = expression
+            fl.getDocumentDOM().selectNone();
+            fl.getDocumentDOM().exitEditMode();
+          }
         }
     }
     // 添加场景特效

@@ -10,7 +10,7 @@
       <el-input-number
         :min="0"
         :max="100"
-        :value="100"
+        :value="selectFrame.opacity"
         @change="(value) => setPeopleRotate('opacity', value)"
       ></el-input-number>
       <el-button @click="() => setPeopleRotate('rotate')">水平翻转</el-button>
@@ -18,6 +18,7 @@
         :append-to-body="false"
         :options="peopleOptions"
         clearable
+        :value="selectFrame.expression"
         @change="(value) => changeFramePeople(value)"
       ></el-cascader>
     </div>
@@ -358,15 +359,34 @@ export default {
   },
   mounted() {
     const people = [
-      { title: "普通" },
+      { title: "普通", value: 1 },
+      { title: "疑惑", value: 13 },
+      { title: "疑惑1", value: 11 },
+      { title: "流泪", value: 25 },
+      { title: "流泪1", value: 5 },
+      { title: "流血", value: 29 },
+      { title: "流血1", value: 33 },
+      { title: "惊讶", value: 39 },
+      { title: "惊讶1", value: 41 },
+      { title: "惊讶2", value: 53 },
+      { title: "无语", value: 57 },
+      { title: "无语1", value: 65 },
+      { title: "害怕", value: 49 },
       { title: "害怕", value: 49 },
       { title: "生气", value: 149 },
-      { title: "流泪", value: 189 },
+      { title: "生气1", value: 147 },
+      { title: "生气2", value: 155 },
+      { title: "生气3", value: 15 },
       { title: "高兴", value: 81 },
+      { title: "高兴1", value: 85 },
+      { title: "高兴1", value: 91 },
+      { title: "高兴2", value: 95 },
+      { title: "高兴3", value: 101 },
       { title: "悲伤", value: 169 },
+      { title: "悲伤1", value: 35 },
     ];
     this.peopleOptions = people.map((item) => ({
-      value: _.isNil(item.value) ? -1 : item.value,
+      value: item.value,
       label: item.title,
     }));
     this.height = "400px";
@@ -389,8 +409,8 @@ export default {
   },
   methods: {
     changeFramePeople(value) {
-      if (!value) return;
-      this.setPeopleRotate("expression", value);
+      if (!value?.length) return;
+      this.setPeopleRotate("expression", value?.[0]);
     },
     stepChange(value) {
       this.secondRate = value;

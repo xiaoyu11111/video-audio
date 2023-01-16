@@ -87,6 +87,7 @@ export default {
       peopleTimeArr: [],
       customAudioTextTimes: [],
       sliceTimesArr: [],
+      show: true,
     };
   },
   computed: {
@@ -215,6 +216,9 @@ export default {
     });
   },
   methods: {
+    setShowScript() {
+      this.show = !this.show;
+    },
     getTextTime(canvasBarArr, allTime) {
       canvasBarArr = _.map(canvasBarArr, (item) => (item > 0 ? 1 : 0));
       const oneBarTime = allTime / canvasBarArr.length;
