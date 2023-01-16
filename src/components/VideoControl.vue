@@ -30,10 +30,18 @@
     <div id="waveform"></div>
     <div id="wave-timeline"></div>
     <div class="common-title">
+        输入设计的文案
+      </div>
+      <el-input type="textarea" :autosize="{ minRows: 6}" v-model="customAudioText1" placeholder="输入设计的文案"/>
+       <div class="common-title">
+        格式化的文案，可以配合剪映生成srt文件
+      </div>
+      <el-input type="textarea" :autosize="{ minRows: 6}" v-model="customAudioText1Srt" placeholder="输入语音对应的文字"/>
+    <div class="common-title">
       <el-button @click="getAudioText()">语音转文字</el-button>
     </div>
     <el-input v-if="audioText" type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="audioText" disabled />
-    <div class="common-title">
+    <!-- <div class="common-title">
       输入语音对应的文字(行数：{{textLines}})
     </div>
     <el-input type="textarea" :autosize="{ minRows: 6}" v-model="customAudioText" placeholder="输入语音对应的文字"/>
@@ -43,8 +51,8 @@
     <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 2}" disabled v-model="customAudioTextTime" placeholder="自动文字对应的时间"/>
     <div class="common-title">
       生成动画脚本
-    </div>
-    <animationFlash :animationTime="animationTime1" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/>
+    </div> -->
+    <!-- <animationFlash :animationTime="animationTime1" :isMobile="isMobile" :customAudioTextTimes="customAudioTextTimes"/> -->
   </div>
 </template>
 <script>
@@ -74,6 +82,7 @@ export default {
       curPlayingTime: 0,
       audioRate: 1,
       customAudioText: "",
+      customAudioText1: "",
       textLines: 0, // 行数
       peopleTimeArr: [],
       customAudioTextTimes: [],
@@ -81,6 +90,26 @@ export default {
     };
   },
   computed: {
+    customAudioText1Srt() {
+      localStorage.setItem("customAudioText1", this.customAudioText1);
+      const str = this.customAudioText1
+        .replace(/[,|，]/gi, ",")
+        .replace(/[:|：]/gi, ":")
+        .replace(/[)|）]/gi, ")")
+        .split("\n")
+        .filter((item) => item)
+        .map((str) => {
+          if (str.includes(":")) {
+            return str.split(":")[1].trim();
+          } else if (str.includes(")")) {
+            return str.split(")")[1].trim();
+          } else {
+            return str.trim();
+          }
+        })
+        .join("\n");
+      return str;
+    },
     customAudioTextTime() {
       localStorage.setItem("customAudioText", this.customAudioText);
       const data = this.customAudioText
