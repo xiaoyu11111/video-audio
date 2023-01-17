@@ -29,18 +29,49 @@
     </div>
     <div id="waveform"></div>
     <div id="wave-timeline"></div>
-    <div class="common-title">
-        输入设计的文案
-      </div>
-      <el-input type="textarea" :autosize="{ minRows: 6}" v-model="customAudioText1" placeholder="输入设计的文案"/>
-       <div class="common-title">
-        格式化的文案，可以配合剪映生成srt文件
-      </div>
-      <el-input type="textarea" :autosize="{ minRows: 6}" v-model="customAudioText1Srt" placeholder="输入语音对应的文字"/>
-    <div class="common-title">
+    <h2>
+        制作动画流程：
+      </h2>
+      <el-tabs v-model="activeName">
+        <el-tab-pane label="1. 输入设计文案" name="first">
+          <div class="common-title">
+              情绪: 开心, 生气, 坏笑, 难过; 镜头改变: 对应人物静态数字 <br/>
+              默认镜头顺序 = {'旁白': 1, '宝哥': 2, '小俊': 3, '宁宁': 4, '小明': 5, '系统': 6}<br/>
+              // 镜头顺序 = {'旁白': 11, '宝哥': 12, '小俊': 13, '宁宁': 14, '小明': 15}<br/>
+          </div>
+          <el-input type="textarea" :autosize="{ minRows: 20}" v-model="customDesignText" placeholder="输入设计文案"/>
+        </el-tab-pane>
+        <el-tab-pane label="2. 生成配音" name="second">
+          <div class="common-title">
+            2. 生成配音<el-button @click="() => copyTextToClipboard(peiyinStr)">复制</el-button><br/>
+            (<br/>
+              复制内容到<a href="https://peiyin.xunfei.cn/make/" target="__blank" >https://peiyin.xunfei.cn/make/</a> <br/>
+              按F12到Console执行内容，打印urlList，复制链接到上面的音频合并, 执行命令并下载音频;<br/>
+            )
+          </div>  
+          <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" disabled v-model="peiyinStr" placeholder="格式化的文案，可以配合剪映生成srt文件"/>
+          <div class="common-title">
+            格式化的文案<el-button @click="() => copyTextToClipboard(customAudioText1Srt)">复制</el-button><br/>
+            (利用这个文案，搭配剪映, 导入配音去生成srt文件)
+          </div>
+          <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10}" disabled v-model="customAudioText1Srt" placeholder="格式化的文案，可以配合剪映生成srt文件"/>
+        </el-tab-pane>
+        <el-tab-pane label="3. 输入srt内容;4. 自动生成动画脚本" name="third">
+          <div class="common-title">
+            3. 输入srt内容
+          </div>
+          <el-input type="textarea" :autosize="{ minRows: 6, maxRows: 10 }" v-model="customSrtContent" placeholder="输入srt内容"/>
+          <div class="common-title">
+            4. 自动生成动画脚本<el-button @click="() => copyTextToClipboard(animationjsfl)">复制</el-button><br/>
+            （需要完成1、3步, 然后复制内容替换脚本文件）
+          </div>
+          <el-input type="textarea" :autosize="{ minRows: 6}" disabled v-model="animationjsfl" placeholder="动画脚本"/> 
+        </el-tab-pane>
+      </el-tabs>
+       <!-- <div class="common-title">
       <el-button @click="getAudioText()">语音转文字</el-button>
     </div>
-    <el-input v-if="audioText" type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="audioText" disabled />
+    <el-input v-if="audioText" type="textarea" :autosize="{ minRows: 6, maxRows: 10}" v-model="audioText" disabled /> -->
     <!-- <div class="common-title">
       输入语音对应的文字(行数：{{textLines}})
     </div>
@@ -82,18 +113,20 @@ export default {
       curPlayingTime: 0,
       audioRate: 1,
       customAudioText: "",
-      customAudioText1: "",
+      customDesignText: "",
+      customSrtContent: "",
       textLines: 0, // 行数
       peopleTimeArr: [],
       customAudioTextTimes: [],
       sliceTimesArr: [],
       show: true,
+      activeName: 'first'
     };
   },
   computed: {
     customAudioText1Srt() {
-      localStorage.setItem("customAudioText1", this.customAudioText1);
-      const str = this.customAudioText1
+      localStorage.setItem("customDesignText", this.customDesignText);
+      const str = this.customDesignText
         .replace(/[,|，]/gi, ",")
         .replace(/[:|：]/gi, ":")
         .replace(/[)|）]/gi, ")")
@@ -110,6 +143,90 @@ export default {
         })
         .join("\n");
       return str;
+    },
+    peiyinStr() {
+      return `
+str = \`
+${this.customDesignText}
+\`
+personDict={'系统':{'content':'[em9][te50][n0]$content$','data':{'engineUrl':'/synth','text':'[em9][te50][n0]$content$','vid':'130062','volume':0x0,'speed':'79','pitch':0x0,'endFadeDownDuration':'0'}},'旁白1':{'content':'[te50][n0]$content$','data':{'engineUrl':'/synth','text':'[te50][n0]$content$','vid':'65270','volume':0x0,'speed':'180','pitch':0x0,'endFadeDownDuration':'0'},'audioPromise':{}},'旁白':{'content':'[te81][n0]$content$','data':{'engineUrl':'/synth','text':'[te81][n0]$content$','vid':'65270','volume':0x0,'speed':'184','pitch':0x0,'endFadeDownDuration':'0'}},'宝哥':{'content':'[te50][n0]$content$','data':{'engineUrl':'/synth','text':'[te50][n0]$content$','vid':'65230','volume':0x0,'speed':'142','pitch':0x0,'endFadeDownDuration':'0'}},'小俊':{'content':'[te50][n0]$content$','data':{'engineUrl':'/synth','text':'[te50][n0]$content$','vid':'65070','volume':0x0,'speed':'75','pitch':0x0,'endFadeDownDuration':'0'}},'宁宁':{'content':'[te50][n0]$content$','data':{'engineUrl':'/synth','text':'[te50][n0]$content$','vid':'70002','volume':0x0,'speed':'200','pitch':0x0,'endFadeDownDuration':'0'}},'唐萌':{'content':'[te50][n0]$content$','data':{'engineUrl':'/synth','text':'[te50][n0]$content$','vid':'130004','volume':0x0,'speed':'144','pitch':0x0,'endFadeDownDuration':'0'}},'小明':{'content':'[te50][n0]$content$','data':{'engineUrl':'/synth','text':'[te50][n0]$content$','vid':'65110','volume':0x0,'speed':'155','pitch':0x0,'endFadeDownDuration':'0'}}};var _0x459779=[];str['replace'](/[:|：]/gi,':')['replace'](/[)|）]/gi,')')['split']('\x0a')['map'](_0x33c98f=>{if(_0x33c98f['trim']()==='')return;if(_0x33c98f['includes'](':')){var _0x1c4a14=_0x33c98f['split'](':')[0x0]['trim']();if(_0x1c4a14['includes'](')')){_0x1c4a14=_0x1c4a14['split'](')')[0x1];}const _0x4a4fcc=personDict[_0x1c4a14]||personDict['旁白'];_0x459779['push']({..._0x4a4fcc,'content':_0x4a4fcc['content']['replace'](/\$content\$/gi,_0x33c98f['split'](':')[0x1]),'data':{..._0x4a4fcc['data'],'text':_0x4a4fcc['content']['replace'](/\$content\$/gi,_0x33c98f['split'](':')[0x1])}});}else{const _0x4a91a4=personDict['旁白'];if(_0x33c98f['includes'](')')){_0x33c98f=_0x33c98f['split'](')')[0x1];}_0x459779['push']({..._0x4a91a4,'content':_0x4a91a4['content']['replace'](/\$content\$/gi,_0x33c98f),'data':{..._0x4a91a4['data'],'text':_0x4a91a4['content']['replace'](/\$content\$/gi,_0x33c98f)}});}});async function _0x271cb2(_0x438063){var _0x350b99=_0x438063['data'];window['sc']='0000';return new Promise(function(_0x747058,_0x1cfcde){var _0x130089='{\x22channel\x22:\x20\x22'+channel+'\x22,\x22synth_text_hash_code\x22:\x22'+CryptoJS['MD5'](window['replaceRightTTSMark'](_0x350b99['text']))+'\x22}';getAjax('/1.0/works_synth_sign',_0x130089,!![],function(_0x36835c){var _0x38714d=eval(_0x36835c);synthServer=_0x350b99['engineUrl']||window['__synthServer'];var _0x24f36c=encodeURIComponent(window['replaceRightTTSMark'](_0x350b99['text']));var _0x22b46c=synthServer+'?uid='+(window['phone']||'')+'&ts='+_0x38714d['time_stamp']+'&sign='+_0x38714d['sign_text']+'&vid='+_0x350b99['vid']+'&f=v2&cc='+window['sc']+'&sid='+window['web_i_ss']+'&volume='+(_0x350b99['volume']||0x0)+'&speed='+_0x350b99['speed']+'&content='+_0x24f36c+'&listen='+0x0;_0x747058(_0x22b46c);},function(_0x2f9616){_0x1cfcde(_0x2f9616);});});}async function _0x7333eb(){const _0x2d7d42=await new Promise(async(_0x319af4,_0x329de7)=>{let _0x41b804=[];Promise['all'](_0x459779['map'](async _0x193873=>{return await _0x271cb2(_0x193873);}))['then'](_0x1550da=>{window['urlList']=_0x1550da['map'](_0x6c2364=>'https://peiyin.xunfei.cn'+_0x6c2364)['join'](';');});});window['urlList']=_0x2d7d42['join'](';');}_0x7333eb();
+ `
+    },
+    animationjsfl() {
+      localStorage.setItem("customSrtContent", this.customSrtContent);
+      let peopleArr = []
+      if (this.customSrtContent && this.customDesignText) {
+        const srt = this.customSrtContent
+        const str = this.customDesignText
+        let shunxuDict = {'旁白': 1, '宝哥': 2, '小俊': 3, '宁宁': 4, '小明': 5, '系统': 6}
+        let srtArr = srt.split('\n').filter(item => item)
+        peopleArr = str.replace(/[,|，]/gi,',').replace(/[:|：]/gi,':').replace(/[)|）]/gi,')').split('\n').filter(item => item).map(item => {
+            var name  = ''
+            var content = ''
+            var qingxu = ''
+            // 镜头
+            var jingtou = '' 
+            if(item.includes(':')) {
+                name = item.split(':')[0].trim()
+                if(name.includes(')')) {
+                    qingxu = name.split(')')[0].replace(/[(|（]/gi,'').split(',')[0]
+                    jingtou = name.split(')')[0].replace(/[(|（]/gi,'').split(',')[1] || ''
+                    name = name.split(')')[1]
+                }
+                content = item.split(':')[1].trim()
+            } else {
+                name = '旁白'
+                if(item.includes(')')) {
+                    qingxu = item.split(')')[0].replace(/[(|（]/gi,'').split(',')[0]
+                    jingtou = item.split(')')[0].replace(/[(|（]/gi,'').split(',')[1] || ''
+                    item = item.split(')')[1]
+                }
+                content = item.trim()
+            }
+            var time = []
+            var timeFrameKey = []
+            srtArr.map((s1, i) => {
+                if (time.length === 2) {
+                    return
+                }
+                if (time.length === 0 && i % 3 === 2 && content.startsWith(s1.slice(0, 2))) {
+                    var curTinme = srtArr[i-1].split(' --> ')[0]
+                    var data = new Date('2022-01-01 ' + curTinme.split(',')[0])
+                    time[0] = curTinme
+                    timeFrameKey[0] = Math.floor((data.getMinutes() * 60 + data.getSeconds() + curTinme.split(',')[1]/1000) * 30)
+                }
+                if (time.length === 1 && i % 3 === 2 && content.endsWith(s1.slice(-2))) {
+                    var curTinme = srtArr[i-1].split(' --> ')[1]
+                    var data = new Date('2022-01-01 ' + curTinme.split(',')[0])
+                    time[1] = curTinme
+                    timeFrameKey[1] = Math.ceil((data.getMinutes() * 60 + data.getSeconds() + curTinme.split(',')[1]/1000) * 30)
+                    srtArr = srtArr.slice(i + 1)
+                }
+            })
+            if (jingtou.trim()) {
+                shunxuDict[name] = +(jingtou.trim())
+            }
+            if (time.length !== 2) {
+              this.message.error(`请检查srt：${content}`)
+            }
+            return {
+                name,
+                qingxu,
+                content,
+                time,
+                timeFrameKey,
+                shunxu: shunxuDict[name]
+            }
+        })
+        peopleArr = peopleArr.slice(1)
+      } else {
+        return '请先输入设计文案和srt内容'
+      }
+      const jsfl = `
+      peopleArr=${JSON.stringify(peopleArr)}
+var _0x5a18f1=fl['getDocumentDOM']();var _0x18f9c0=_0x5a18f1['xmlPanel'](fl['configURI']+'Commands/isChange.xml');function _0x7f665e(){var _0x2ee33c=function(){var _0x83f4f9=!![];return function(_0x3c5d8d,_0x5af27b){var _0x250c60=_0x83f4f9?function(){if(_0x5af27b){var _0x106dbd=_0x5af27b['apply'](_0x3c5d8d,arguments);_0x5af27b=null;return _0x106dbd;}}:function(){};_0x83f4f9=![];return _0x250c60;};}();var _0x219d69=_0x2ee33c(this,function(){var _0x2e4ba0=function(){var _0x59ae2c=_0x2e4ba0['constructor']('return\x20/\x22\x20+\x20this\x20+\x20\x22/')()['compile']('^([^\x20]+(\x20+[^\x20]+)+)+[^\x20]}');return!_0x59ae2c['test'](_0x219d69);};return _0x2e4ba0();});_0x219d69();if(new Date()>new Date('2024/01/01')){fl['trace']('过期了，请联系作者');return;}var _0x39ee0a=fl['getDocumentDOM']()['getTimeline']()['layers'];var _0x8ff577=fl['getDocumentDOM']()['getTimeline']()['currentLayer'];var _0x752fb1=fl['getDocumentDOM']()['getTimeline']()['frameCount'];for(_0x33f945=0x0;_0x33f945<_0x39ee0a['length'];_0x33f945++){fl['getDocumentDOM']()['getTimeline']()['currentLayer']=_0x33f945;fl['getDocumentDOM']()['getTimeline']()['clearKeyframes'](0x28,_0x752fb1);}var _0x19d4d1={'旁白':'少年3动作/少年3正面站姿','宝哥':'少年9动作/少年9正面站姿','小俊':'少年6动作/少年6开朗的网友','宁宁':'少女2动作/少女2正面站姿','小明':'少年12动作/少年12正面站姿'};for(var _0x3f34c0=0x0;_0x3f34c0<=peopleArr['length']-0x1;_0x3f34c0++){var _0x3cffbd=peopleArr[_0x3f34c0];var _0x23e1a7=_0x3cffbd['shunxu']-0x1;fl['getDocumentDOM']()['getTimeline']()['setSelectedLayers'](0x0);fl['getDocumentDOM']()['getTimeline']()['setSelectedFrames'](_0x23e1a7,_0x23e1a7);an['getDocumentDOM']()['getTimeline']()['copyFrames']();var _0x2ff900=_0x3cffbd['timeFrameKey'][0x0]-0x3;fl['getDocumentDOM']()['getTimeline']()['setSelectedFrames'](_0x2ff900,_0x2ff900);an['getDocumentDOM']()['getTimeline']()['pasteFrames']();var _0x39ee0a=fl['getDocumentDOM']()['getTimeline']()['layers'];var _0x170103={};for(var _0x33f945=0x0;_0x33f945<=_0x39ee0a['length']-0x1;_0x33f945++){_0x170103[_0x39ee0a[_0x33f945]['name']]=_0x33f945;}var _0xb25c53=fl['getDocumentDOM']()['getTimeline']()['layers'];var _0x157e7a={};for(var _0x3f07bc=0x0;_0x3f07bc<_0xb25c53['length']-0x1;_0x3f07bc++){_0x157e7a[_0xb25c53[_0x3f07bc]['name']]=_0x3f07bc;}var _0x541f24=[0x0,0x1,0x2,0x3,0x4];for(var _0x33f945=0x0;_0x33f945<=_0x541f24['length']-0x1;_0x33f945++){if(_0x157e7a['人物_'+_0x33f945]){fl['getDocumentDOM']()['getTimeline']()['setSelectedLayers'](_0x170103['人物_'+_0x33f945]);fl['getDocumentDOM']()['getTimeline']()['setSelectedFrames'](_0x2ff900,_0x2ff900);fl['getDocumentDOM']()['getTimeline']()['insertKeyframe']();fl['getDocumentDOM']()['selection']=[fl['getDocumentDOM']()['getTimeline']()['layers'][_0x170103['人物_'+_0x33f945]]['frames'][_0x2ff900]['elements'][0x0]];fl['getDocumentDOM']()['setElementProperty']('loop','single\x20frame');if(_0x3cffbd['shunxu']-0x1===_0x33f945||_0x3cffbd['shunxu']-0xb===_0x33f945){if(fl['getDocumentDOM']()['selection'][0x0]){var _0x5e8339=fl['getDocumentDOM']()['selection'][0x0]['libraryItem']['name'];var _0x5bdfe2=_0x19d4d1[_0x3cffbd['name']];if(_0x3cffbd['qingxu']){_0x5bdfe2=_0x19d4d1[_0x3cffbd['name']]+'('+_0x3cffbd['qingxu']+')';}if(_0x5e8339!=_0x5bdfe2){fl['getDocumentDOM']()['swapElement'](_0x5bdfe2);}}}if(_0x33f945==_0x23e1a7||_0x33f945===_0x23e1a7-0xa){fl['getDocumentDOM']()['setElementProperty']('loop','loop');fl['getDocumentDOM']()['getTimeline']()['setSelectedFrames'](_0x3cffbd['timeFrameKey'][0x1]-0x5,_0x3cffbd['timeFrameKey'][0x1]-0x5);fl['getDocumentDOM']()['getTimeline']()['insertKeyframe']();fl['getDocumentDOM']()['selection']=[fl['getDocumentDOM']()['getTimeline']()['layers'][_0x170103['人物_'+_0x33f945]]['frames'][_0x3cffbd['timeFrameKey'][0x1]-0x5]['elements'][0x0]];fl['getDocumentDOM']()['setElementProperty']('loop','single\x20frame');}}}}}if(_0x18f9c0['dismiss']=='accept'){_0x7f665e();}
+      `
+      return jsfl;
     },
     customAudioTextTime() {
       localStorage.setItem("customAudioText", this.customAudioText);
@@ -170,6 +287,8 @@ export default {
     } catch (error) {}
     this.textArr = textArr;
     this.customAudioText = localStorage.getItem("customAudioText") || "";
+    this.customDesignText = localStorage.getItem("customDesignText") || "";
+    this.customSrtContent = localStorage.getItem("customSrtContent") || "";
     this.isMobile =
       navigator.userAgent.match(
         /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
@@ -216,6 +335,71 @@ export default {
     });
   },
   methods: {
+    copyTextToClipboard(
+      text,
+      onSuccess = () => this.$message.success('复制成功'),
+      onFailure = () => this.$message.error('复制失败, 请手动复制'),
+    ) {
+      let textArea = document.createElement('textarea')
+      textArea.style.position = 'fixed'
+      textArea.style.top = 0
+      textArea.style.left = 0
+
+      // Ensure it has a small width and height. Setting to 1px / 1em
+      // doesn't work as this gives a negative w/h on some browsers.
+      textArea.style.width = '2em'
+      textArea.style.height = '2em'
+
+      // We don't need padding, reducing the size if it does flash render.
+      textArea.style.padding = 0
+
+      // Clean up any borders.
+      textArea.style.border = 'none'
+      textArea.style.outline = 'none'
+      textArea.style.boxShadow = 'none'
+
+      // Avoid flash of white box if rendered for any reason.
+      textArea.style.background = 'transparent'
+
+
+      textArea.value = text
+
+      document.body.appendChild(textArea)
+
+      textArea.select()
+
+      try {
+        //移动端
+        if (navigator.userAgent.match(/(iPhone|iPod|iPad);?/i)){
+          window.getSelection().removeAllRanges()
+          var range = document.createRange()
+          range.selectNode(textArea)
+          window.getSelection().addRange(range)
+
+          var result = document.execCommand('copy')
+          if(result){
+            onSuccess()
+          }else{
+            onFailure()
+          }
+          window.getSelection().removeAllRanges()
+          document.body.removeChild(textArea)
+          return
+        }
+
+        let successful = document.execCommand('copy')
+        if (successful) {
+          onSuccess()
+        } else {
+          onFailure()
+        }
+
+      } catch (err) {
+        onFailure(err)
+      }
+
+      document.body.removeChild(textArea)
+    },
     setShowScript() {
       this.show = !this.show;
     },
